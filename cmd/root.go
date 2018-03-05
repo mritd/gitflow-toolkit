@@ -25,6 +25,7 @@ import (
 	"os"
 
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/mritd/gitflow-toolkit/pkg/ci"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -40,7 +41,7 @@ var rootCmd = &cobra.Command{
 change log 生成等功能`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) { ci.InputBody() },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

@@ -40,13 +40,14 @@ var ciCmd = &cobra.Command{
 
 该格式来源于 Angular 社区提交规范`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cm := ci.SelectCommitType()
+		cm := &ci.CommitMessage{}
+		cm.Type = ci.SelectCommitType()
 		cm.Scope = ci.InputScope()
 		cm.Subject = ci.InputSubject()
 		cm.Body = ci.InputBody()
 		cm.Footer = ci.InputFooter()
 		cm.Sob = ci.GenSOB()
-		ci.Commit(&cm)
+		ci.Commit(cm)
 	},
 }
 

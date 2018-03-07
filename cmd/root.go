@@ -24,8 +24,7 @@ import (
 	"fmt"
 	"os"
 
-	homedir "github.com/mitchellh/go-homedir"
-	"github.com/mritd/gitflow-toolkit/pkg/ci"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -41,7 +40,7 @@ var rootCmd = &cobra.Command{
 change log 生成等功能`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	Run: func(cmd *cobra.Command, args []string) { ci.InputBody() },
+	Run: func(cmd *cobra.Command, args []string) {},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -59,13 +58,13 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gitflow-toolkit.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "consts", "", "consts file (default is $HOME/.gitflow-toolkit.yaml)")
 }
 
-// initConfig reads in config file and ENV variables if set.
+// initConfig reads in consts file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
+		// Use consts file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
 		// Find home directory.
@@ -75,15 +74,15 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".gitflow-toolkit" (without extension).
+		// Search consts in home directory with name ".gitflow-toolkit" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".gitflow-toolkit")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If a config file is found, read it in.
+	// If a consts file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		fmt.Println("Using consts file:", viper.ConfigFileUsed())
 	}
 }

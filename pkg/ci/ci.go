@@ -1,14 +1,32 @@
 package ci
 
 import (
-	"github.com/mritd/gitflow-toolkit/pkg/config"
+	"errors"
+	"github.com/mritd/gitflow-toolkit/pkg/consts"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
+	"github.com/mritd/promptui"
 	"gopkg.in/AlecAivazis/survey.v1"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"text/template"
 )
+
+type CommitTypeMessage struct {
+	Type          consts.CommitType
+	ZHDescription string
+	ENDescription string
+}
+
+type CommitMessage struct {
+	Type    consts.CommitType
+	Scope   string
+	Subject string
+	Body    string
+	Footer  string
+	Sob     string
+}
 
 // 检查当前位置是否为 git 项目
 func CheckGitProject() bool {
@@ -16,64 +34,141 @@ func CheckGitProject() bool {
 }
 
 // 选择提交类型
-func SelectCommitType() config.CommitMessage {
-	cm := config.CommitMessage{}
-	prompt := &survey.Select{
-		Message: "请选择提交类型:",
-		Options: []string{
-			config.COMMIT_TYPE_MSG_FEAT,
-			config.COMMIT_TYPE_MSG_FIX,
-			config.COMMIT_TYPE_MSG_DOCS,
-			config.COMMIT_TYPE_MSG_STYLE,
-			config.COMMIT_TYPE_MSG_REFACTOR,
-			config.COMMIT_TYPE_MSG_TEST,
-			config.COMMIT_TYPE_MSG_CHORE,
-			config.COMMIT_TYPE_MSG_PERF,
-			config.COMMIT_TYPE_MSG_EXIT,
-		},
-		Default:  config.COMMIT_TYPE_MSG_FEAT,
-		PageSize: 9,
+func SelectCommitType() consts.CommitType {
+
+	commitTypes := []CommitTypeMessage{
+		{Type: consts.FEAT, ZHDescription: "新功能", ENDescription: "Introducing new features"},
+		{Type: consts.FIX, ZHDescription: "修复 Bug", ENDescription: "Bug fix"},
+		{Type: consts.DOCS, ZHDescription: "添加文档", ENDescription: "Writing docs"},
+		{Type: consts.STYLE, ZHDescription: "调整格式", ENDescription: "Improving structure/format of the code"},
+		{Type: consts.REFACTOR, ZHDescription: "重构代码", ENDescription: "Refactoring code"},
+		{Type: consts.TEST, ZHDescription: "增加测试", ENDescription: "When adding missing tests"},
+		{Type: consts.CHORE, ZHDescription: "CI/CD 变动", ENDescription: "Changing CI/CD"},
+		{Type: consts.PERF, ZHDescription: "性能优化", ENDescription: "Improving performance"},
+		{Type: consts.EXIT, ZHDescription: "退出", ENDescription: "Exit commit"},
 	}
-	err := survey.AskOne(prompt, &cm, nil)
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "❯ {{ .Type | cyan }} ({{ .ENDescription | cyan }})",
+		Inactive: "  {{ .Type | white }} ({{ .ENDescription | white }})",
+		Selected: "{{ \"❯ Type\" | green }}: {{ .Type }}",
+		Details: `
+--------- Commit Type ----------
+{{ "Type:" | faint }}	{{ .Type }}
+{{ "Description:" | faint }}	{{ .ZHDescription }}({{ .ENDescription }})`,
+	}
+
+	searcher := func(input string, index int) bool {
+		commitType := commitTypes[index]
+		cmType := strings.Replace(strings.ToLower(string(commitType.Type)), " ", "", -1)
+		input = strings.Replace(strings.ToLower(input), " ", "", -1)
+
+		return strings.Contains(cmType, input)
+	}
+
+	prompt := promptui.Select{
+		Label:     "Select Commit Type:",
+		Items:     commitTypes,
+		Templates: templates,
+		Size:      9,
+		Searcher:  searcher,
+	}
+	i, _, err := prompt.Run()
 	util.CheckAndExit(err)
-	return cm
+
+	return commitTypes[i].Type
 }
 
 // 输入影响范围
 func InputScope() string {
-	scope := ""
-	prompt := &survey.Input{
-		Message: "请输入本次提交影响范围:",
+
+	validate := func(input string) error {
+		reg := regexp.MustCompile("\\s+")
+		if input == "" || reg.ReplaceAllString(input, "") == "" {
+			return errors.New("scope is blank")
+		}
+		return nil
 	}
-	err := survey.AskOne(prompt, &scope, nil)
+
+	templates := &promptui.PromptTemplates{
+		Prompt:  "{{ . }} ",
+		Valid:   "{{ . | green }} ",
+		Invalid: "{{ . | red }} ",
+		Success: "{{ . | bold }} ",
+	}
+
+	prompt := promptui.Prompt{
+		Label:     "❯ Scope:",
+		Templates: templates,
+		Validate:  validate,
+	}
+
+	result, err := prompt.Run()
 	util.CheckAndExit(err)
-	return scope
+	return result
 
 }
 
 // 输入提交主题
 func InputSubject() string {
-	subject := ""
-	prompt := &survey.Input{
-		Message: "请输入本次提交简短描述(不能超过 50 个字):",
+
+	validate := func(input string) error {
+		reg := regexp.MustCompile("\\s+")
+		if input == "" || reg.ReplaceAllString(input, "") == "" {
+			return errors.New("subject is blank")
+		}
+		if r := []rune(input); len(r) > 50 {
+			return errors.New("subject too long")
+		}
+
+		return nil
 	}
-	err := survey.AskOne(prompt, &subject, nil)
+
+	templates := &promptui.PromptTemplates{
+		Prompt:  "{{ . }} ",
+		Valid:   "{{ . | green }} ",
+		Invalid: "{{ . | red }} ",
+		Success: "{{ . | bold }} ",
+	}
+
+	prompt := promptui.Prompt{
+		Label:     "❯ Subject:",
+		Templates: templates,
+		Validate:  validate,
+	}
+
+	result, err := prompt.Run()
 	util.CheckAndExit(err)
-	return subject
+	return result
 }
 
 // 输入完整提交信息
 func InputBody() string {
-	body := ""
-	prompt := &survey.Input{
-		Message: "请输入本次提交完整的提交信息:",
+
+	validate := func(input string) error {
+		reg := regexp.MustCompile("\\s+")
+		if input == "" || reg.ReplaceAllString(input, "") == "" {
+			return errors.New("body is blank")
+		}
+		return nil
 	}
-	err := survey.AskOne(prompt, &body, nil)
+
+	templates := &promptui.PromptTemplates{
+		Prompt:  "{{ . }} ",
+		Valid:   "{{ . | green }} ",
+		Invalid: "{{ . | red }} ",
+		Success: "{{ . | bold }} ",
+	}
+
+	prompt := promptui.Prompt{
+		Label:     "❯ Body:",
+		Templates: templates,
+		Validate:  validate,
+	}
+
+	result, err := prompt.Run()
 	util.CheckAndExit(err)
-	if body == "edit" {
-		body = InputBigBody()
-	}
-	return body
+	return result
 }
 
 // 输入超长文本信息
@@ -89,13 +184,31 @@ func InputBigBody() string {
 
 // 输入提交关联信息
 func InputFooter() string {
-	footer := ""
-	prompt := &survey.Input{
-		Message: "输入本次提交可以解决/关闭的相关问题，建议使用关键字 refs、close:",
+
+	validate := func(input string) error {
+		reg := regexp.MustCompile("\\s+")
+		if input == "" || reg.ReplaceAllString(input, "") == "" {
+			return errors.New("footer is blank")
+		}
+		return nil
 	}
-	err := survey.AskOne(prompt, &footer, nil)
+
+	templates := &promptui.PromptTemplates{
+		Prompt:  "{{ . }} ",
+		Valid:   "{{ . | green }} ",
+		Invalid: "{{ . | red }} ",
+		Success: "{{ . | bold }} ",
+	}
+
+	prompt := promptui.Prompt{
+		Label:     "❯ Footer:",
+		Templates: templates,
+		Validate:  validate,
+	}
+
+	result, err := prompt.Run()
 	util.CheckAndExit(err)
-	return footer
+	return result
 }
 
 // 生成 SOB 签名
@@ -121,8 +234,8 @@ func GenSOB() string {
 	return "Signed-off-by: " + author + " " + email
 }
 
-func Commit(cm *config.CommitMessage) {
-	t, err := template.New("commitMessage").Parse(config.CommitTpl)
+func Commit(cm *CommitMessage) {
+	t, err := template.New("commitMessage").Parse(consts.CommitTpl)
 	util.CheckAndExit(err)
 	t.Execute(os.Stdout, cm)
 }

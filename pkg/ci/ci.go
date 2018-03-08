@@ -5,12 +5,14 @@ import (
 	"github.com/mritd/gitflow-toolkit/pkg/consts"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/mritd/promptui"
-	"gopkg.in/AlecAivazis/survey.v1"
 	"os"
 	"os/exec"
 	"regexp"
 	"strings"
 	"text/template"
+	"io/ioutil"
+	"runtime"
+	"bytes"
 )
 
 type CommitTypeMessage struct {
@@ -27,6 +29,7 @@ type CommitMessage struct {
 	Footer  string
 	Sob     string
 }
+
 
 // 检查当前位置是否为 git 项目
 func CheckGitProject() bool {
@@ -173,12 +176,38 @@ func InputBody() string {
 
 // 输入超长文本信息
 func InputBigBody() string {
-	body := ""
-	prompt := &survey.Editor{
-		Message: "请输入本次提交完整的提交信息:",
-	}
-	err := survey.AskOne(prompt, &body, nil)
+
+	f, err := ioutil.TempFile("", "gitflow-toolkit")
 	util.CheckAndExit(err)
+	defer os.Remove(f.Name())
+
+	// write utf8 bom
+	bom:=[]byte{0xef, 0xbb, 0xbf}
+	_, err = f.Write(bom)
+	util.CheckAndExit(err)
+
+	// 获取系统编辑器
+	editor:="vim"
+	if runtime.GOOS == "windows" {
+		editor = "notepad"
+	}
+	if v := os.Getenv("VISUAL"); v != "" {
+		editor = v
+	} else if e := os.Getenv("EDITOR"); e != "" {
+		editor = e
+	}
+
+	// 执行编辑文件
+	cmd := exec.Command(editor, f.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err =cmd.Run()
+	util.CheckAndExit(err)
+	raw, err := ioutil.ReadFile(f.Name())
+	util.CheckAndExit(err)
+	body := string(bytes.TrimPrefix(raw, bom))
+
 	return body
 }
 

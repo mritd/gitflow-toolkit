@@ -21,39 +21,18 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/mritd/gitflow-toolkit/pkg/commit"
 	"github.com/spf13/cobra"
-	"os"
-	"regexp"
-	"github.com/mritd/gitflow-toolkit/pkg/consts"
-	"io/ioutil"
-	"github.com/mritd/gitflow-toolkit/pkg/util"
 )
 
-// cmCmd represents the cm command
 var cmCmd = &cobra.Command{
 	Use:   "cm",
-	Short: "git commit-msg hook",
+	Short: "检查文件内容是否符合 Angular 社区规范",
 	Long: `
 该命令接受一个 git commit message 的文件路径，并检查其格式是否符合 Angular 社区规范`,
+	Aliases: []string{"git-cm", "commit-msg"},
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 2 {
-			fmt.Println("check commit message style failed")
-			os.Exit(1)
-		}
-
-		f,err := os.Open(args[1])
-		util.CheckAndExit(err)
-
-		b,err:=ioutil.ReadAll(f)
-		util.CheckAndExit(err)
-
-		reg := regexp.MustCompile(consts.CommitMessagePattern)
-		if !reg.MatchString(string(b)) {
-			fmt.Println("check commit message style failed")
-			os.Exit(1)
-		}
+		commit.CheckCommitMessage(args)
 	},
 }
 

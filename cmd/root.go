@@ -33,66 +33,54 @@ import (
 
 var cfgFile string
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "gitflow-toolkit",
 	Short: "Git Flow 辅助工具",
 	Long: `
 一个用于 CI/CD 实施的 Git Flow 辅助工具，包括但不限于 git commit messgae 生成、
 change log 生成等功能`,
-
-	// 如果不加子命令则自动根据当前文件名检测
-	Run: func(cmd *cobra.Command, args []string) {
-		basename := filepath.Base(os.Args[0])
-		cmds := cmd.Commands()
-		findCommand := false
-		for _, c := range cmds {
-			if basename == "git-"+c.Name() {
-				findCommand = true
-				c.Run(cmd, args)
-			}
-		}
-		if !findCommand {
-			util.CheckAndExit(cmd.Help())
-		}
-	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
+
+	// 优先使用文件名作为子命令
+	basename := filepath.Base(os.Args[0])
+	findCommand := false
+	c, _, err := rootCmd.Find([]string{basename})
+	if err == nil {
+		findCommand = true
+		c.Run(c, os.Args[1:])
+	}
+
+	if !findCommand {
+		err := rootCmd.Execute()
 		util.CheckAndExit(err)
 	}
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gitflow-toolkit.yaml)")
 }
 
-// initConfig reads in consts file and ENV variables if set.
+// initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
-		// Use consts file from the flag.
+		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
 		// Find home directory.
 		home, err := homedir.Dir()
 		util.CheckAndExit(err)
 
-		// Search consts in home directory with name ".gitflow-toolkit" (without extension).
+		// Search config in home directory with name ".gitflow-toolkit" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".gitflow-toolkit")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If a consts file is found, read it in.
+	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}

@@ -24,7 +24,6 @@ func Install() {
 	currentPath, err := exec.LookPath(os.Args[0])
 	CheckAndExit(err)
 
-
 	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
 
 		fmt.Println("Clean old files")
@@ -40,7 +39,6 @@ func Install() {
 		dstFile, err := os.OpenFile(dstPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
 		CheckAndExit(err)
 		io.Copy(dstFile, currentFile)
-		//CheckAndExit(os.Chmod(dstPath,0755))
 
 		fmt.Println("Create symbolic file")
 		CheckAndExit(os.MkdirAll(hooksPath, 0755))
@@ -48,12 +46,10 @@ func Install() {
 		CheckAndExit(os.Symlink(dstPath, commitMessageHookPath))
 
 		fmt.Println("Config git")
-		CheckAndExit(exec.Command("git", "config", "--global", "--unset","core.hooksPath").Run())
+		CheckAndExit(exec.Command("git", "config", "--global", "--unset", "core.hooksPath").Run())
 		CheckAndExit(exec.Command("git", "config", "--global", "core.hooksPath", hooksPath).Run())
 
 		fmt.Println("Well done.")
 
 	}
 }
-
-

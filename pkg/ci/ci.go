@@ -1,19 +1,19 @@
 package ci
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"github.com/mritd/gitflow-toolkit/pkg/consts"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/mritd/promptui"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 	"text/template"
-	"io/ioutil"
-	"runtime"
-	"bytes"
-	"fmt"
 )
 
 type CommitTypeMessage struct {
@@ -30,7 +30,6 @@ type CommitMessage struct {
 	Footer  string
 	Sob     string
 }
-
 
 // 检查当前位置是否为 git 项目
 func CheckGitProject() bool {
@@ -183,12 +182,12 @@ func InputBigBody() string {
 	defer os.Remove(f.Name())
 
 	// write utf8 bom
-	bom:=[]byte{0xef, 0xbb, 0xbf}
+	bom := []byte{0xef, 0xbb, 0xbf}
 	_, err = f.Write(bom)
 	util.CheckAndExit(err)
 
 	// 获取系统编辑器
-	editor:="vim"
+	editor := "vim"
 	if runtime.GOOS == "windows" {
 		editor = "notepad"
 	}
@@ -262,7 +261,7 @@ func Commit(cm *CommitMessage) {
 	defer os.Remove(f.Name())
 	util.CheckAndExit(err)
 	t.Execute(f, cm)
-	cmd := exec.Command("git","commit","-F",f.Name())
+	cmd := exec.Command("git", "commit", "-F", f.Name())
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

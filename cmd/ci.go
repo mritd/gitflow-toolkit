@@ -21,11 +21,11 @@
 package cmd
 
 import (
-	"github.com/mritd/gitflow-toolkit/pkg/ci"
-	"github.com/spf13/cobra"
-	"github.com/mritd/gitflow-toolkit/pkg/consts"
-	"os"
 	"fmt"
+	"github.com/mritd/gitflow-toolkit/pkg/ci"
+	"github.com/mritd/gitflow-toolkit/pkg/consts"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 // ciCmd represents the ci command

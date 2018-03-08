@@ -57,6 +57,8 @@ var ciCmd = &cobra.Command{
 		}
 
 		cm := &ci.CommitMessage{}
+
+		// 快速提交
 		if fastCommit {
 			cm.Type = consts.FEAT
 			cm.Scope = "Undefined"

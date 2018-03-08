@@ -46,12 +46,12 @@ var ciCmd = &cobra.Command{
 该格式来源于 Angular 社区提交规范`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if ! ci.CheckGitProject() {
+		if !ci.CheckGitProject() {
 			fmt.Println("Not a git repository (or any of the parent directories): .git")
 			os.Exit(1)
 		}
 
-		if ! ci.CheckStagedFiles() {
+		if !ci.CheckStagedFiles() {
 			fmt.Println("No staged any files")
 			os.Exit(1)
 		}

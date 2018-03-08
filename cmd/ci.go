@@ -23,6 +23,9 @@ package cmd
 import (
 	"github.com/mritd/gitflow-toolkit/pkg/ci"
 	"github.com/spf13/cobra"
+	"github.com/mritd/gitflow-toolkit/pkg/consts"
+	"os"
+	"fmt"
 )
 
 // ciCmd represents the ci command
@@ -42,9 +45,18 @@ var ciCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cm := &ci.CommitMessage{}
 		cm.Type = ci.SelectCommitType()
+
+		if cm.Type == consts.EXIT {
+			fmt.Println("Talk is cheap Show me the code!")
+			os.Exit(0)
+		}
+
 		cm.Scope = ci.InputScope()
 		cm.Subject = ci.InputSubject()
 		cm.Body = ci.InputBody()
+		if cm.Body == "big" {
+			cm.Body = ci.InputBigBody()
+		}
 		cm.Footer = ci.InputFooter()
 		cm.Sob = ci.GenSOB()
 		ci.Commit(cm)

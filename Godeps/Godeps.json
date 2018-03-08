@@ -1,11 +1,13 @@
 {
 	"ImportPath": "github.com/mritd/gitflow-toolkit",
 	"GoVersion": "go1.10",
-	"GodepVersion": "v80",
-	"Packages": [
-		"."
-	],
+	"GodepVersion": "v79",
 	"Deps": [
+		{
+			"ImportPath": "github.com/chzyer/readline",
+			"Comment": "v1.4-38-gf6d7a1f",
+			"Rev": "f6d7a1f6fbf35bbf9beb80dc63c56a29dcfb759f"
+		},
 		{
 			"ImportPath": "github.com/fsnotify/fsnotify",
 			"Comment": "v1.4.7",
@@ -57,9 +59,41 @@
 			"Rev": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
 		},
 		{
+			"ImportPath": "github.com/juju/ansiterm",
+			"Rev": "720a0952cc2ac777afc295d9861263e2a4cf96a1"
+		},
+		{
+			"ImportPath": "github.com/juju/ansiterm/tabwriter",
+			"Rev": "720a0952cc2ac777afc295d9861263e2a4cf96a1"
+		},
+		{
+			"ImportPath": "github.com/lunixbochs/vtclean",
+			"Rev": "d14193dfc626125c831501c1c42340b4248e1f5a"
+		},
+		{
 			"ImportPath": "github.com/magiconair/properties",
 			"Comment": "v1.7.6-3-g2c9e950",
 			"Rev": "2c9e9502788518c97fe44e8955cd069417ee89df"
+		},
+		{
+			"ImportPath": "github.com/manifoldco/promptui/list",
+			"Comment": "v0.2.1-8-g8debffa",
+			"Rev": "8debffa8c66b4342872ef0465eee2aa01481849d"
+		},
+		{
+			"ImportPath": "github.com/manifoldco/promptui/screenbuf",
+			"Comment": "v0.2.1-8-g8debffa",
+			"Rev": "8debffa8c66b4342872ef0465eee2aa01481849d"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-colorable",
+			"Comment": "v0.0.9-13-g7dc3415",
+			"Rev": "7dc3415be66d7cc68bf0182f35c8d31f8d2ad8a7"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-isatty",
+			"Comment": "v0.0.3-7-g6ca4dbf",
+			"Rev": "6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/go-homedir",
@@ -68,6 +102,11 @@
 		{
 			"ImportPath": "github.com/mitchellh/mapstructure",
 			"Rev": "00c29f56e2386353d58c599509e8dc3801b0d716"
+		},
+		{
+			"ImportPath": "github.com/mritd/promptui",
+			"Comment": "v0.2.1-9-g73387a9",
+			"Rev": "73387a99f86da8126664ebc8d879141192f43940"
 		},
 		{
 			"ImportPath": "github.com/pelletier/go-toml",

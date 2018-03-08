@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"runtime"
 	"bytes"
+	"fmt"
 )
 
 type CommitTypeMessage struct {
@@ -202,8 +203,7 @@ func InputBigBody() string {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err =cmd.Run()
-	util.CheckAndExit(err)
+	util.CheckAndExit(cmd.Run())
 	raw, err := ioutil.ReadFile(f.Name())
 	util.CheckAndExit(err)
 	body := string(bytes.TrimPrefix(raw, bom))
@@ -213,14 +213,6 @@ func InputBigBody() string {
 
 // 输入提交关联信息
 func InputFooter() string {
-
-	validate := func(input string) error {
-		reg := regexp.MustCompile("\\s+")
-		if input == "" || reg.ReplaceAllString(input, "") == "" {
-			return errors.New("footer is blank")
-		}
-		return nil
-	}
 
 	templates := &promptui.PromptTemplates{
 		Prompt:  "{{ . }} ",
@@ -232,7 +224,6 @@ func InputFooter() string {
 	prompt := promptui.Prompt{
 		Label:     "❯ Footer:",
 		Templates: templates,
-		Validate:  validate,
 	}
 
 	result, err := prompt.Run()
@@ -263,8 +254,18 @@ func GenSOB() string {
 	return "Signed-off-by: " + author + " " + email
 }
 
+// 提交
 func Commit(cm *CommitMessage) {
 	t, err := template.New("commitMessage").Parse(consts.CommitTpl)
 	util.CheckAndExit(err)
-	t.Execute(os.Stdout, cm)
+	f, err := ioutil.TempFile("", "git-commit")
+	defer os.Remove(f.Name())
+	util.CheckAndExit(err)
+	t.Execute(f, cm)
+	cmd := exec.Command("git","commit","-F",f.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	util.CheckAndExit(cmd.Run())
+	fmt.Println("\nAlways code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.")
 }

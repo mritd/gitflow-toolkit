@@ -38,10 +38,10 @@ func CheckGitProject() bool {
 
 // 检测暂存区是否有文件
 func CheckStagedFiles() bool {
-	cmd :=exec.Command("git", "diff","--cached","--name-only")
-	b,err:=cmd.CombinedOutput()
+	cmd := exec.Command("git", "diff", "--cached", "--name-only")
+	b, err := cmd.CombinedOutput()
 	util.CheckAndExit(err)
-	return strings.Replace(string(b)," ","",-1) != ""
+	return strings.Replace(string(b), " ", "", -1) != ""
 }
 
 // 选择提交类型

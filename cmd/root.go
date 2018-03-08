@@ -25,8 +25,10 @@ import (
 	"os"
 
 	"github.com/mitchellh/go-homedir"
+	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"path/filepath"
 )
 
 var cfgFile string
@@ -38,17 +40,29 @@ var rootCmd = &cobra.Command{
 	Long: `
 一个用于 CI/CD 实施的 Git Flow 辅助工具，包括但不限于 git commit messgae 生成、
 change log 生成等功能`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//Run: func(cmd *cobra.Command, args []string) {},
+
+	// 如果不加子命令则自动根据当前文件名检测
+	Run: func(cmd *cobra.Command, args []string) {
+		basename := filepath.Base(os.Args[0])
+		cmds := cmd.Commands()
+		findCommand := false
+		for _, c := range cmds {
+			if basename == "git-"+c.Name() {
+				findCommand = true
+				c.Run(cmd, args)
+			}
+		}
+		if !findCommand {
+			util.CheckAndExit(cmd.Help())
+		}
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		util.CheckAndExit(err)
 	}
 }
 
@@ -69,10 +83,7 @@ func initConfig() {
 	} else {
 		// Find home directory.
 		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		util.CheckAndExit(err)
 
 		// Search consts in home directory with name ".gitflow-toolkit" (without extension).
 		viper.AddConfigPath(home)

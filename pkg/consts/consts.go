@@ -22,3 +22,5 @@ const CommitTpl = `{{ .Type }}({{ .Scope }}): {{ .Subject }}
 
 {{ .Sob }}
 `
+
+const CommitMessagePattern = `^(\\w*)(?:\\(([\\w\\$\\.\\-\\*\\s]*)\\))?\\:\\s(.*)$`

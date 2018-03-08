@@ -28,6 +28,8 @@ import (
 	"os"
 )
 
+var fastCommit = false
+
 // ciCmd represents the ci command
 var ciCmd = &cobra.Command{
 	Use:   "ci",
@@ -43,36 +45,37 @@ var ciCmd = &cobra.Command{
 
 该格式来源于 Angular 社区提交规范`,
 	Run: func(cmd *cobra.Command, args []string) {
+
 		cm := &ci.CommitMessage{}
-		cm.Type = ci.SelectCommitType()
+		if fastCommit {
+			cm.Type = consts.FEAT
+			cm.Scope = "Undefined"
+			cm.Scope = ci.InputSubject()
+			cm.Body = cm.Scope
+			cm.Sob = ci.GenSOB()
+			ci.Commit(cm)
+		} else {
+			cm.Type = ci.SelectCommitType()
 
-		if cm.Type == consts.EXIT {
-			fmt.Println("Talk is cheap Show me the code!")
-			os.Exit(0)
-		}
+			if cm.Type == consts.EXIT {
+				fmt.Println("Talk is cheap Show me the code!")
+				os.Exit(0)
+			}
 
-		cm.Scope = ci.InputScope()
-		cm.Subject = ci.InputSubject()
-		cm.Body = ci.InputBody()
-		if cm.Body == "big" {
-			cm.Body = ci.InputBigBody()
+			cm.Scope = ci.InputScope()
+			cm.Subject = ci.InputSubject()
+			cm.Body = ci.InputBody()
+			if cm.Body == "big" {
+				cm.Body = ci.InputBigBody()
+			}
+			cm.Footer = ci.InputFooter()
+			cm.Sob = ci.GenSOB()
+			ci.Commit(cm)
 		}
-		cm.Footer = ci.InputFooter()
-		cm.Sob = ci.GenSOB()
-		ci.Commit(cm)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(ciCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// ciCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// ciCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	ciCmd.Flags().BoolVarP(&fastCommit, "fast", "f", false, "快速提交")
 }

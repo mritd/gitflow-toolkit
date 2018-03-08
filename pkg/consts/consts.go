@@ -23,4 +23,4 @@ const CommitTpl = `{{ .Type }}({{ .Scope }}): {{ .Subject }}
 {{ .Sob }}
 `
 
-const CommitMessagePattern = `^(\\w*)(?:\\(([\\w\\$\\.\\-\\*\\s]*)\\))?\\:\\s(.*)$`
+const CommitMessagePattern = `^(?:fixup!\s*)?(\w*)(\(([\w\$\.\*/-]*)\))?\: (.*)$`

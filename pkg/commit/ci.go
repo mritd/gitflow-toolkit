@@ -1,4 +1,4 @@
-package ci
+package commit
 
 import (
 	"bytes"
@@ -16,13 +16,13 @@ import (
 	"text/template"
 )
 
-type CommitTypeMessage struct {
+type TypeMessage struct {
 	Type          consts.CommitType
 	ZHDescription string
 	ENDescription string
 }
 
-type CommitMessage struct {
+type Message struct {
 	Type    consts.CommitType
 	Scope   string
 	Subject string
@@ -47,7 +47,7 @@ func CheckStagedFiles() bool {
 // 选择提交类型
 func SelectCommitType() consts.CommitType {
 
-	commitTypes := []CommitTypeMessage{
+	commitTypes := []TypeMessage{
 		{Type: consts.FEAT, ZHDescription: "新功能", ENDescription: "Introducing new features"},
 		{Type: consts.FIX, ZHDescription: "修复 Bug", ENDescription: "Bug fix"},
 		{Type: consts.DOCS, ZHDescription: "添加文档", ENDescription: "Writing docs"},
@@ -84,8 +84,14 @@ func SelectCommitType() consts.CommitType {
 		Size:      9,
 		Searcher:  searcher,
 	}
+
 	i, _, err := prompt.Run()
 	util.CheckAndExit(err)
+
+	if commitTypes[i].Type == consts.EXIT {
+		fmt.Println("Talk is cheap Show me the code!")
+		os.Exit(0)
+	}
 
 	return commitTypes[i].Type
 }
@@ -179,6 +185,9 @@ func InputBody() string {
 
 	result, err := prompt.Run()
 	util.CheckAndExit(err)
+	if result == "big" {
+		return InputBigBody()
+	}
 	return result
 }
 
@@ -262,7 +271,7 @@ func GenSOB() string {
 }
 
 // 提交
-func Commit(cm *CommitMessage) {
+func Commit(cm *Message) {
 	t, err := template.New("commitMessage").Parse(consts.CommitTpl)
 	util.CheckAndExit(err)
 	f, err := ioutil.TempFile("", "git-commit")

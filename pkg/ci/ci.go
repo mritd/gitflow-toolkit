@@ -54,7 +54,7 @@ func SelectCommitType() consts.CommitType {
 		Label:    "{{ . }}",
 		Active:   "❯ {{ .Type | cyan }} ({{ .ENDescription | cyan }})",
 		Inactive: "  {{ .Type | white }} ({{ .ENDescription | white }})",
-		Selected: "{{ \"❯ Type\" | green }}: {{ .Type }}",
+		Selected: "{{ \"❯ Type:\" | green }} {{ .Type }}",
 		Details: `
 --------- Commit Type ----------
 {{ "Type:" | faint }}	{{ .Type }}

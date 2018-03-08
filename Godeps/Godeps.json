@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/mritd/gitflow-toolkit",
 	"GoVersion": "go1.10",
-	"GodepVersion": "v79",
+	"GodepVersion": "v80",
 	"Deps": [
 		{
 			"ImportPath": "github.com/chzyer/readline",

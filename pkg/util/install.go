@@ -5,57 +5,37 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
-
-	"github.com/mitchellh/go-homedir"
 )
 
 func Install() {
 
-	home, err := homedir.Dir()
-	CheckAndExit(err)
-
-	toolHome := home + string(filepath.Separator) + ".gitflow-toolkit"
-	dstPath := toolHome + string(filepath.Separator) + "gitflow-toolkit"
-	hooksPath := toolHome + string(filepath.Separator) + "hooks"
-	commitMessageHookPath := hooksPath + string(filepath.Separator) + "commit-msg"
-
-	currentPath, err := exec.LookPath(os.Args[0])
-	CheckAndExit(err)
-
 	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
 
-		ciPath := "/usr/local/bin/git-ci"
+		Uninstall()
 
-		fmt.Println("Clean old files")
-		os.RemoveAll(toolHome)
-		os.Remove(ciPath)
-
+		fmt.Println("Install gitflow-toolkit")
 		fmt.Println("Create install home dir")
-		CheckAndExit(os.MkdirAll(toolHome, 0755))
+		CheckAndExit(os.MkdirAll(GitFlowToolKitHome, 0755))
 
 		fmt.Println("Copy file to install home")
-		currentFile, err := os.Open(currentPath)
+		currentFile, err := os.Open(CurrentPath)
 		defer currentFile.Close()
 		CheckAndExit(err)
 
-		dstFile, err := os.OpenFile(dstPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
-		defer dstFile.Close()
+		installFile, err := os.OpenFile(InstallPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
+		defer installFile.Close()
 		CheckAndExit(err)
-		_, err = io.Copy(dstFile, currentFile)
+		_, err = io.Copy(installFile, currentFile)
 		CheckAndExit(err)
 
 		fmt.Println("Create symbolic file")
-		CheckAndExit(os.MkdirAll(hooksPath, 0755))
-		CheckAndExit(os.Symlink(dstPath, ciPath))
-		CheckAndExit(os.Symlink(dstPath, commitMessageHookPath))
+		CheckAndExit(os.MkdirAll(HooksPath, 0755))
+		CheckAndExit(os.Symlink(InstallPath, GitCIPath))
+		CheckAndExit(os.Symlink(InstallPath, GitCMHookPath))
 
 		fmt.Println("Config git")
-		exec.Command("git", "config", "--global", "--unset", "core.hooksPath").Run()
-		CheckAndExit(exec.Command("git", "config", "--global", "core.hooksPath", hooksPath).Run())
-
-		fmt.Println("Well done.")
+		CheckAndExit(exec.Command("git", "config", "--global", "core.hooksPath", HooksPath).Run())
 
 	} else {
 		fmt.Println("Platform not support!")

@@ -35,6 +35,7 @@ func NewGitFlowToolKitCommands() (*cobra.Command, []func() *cobra.Command) {
 		cmd.NewCi,
 		cmd.NewCm,
 		cmd.NewInstall,
+		cmd.NewUninstall,
 	}
 
 	rootCmd := cmd.NewGitFlowToolKit()

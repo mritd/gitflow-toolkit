@@ -1,11 +1,10 @@
 package commit
 
 import (
-	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"regexp"
-	"strings"
 
 	"github.com/mritd/gitflow-toolkit/pkg/consts"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
@@ -22,15 +21,10 @@ func CheckCommitMessage(args []string) {
 	defer f.Close()
 	util.CheckAndExit(err)
 
-	r := bufio.NewReader(f)
-	firstLine, err := r.ReadString('\n')
+	b, err := ioutil.ReadAll(f)
 	util.CheckAndExit(err)
-	if firstLine == "" {
-		checkFailed()
-	} else {
-		firstLine = strings.Replace(firstLine, "\n", "", -1)
-	}
-	commitTypes := reg.FindAllStringSubmatch(firstLine, -1)
+
+	commitTypes := reg.FindAllStringSubmatch(string(b), -1)
 	if len(commitTypes) != 1 {
 		checkFailed()
 	} else {

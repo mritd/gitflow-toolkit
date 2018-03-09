@@ -39,10 +39,8 @@ func CheckGitProject() bool {
 
 // 检测暂存区是否有文件
 func CheckStagedFiles() bool {
-	cmd := exec.Command("git", "diff", "--cached", "--name-only")
-	b, err := cmd.CombinedOutput()
-	util.CheckAndExit(err)
-	return strings.Replace(string(b), " ", "", -1) != ""
+	output := util.ExecCommandOutput("git", "diff", "--cached", "--name-only")
+	return strings.Replace(output, " ", "", -1) != ""
 }
 
 // 选择提交类型
@@ -90,7 +88,7 @@ func SelectCommitType() consts.CommitType {
 	util.CheckAndExit(err)
 
 	if commitTypes[i].Type == consts.EXIT {
-		fmt.Println("Talk is cheap Show me the code!")
+		fmt.Println("Talk is cheap. Show me the code.")
 		os.Exit(0)
 	}
 
@@ -102,7 +100,7 @@ func InputScope() string {
 
 	validate := func(input string) error {
 		reg := regexp.MustCompile("\\s+")
-		if input == "" || reg.ReplaceAllString(input, "") == "" {
+		if reg.ReplaceAllString(input, "") == "" {
 			return errors.New("scope is blank")
 		}
 		return nil
@@ -132,7 +130,7 @@ func InputSubject() string {
 
 	validate := func(input string) error {
 		reg := regexp.MustCompile("\\s+")
-		if input == "" || reg.ReplaceAllString(input, "") == "" {
+		if reg.ReplaceAllString(input, "") == "" {
 			return errors.New("subject is blank")
 		}
 		if r := []rune(input); len(r) > 50 {
@@ -163,14 +161,6 @@ func InputSubject() string {
 // 输入完整提交信息
 func InputBody() string {
 
-	validate := func(input string) error {
-		reg := regexp.MustCompile("\\s+")
-		if input == "" || reg.ReplaceAllString(input, "") == "" {
-			return errors.New("body is blank")
-		}
-		return nil
-	}
-
 	templates := &promptui.PromptTemplates{
 		Prompt:  "{{ . }} ",
 		Valid:   "{{ . | green }} ",
@@ -181,7 +171,6 @@ func InputBody() string {
 	prompt := promptui.Prompt{
 		Label:     "❯ Body:",
 		Templates: templates,
-		Validate:  validate,
 	}
 
 	result, err := prompt.Run()
@@ -250,21 +239,17 @@ func InputFooter() string {
 
 // 生成 SOB 签名
 func GenSOB() string {
-	cmd := exec.Command("git", "var", "GIT_AUTHOR_IDENT")
-	buf, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println(string(buf))
-		os.Exit(1)
-	}
 
 	author := "Undefined"
 	email := "Undefined"
-	authorInfo := strings.Fields(string(buf))
 
-	if authorInfo[0] != "" {
+	output := util.ExecCommandOutput("git", "var", "GIT_AUTHOR_IDENT")
+	authorInfo := strings.Fields(output)
+
+	if len(authorInfo) > 1 && authorInfo[0] != "" {
 		author = authorInfo[0]
 	}
-	if authorInfo[1] != "" {
+	if len(authorInfo) > 2 && authorInfo[1] != "" {
 		email = authorInfo[1]
 	}
 
@@ -273,16 +258,19 @@ func GenSOB() string {
 
 // 提交
 func Commit(cm *Message) {
+
+	if cm.Body == "" {
+		cm.Body = cm.Subject
+	}
+
 	t, err := template.New("commitMessage").Parse(consts.CommitTpl)
 	util.CheckAndExit(err)
 	f, err := ioutil.TempFile("", "git-commit")
+	defer f.Close()
 	defer os.Remove(f.Name())
 	util.CheckAndExit(err)
 	t.Execute(f, cm)
-	cmd := exec.Command("git", "commit", "-F", f.Name())
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	util.CheckAndExit(cmd.Run())
-	fmt.Println("\nAlways code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.")
+	util.ExecCommand("git", "commit", "-F", f.Name())
+
+	fmt.Println("\nAlways code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.\n")
 }

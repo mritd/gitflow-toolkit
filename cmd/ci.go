@@ -58,16 +58,13 @@ func NewCi() *cobra.Command {
 				os.Exit(1)
 			}
 
-			fmt.Println("test1")
 			cm := &commit.Message{Sob: commit.GenSOB()}
-			fmt.Println("test1")
 
 			// 快速提交
 			if fastCommit {
 				cm.Type = consts.FEAT
 				cm.Scope = "Undefined"
 				cm.Subject = commit.InputSubject()
-				cm.Body = cm.Scope
 				commit.Commit(cm)
 			} else {
 				cm.Type = commit.SelectCommitType()

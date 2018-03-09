@@ -45,3 +45,17 @@ func CheckAndExit(err error) {
 		os.Exit(1)
 	}
 }
+
+func ExecCommand(name string, arg ...string) {
+	cmd := exec.Command(name, arg...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	CheckAndExit(cmd.Run())
+}
+func ExecCommandOutput(name string, arg ...string) string {
+	cmd := exec.Command(name, arg...)
+	b, err := cmd.CombinedOutput()
+	CheckAndExit(err)
+	return string(b)
+}

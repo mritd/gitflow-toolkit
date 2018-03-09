@@ -36,19 +36,12 @@ func CheckCommitMessage(args []string) {
 	} else {
 		switch commitTypes[0][1] {
 		case string(consts.FEAT):
-			fallthrough
 		case string(consts.FIX):
-			fallthrough
 		case string(consts.DOCS):
-			fallthrough
 		case string(consts.STYLE):
-			fallthrough
 		case string(consts.REFACTOR):
-			fallthrough
 		case string(consts.TEST):
-			fallthrough
 		case string(consts.CHORE):
-			fallthrough
 		case string(consts.PERF):
 		default:
 			checkFailed()

@@ -4,9 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/mritd/gitflow-toolkit/pkg/consts"
-	"github.com/mritd/gitflow-toolkit/pkg/util"
-	"github.com/mritd/promptui"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -14,6 +11,10 @@ import (
 	"runtime"
 	"strings"
 	"text/template"
+
+	"github.com/mritd/gitflow-toolkit/pkg/consts"
+	"github.com/mritd/gitflow-toolkit/pkg/util"
+	"github.com/mritd/promptui"
 )
 
 type TypeMessage struct {
@@ -251,9 +252,9 @@ func InputFooter() string {
 func GenSOB() string {
 	cmd := exec.Command("git", "var", "GIT_AUTHOR_IDENT")
 	buf, err := cmd.CombinedOutput()
-	util.CheckAndExit(err)
-	if string(buf) == "" {
-		return ""
+	if err != nil {
+		fmt.Println(string(buf))
+		os.Exit(1)
 	}
 
 	author := "Undefined"

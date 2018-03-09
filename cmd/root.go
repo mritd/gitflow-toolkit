@@ -22,45 +22,36 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"path/filepath"
 )
 
 var cfgFile string
 
-var rootCmd = &cobra.Command{
-	Use:   "gitflow-toolkit",
-	Short: "Git Flow 辅助工具",
-	Long: `
-一个用于 CI/CD 实施的 Git Flow 辅助工具，包括但不限于 git commit messgae 生成、
+func NewGitFlowToolKit() *cobra.Command {
+	gitFlowToolKitCmd := &cobra.Command{
+		Use:   "gitflow-toolkit",
+		Short: "Git Flow 辅助工具",
+		Long: `
+一个用于 CI/CD 实施的 Git Flow 辅助工具，包括但不限于 git commit message 生成、
 change log 生成等功能`,
-}
-
-func Execute() {
-
-	// 优先使用文件名作为子命令
-	basename := filepath.Base(os.Args[0])
-	findCommand := false
-	c, _, err := rootCmd.Find([]string{basename})
-	if err == nil {
-		findCommand = true
-		c.Run(c, os.Args[1:])
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) != 0 {
+				cmd.Help()
+			}
+		},
 	}
 
-	if !findCommand {
-		err := rootCmd.Execute()
-		util.CheckAndExit(err)
-	}
+	gitFlowToolKitCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gitflow-toolkit.yaml)")
+
+	return gitFlowToolKitCmd
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gitflow-toolkit.yaml)")
 }
 
 // initConfig reads in config file and ENV variables if set.

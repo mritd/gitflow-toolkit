@@ -25,17 +25,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cmCmd = &cobra.Command{
-	Use:   "cm",
-	Short: "检查文件内容是否符合 Angular 社区规范",
-	Long: `
+func NewCm() *cobra.Command {
+	return &cobra.Command{
+		Use:   "cm",
+		Short: "检查文件内容是否符合 Angular 社区规范",
+		Long: `
 该命令接受一个 git commit message 的文件路径，并检查其格式是否符合 Angular 社区规范`,
-	Aliases: []string{"git-cm", "commit-msg"},
-	Run: func(cmd *cobra.Command, args []string) {
-		commit.CheckCommitMessage(args)
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(cmCmd)
+		Aliases: []string{"git-cm", "commit-msg"},
+		Run: func(cmd *cobra.Command, args []string) {
+			commit.CheckCommitMessage(args)
+		},
+	}
 }

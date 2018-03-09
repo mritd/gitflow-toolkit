@@ -25,15 +25,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewInstall() *cobra.Command {
+func NewUninstall() *cobra.Command {
 	return &cobra.Command{
-		Use:   "install",
-		Short: "安装 gitflow-toolkit 工具",
+		Use:   "uninstall",
+		Short: "卸载 gitflow-toolkit 工具",
 		Long: `
-安装 gitflow-toolkit 工具(仅支持 *Unix)`,
-		Aliases: []string{"install"},
+卸载 gitflow-toolkit 工具`,
+		Aliases: []string{"uninstall"},
 		Run: func(cmd *cobra.Command, args []string) {
-			util.Install()
+			util.Uninstall()
 		},
 	}
 }

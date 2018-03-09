@@ -66,7 +66,7 @@ func NewCi() *cobra.Command {
 			if fastCommit {
 				cm.Type = consts.FEAT
 				cm.Scope = "Undefined"
-				cm.Scope = commit.InputSubject()
+				cm.Subject = commit.InputSubject()
 				cm.Body = cm.Scope
 				commit.Commit(cm)
 			} else {

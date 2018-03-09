@@ -3,11 +3,12 @@ package commit
 import (
 	"bufio"
 	"fmt"
-	"github.com/mritd/gitflow-toolkit/pkg/consts"
-	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/mritd/gitflow-toolkit/pkg/consts"
+	"github.com/mritd/gitflow-toolkit/pkg/util"
 )
 
 func CheckCommitMessage(args []string) {

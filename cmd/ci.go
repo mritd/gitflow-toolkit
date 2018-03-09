@@ -22,18 +22,20 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/mritd/gitflow-toolkit/pkg/commit"
 	"github.com/mritd/gitflow-toolkit/pkg/consts"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var fastCommit = false
 
-var ciCmd = &cobra.Command{
-	Use:   "ci",
-	Short: "交互式输入 commit message",
-	Long: `
+func NewCi() *cobra.Command {
+	ciCmd := &cobra.Command{
+		Use:   "ci",
+		Short: "交互式输入 commit message",
+		Long: `
 交互式输入 git commit message，commit message 格式为
 
 <type>(<scope>): <subject>
@@ -43,40 +45,39 @@ var ciCmd = &cobra.Command{
 <footer>
 
 该格式来源于 Angular 社区提交规范`,
-	Aliases: []string{"git-ci"},
-	Run: func(cmd *cobra.Command, args []string) {
+		Aliases: []string{"git-ci"},
+		Run: func(cmd *cobra.Command, args []string) {
 
-		if !commit.CheckGitProject() {
-			fmt.Println("Not a git repository (or any of the parent directories): .git")
-			os.Exit(1)
-		}
+			if !commit.CheckGitProject() {
+				fmt.Println("Not a git repository (or any of the parent directories): .git")
+				os.Exit(1)
+			}
 
-		if !commit.CheckStagedFiles() {
-			fmt.Println("No staged any files")
-			os.Exit(1)
-		}
+			if !commit.CheckStagedFiles() {
+				fmt.Println("No staged any files")
+				os.Exit(1)
+			}
 
-		cm := &commit.Message{Sob: commit.GenSOB()}
+			cm := &commit.Message{Sob: commit.GenSOB()}
 
-		// 快速提交
-		if fastCommit {
-			cm.Type = consts.FEAT
-			cm.Scope = "Undefined"
-			cm.Scope = commit.InputSubject()
-			cm.Body = cm.Scope
-			commit.Commit(cm)
-		} else {
-			cm.Type = commit.SelectCommitType()
-			cm.Scope = commit.InputScope()
-			cm.Subject = commit.InputSubject()
-			cm.Body = commit.InputBody()
-			cm.Footer = commit.InputFooter()
-			commit.Commit(cm)
-		}
-	},
-}
+			// 快速提交
+			if fastCommit {
+				cm.Type = consts.FEAT
+				cm.Scope = "Undefined"
+				cm.Scope = commit.InputSubject()
+				cm.Body = cm.Scope
+				commit.Commit(cm)
+			} else {
+				cm.Type = commit.SelectCommitType()
+				cm.Scope = commit.InputScope()
+				cm.Subject = commit.InputSubject()
+				cm.Body = commit.InputBody()
+				cm.Footer = commit.InputFooter()
+				commit.Commit(cm)
+			}
+		},
+	}
 
-func init() {
-	rootCmd.AddCommand(ciCmd)
 	ciCmd.Flags().BoolVarP(&fastCommit, "fast", "f", false, "快速提交")
+	return ciCmd
 }

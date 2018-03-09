@@ -25,16 +25,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var installCmd = &cobra.Command{
-	Use:   "install",
-	Short: "安装 gitflow-toolkit 工具",
-	Long: `
+func NewInstall() *cobra.Command {
+	return &cobra.Command{
+		Use:   "install",
+		Short: "安装 gitflow-toolkit 工具",
+		Long: `
 针对不同平台自动安装 gitflow-toolkit 工具`,
-	Run: func(cmd *cobra.Command, args []string) {
-		util.Install()
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(installCmd)
+		Aliases: []string{"install"},
+		Run: func(cmd *cobra.Command, args []string) {
+			util.Install()
+		},
+	}
 }

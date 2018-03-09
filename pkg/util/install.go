@@ -42,7 +42,7 @@ func Install() {
 		dstFile, err := os.OpenFile(dstPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
 		defer dstFile.Close()
 		CheckAndExit(err)
-		_,err = io.Copy(dstFile, currentFile)
+		_, err = io.Copy(dstFile, currentFile)
 		CheckAndExit(err)
 
 		fmt.Println("Create symbolic file")
@@ -58,7 +58,7 @@ func Install() {
 
 	} else if runtime.GOOS == "windows" {
 
-		ciPath := toolHome +string(filepath.Separator) + "git-ci.exe"
+		ciPath := toolHome + string(filepath.Separator) + "git-ci.exe"
 
 		fmt.Println("Clean old files")
 		os.RemoveAll(toolHome)
@@ -75,37 +75,35 @@ func Install() {
 		dstFile, err := os.OpenFile(dstPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
 		defer dstFile.Close()
 		CheckAndExit(err)
-		_,err = io.Copy(dstFile, currentFile)
+		_, err = io.Copy(dstFile, currentFile)
 		CheckAndExit(err)
 		currentFile.Seek(0, 0)
 
 		CheckAndExit(os.MkdirAll(hooksPath, 0755))
-		commitMessageHookFile,err :=os.OpenFile(commitMessageHookPath+".exe", os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
+		commitMessageHookFile, err := os.OpenFile(commitMessageHookPath+".exe", os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
 		defer commitMessageHookFile.Close()
-		_,err = io.Copy(commitMessageHookFile, currentFile)
+		_, err = io.Copy(commitMessageHookFile, currentFile)
 		CheckAndExit(err)
 		currentFile.Seek(0, 0)
 
-		ciFile,err := os.OpenFile(ciPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
+		ciFile, err := os.OpenFile(ciPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
 		CheckAndExit(err)
 		defer ciFile.Close()
-		_,err = io.Copy(ciFile, currentFile)
+		_, err = io.Copy(ciFile, currentFile)
 		CheckAndExit(err)
 		currentFile.Seek(0, 0)
-
 
 		fmt.Println("Config git")
 		exec.Command("git", "config", "--global", "--unset", "core.hooksPath").Run()
 		CheckAndExit(exec.Command("git", "config", "--global", "core.hooksPath", hooksPath).Run())
 
 		fmt.Println("Config env")
-		winPath :=os.Getenv("Path")
+		winPath := os.Getenv("Path")
 		newPath := toolHome
-		if winPath != ""{
-			newPath +=";" +winPath
+		if winPath != "" {
+			newPath += ";" + winPath
 		}
-		CheckAndExit(exec.Command("SETX","Path",newPath).Run())
-
+		CheckAndExit(exec.Command("SETX", "Path", newPath).Run())
 
 		fmt.Println("Well done.")
 	}

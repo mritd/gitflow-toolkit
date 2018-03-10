@@ -61,7 +61,6 @@ func NewCi() *cobra.Command {
 
 			cm := &commit.Message{Sob: commit.GenSOB()}
 
-			// 快速提交
 			if fastCommit {
 				cm.Type = consts.FEAT
 				cm.Scope = "Undefined"

@@ -8,6 +8,8 @@ import (
 
 	"os/user"
 
+	"strings"
+
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -16,6 +18,7 @@ var InstallPath string
 var HooksPath string
 var GitCMHookPath string
 var CurrentPath string
+var CurrentDir string
 var GitCIPath = "/usr/local/bin/git-ci"
 
 func init() {
@@ -32,6 +35,9 @@ func init() {
 
 	CurrentPath, err = exec.LookPath(os.Args[0])
 	CheckAndExit(err)
+	absPath, err := filepath.Abs(CurrentPath)
+	CheckAndExit(err)
+	CurrentDir = strings.Replace(absPath, "\\", "/", -1)
 }
 
 func CheckErr(err error) bool {

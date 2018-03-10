@@ -21,49 +21,18 @@
 package cmd
 
 import (
-	"github.com/mitchellh/go-homedir"
-	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-var cfgFile string
+func NewMr() *cobra.Command {
+	return &cobra.Command{
+		Use:   "mr",
+		Short: "发起 Merge Request",
+		Long: `
+从当前分支向当前项目指定分支发起 Merge Request`,
+		Aliases: []string{"git-mr"},
+		Run: func(cmd *cobra.Command, args []string) {
 
-var RootCmd = &cobra.Command{
-	Use:   "gitflow-toolkit",
-	Short: "Git Flow 辅助工具",
-	Long: `
-一个用于 CI/CD 实施的 Git Flow 辅助工具`,
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
-	},
-}
-
-func init() {
-
-	// init config
-	cobra.OnInitialize(initConfig)
-
-	// add flags
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gitflow-toolkit.yaml)")
-
-	// add sub cmd
-	RootCmd.AddCommand(NewCi())
-	RootCmd.AddCommand(NewCm())
-	RootCmd.AddCommand(NewMr())
-	RootCmd.AddCommand(NewInstall())
-	RootCmd.AddCommand(NewUninstall())
-}
-
-func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		home, err := homedir.Dir()
-		util.CheckAndExit(err)
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".gitflow-toolkit")
+		},
 	}
-	viper.AutomaticEnv()
-	viper.ReadInConfig()
 }

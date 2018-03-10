@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"os/user"
+
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -67,4 +69,14 @@ func MustExecRtOut(name string, arg ...string) string {
 	b, err := cmd.CombinedOutput()
 	CheckAndExit(err)
 	return string(b)
+}
+
+func CheckRoot() {
+	u, err := user.Current()
+	CheckAndExit(err)
+
+	if u.Uid != "0" || u.Gid != "0" {
+		fmt.Println("This command must be run as root! (sudo)")
+		os.Exit(1)
+	}
 }

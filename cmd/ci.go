@@ -26,6 +26,7 @@ import (
 
 	"github.com/mritd/gitflow-toolkit/pkg/commit"
 	"github.com/mritd/gitflow-toolkit/pkg/consts"
+	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/spf13/cobra"
 )
 
@@ -48,12 +49,12 @@ func NewCi() *cobra.Command {
 		Aliases: []string{"git-ci"},
 		Run: func(cmd *cobra.Command, args []string) {
 
-			if !commit.CheckGitProject() {
+			if !util.CheckGitProject() {
 				fmt.Println("Not a git repository (or any of the parent directories): .git")
 				os.Exit(1)
 			}
 
-			if !commit.CheckStagedFiles() {
+			if !util.CheckStagedFiles() {
 				fmt.Println("No staged any files")
 				os.Exit(1)
 			}

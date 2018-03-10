@@ -32,17 +32,6 @@ type Message struct {
 	Sob     string
 }
 
-// 检查当前位置是否为 git 项目
-func CheckGitProject() bool {
-	return exec.Command("git", "rev-parse", "--show-toplevel").Run() == nil
-}
-
-// 检测暂存区是否有文件
-func CheckStagedFiles() bool {
-	output := util.MustExecRtOut("git", "diff", "--cached", "--name-only")
-	return strings.Replace(output, " ", "", -1) != ""
-}
-
 // 选择提交类型
 func SelectCommitType() consts.CommitType {
 
@@ -272,5 +261,5 @@ func Commit(cm *Message) {
 	t.Execute(f, cm)
 	util.MustExec("git", "commit", "-F", f.Name())
 
-	fmt.Println("\nAlways code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.\n")
+	fmt.Println("\nAlways code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.")
 }

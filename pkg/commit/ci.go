@@ -118,8 +118,7 @@ func InputScope() string {
 func InputSubject() string {
 
 	validate := func(input string) error {
-		reg := regexp.MustCompile("\\s+")
-		if reg.ReplaceAllString(input, "") == "" {
+		if strings.TrimSpace(input) == "" {
 			return errors.New("subject is blank")
 		}
 		if r := []rune(input); len(r) > 50 {

@@ -7,6 +7,8 @@ import (
 
 func Uninstall() {
 
+	CheckRoot()
+
 	fmt.Println("Uninstall gitflow-toolkit")
 	os.RemoveAll(GitFlowToolKitHome)
 	os.Remove(GitCIPath)

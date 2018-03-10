@@ -31,27 +31,29 @@ import (
 
 var cfgFile string
 
-func NewGitFlowToolKit() *cobra.Command {
-	gitFlowToolKitCmd := &cobra.Command{
-		Use:   "gitflow-toolkit",
-		Short: "Git Flow 辅助工具",
-		Long: `
-一个用于 CI/CD 实施的 Git Flow 辅助工具，包括但不限于 git commit message 生成、
-change log 生成等功能`,
-		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) != 0 {
-				cmd.Help()
-			}
-		},
-	}
-
-	gitFlowToolKitCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gitflow-toolkit.yaml)")
-
-	return gitFlowToolKitCmd
+var RootCmd = &cobra.Command{
+	Use:   "gitflow-toolkit",
+	Short: "Git Flow 辅助工具",
+	Long: `
+一个用于 CI/CD 实施的 Git Flow 辅助工具`,
+	Run: func(cmd *cobra.Command, args []string) {
+		cmd.Help()
+	},
 }
 
 func init() {
+
+	// init config
 	cobra.OnInitialize(initConfig)
+
+	// add flags
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gitflow-toolkit.yaml)")
+
+	// add sub cmd
+	RootCmd.AddCommand(NewCi())
+	RootCmd.AddCommand(NewCm())
+	RootCmd.AddCommand(NewInstall())
+	RootCmd.AddCommand(NewUninstall())
 }
 
 // initConfig reads in config file and ENV variables if set.

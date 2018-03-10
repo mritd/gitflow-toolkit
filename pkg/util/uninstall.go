@@ -10,5 +10,5 @@ func Uninstall() {
 	fmt.Println("Uninstall gitflow-toolkit")
 	os.RemoveAll(GitFlowToolKitHome)
 	os.Remove(GitCIPath)
-	ExecCommand("git", "config", "--global", "--unset", "core.hooksPath")
+	TryExec("git", "config", "--global", "--unset", "core.hooksPath")
 }

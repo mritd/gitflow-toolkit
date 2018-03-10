@@ -29,46 +29,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewGitFlowToolKitCommands() (*cobra.Command, []func() *cobra.Command) {
+func commandFor(basename string, rootCommand *cobra.Command) *cobra.Command {
 
-	allCommandFns := []func() *cobra.Command{
-		cmd.NewCi,
-		cmd.NewCm,
-		cmd.NewInstall,
-		cmd.NewUninstall,
+	c, _, _ := rootCommand.Find([]string{basename})
+	if c != nil {
+		// 从顶级 cmd 移除子 cmd，以保证子 cmd HasParent()=false
+		rootCommand.RemoveCommand(c)
+		return c
 	}
-
-	rootCmd := cmd.NewGitFlowToolKit()
-
-	for i := range allCommandFns {
-		rootCmd.AddCommand(allCommandFns[i]())
-	}
-
-	return rootCmd, allCommandFns
-}
-
-// 由于 cobra 在进行执行时永远会在顶级 command 进行 Exec
-// 所以在使用文件名进行 case 子 command 时
-// 必须保证单独运行的子 command 不具备 Parent
-// 这也是这里采用比较 low 的查找方式的方法(后续改进)
-func commandFor(basename string, defaultCommand *cobra.Command, commandFns []func() *cobra.Command) *cobra.Command {
-	for _, commandFn := range commandFns {
-		command := commandFn()
-		if command.Name() == basename {
-			return command
-		}
-		for _, alias := range command.Aliases {
-			if alias == basename {
-				return command
-			}
-		}
-	}
-	return defaultCommand
+	return rootCommand
 }
 
 func main() {
 
-	rootCmd, allCommandFns := NewGitFlowToolKitCommands()
 	basename := filepath.Base(os.Args[0])
-	util.CheckAndExit(commandFor(basename, rootCmd, allCommandFns).Execute())
+	util.CheckAndExit(commandFor(basename, cmd.RootCmd).Execute())
 }

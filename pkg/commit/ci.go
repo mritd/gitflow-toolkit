@@ -39,7 +39,7 @@ func CheckGitProject() bool {
 
 // 检测暂存区是否有文件
 func CheckStagedFiles() bool {
-	output := util.ExecCommandOutput("git", "diff", "--cached", "--name-only")
+	output := util.MustExecRtOut("git", "diff", "--cached", "--name-only")
 	return strings.Replace(output, " ", "", -1) != ""
 }
 
@@ -243,7 +243,7 @@ func GenSOB() string {
 	author := "Undefined"
 	email := "Undefined"
 
-	output := util.ExecCommandOutput("git", "var", "GIT_AUTHOR_IDENT")
+	output := util.MustExecRtOut("git", "var", "GIT_AUTHOR_IDENT")
 	authorInfo := strings.Fields(output)
 
 	if len(authorInfo) > 1 && authorInfo[0] != "" {
@@ -270,7 +270,7 @@ func Commit(cm *Message) {
 	defer os.Remove(f.Name())
 	util.CheckAndExit(err)
 	t.Execute(f, cm)
-	util.ExecCommand("git", "commit", "-F", f.Name())
+	util.MustExec("git", "commit", "-F", f.Name())
 
 	fmt.Println("\nAlways code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.\n")
 }

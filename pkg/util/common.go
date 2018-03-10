@@ -46,14 +46,23 @@ func CheckAndExit(err error) {
 	}
 }
 
-func ExecCommand(name string, arg ...string) {
+func MustExec(name string, arg ...string) {
 	cmd := exec.Command(name, arg...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	CheckAndExit(cmd.Run())
 }
-func ExecCommandOutput(name string, arg ...string) string {
+
+func TryExec(name string, arg ...string) error {
+	cmd := exec.Command(name, arg...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func MustExecRtOut(name string, arg ...string) string {
 	cmd := exec.Command(name, arg...)
 	b, err := cmd.CombinedOutput()
 	CheckAndExit(err)

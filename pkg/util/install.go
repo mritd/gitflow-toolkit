@@ -34,7 +34,7 @@ func Install() {
 		CheckAndExit(os.Symlink(InstallPath, GitCMHookPath))
 
 		fmt.Println("Config git")
-		ExecCommand("git", "config", "--global", "core.hooksPath", HooksPath)
+		MustExec("git", "config", "--global", "core.hooksPath", HooksPath)
 
 	} else {
 		fmt.Println("Platform not support!")

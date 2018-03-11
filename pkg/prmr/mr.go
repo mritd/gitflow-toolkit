@@ -15,6 +15,7 @@ import (
 	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/mritd/promptui"
 	"github.com/spf13/viper"
+	"github.com/xanzy/go-gitlab"
 )
 
 type Repository struct {
@@ -75,7 +76,7 @@ func GetRepository() *Repository {
 	repo.Token = token
 
 	prompt = promptui.Prompt{
-		Label:     "❯ Address(eg: https://github.com/mritd/idgen):",
+		Label:     "❯ Address(eg: https://github.com):",
 		Templates: templates,
 		Validate:  validate,
 	}
@@ -124,4 +125,18 @@ func GetRepoInfo() *Repository {
 		}
 	}
 	return nil
+}
+
+func Mr(repo *Repository) {
+	git := gitlab.NewClient(nil, repo.Token)
+	git.SetBaseURL(repo.Address + "/api/v3")
+	p, _, err := git.Projects.GetProject(repo.Project)
+	util.CheckAndExit(err)
+	opt := &gitlab.CreateMergeRequestOptions{
+		Title:        gitlab.String(""),
+		Description:  gitlab.String(""),
+		SourceBranch: gitlab.String(""),
+		TargetBranch: gitlab.String(""),
+	}
+	git.MergeRequests.CreateMergeRequest(p.ID, opt)
 }

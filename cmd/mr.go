@@ -32,6 +32,12 @@ func NewMr() *cobra.Command {
 从当前分支向当前项目指定分支发起 Merge Request`,
 		Aliases: []string{"git-mr"},
 		Run: func(cmd *cobra.Command, args []string) {
+
+			// TODO: 检测当前是否为 git 仓库
+			// TODO: 检测当前路径是否已配置(否则交互配置)
+			// TODO: 获取当前项目 ID
+			// TODO: 交互式输入 构建信息
+			// TODO: 发起 MR
 		},
 	}
 }

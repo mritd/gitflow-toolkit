@@ -114,12 +114,6 @@ func SaveRepository(repository *Repository) {
 }
 
 func GetRepoInfo() *Repository {
-	home, err := homedir.Dir()
-	util.CheckAndExit(err)
-	viper.AddConfigPath(home)
-	viper.SetConfigName(".gitflow-toolkit")
-	viper.AutomaticEnv()
-	viper.ReadInConfig()
 
 	var repositories []*Repository
 	util.CheckAndExit(viper.UnmarshalKey("repositories", &repositories))

@@ -32,7 +32,6 @@ func NewMr() *cobra.Command {
 从当前分支向当前项目指定分支发起 Merge Request`,
 		Aliases: []string{"git-mr"},
 		Run: func(cmd *cobra.Command, args []string) {
-
 		},
 	}
 }

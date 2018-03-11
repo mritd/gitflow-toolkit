@@ -19,6 +19,7 @@ import (
 
 type Repository struct {
 	Contributor string
+	Token       string
 	Project     string
 	Type        consts.RepoType
 	Address     string
@@ -64,6 +65,16 @@ func GetRepository() *Repository {
 	repo.Contributor = contributor
 
 	prompt = promptui.Prompt{
+		Label:     "❯ Token(eg: q6C49FK47WhU68ofb):",
+		Templates: templates,
+		Validate:  validate,
+	}
+
+	token, err := prompt.Run()
+	util.CheckAndExit(err)
+	repo.Token = token
+
+	prompt = promptui.Prompt{
 		Label:     "❯ Address(eg: https://github.com/mritd/idgen):",
 		Templates: templates,
 		Validate:  validate,
@@ -93,11 +104,30 @@ func SaveRepository(repository *Repository) {
 		os.Create(cfgPath)
 	}
 
-	repositories := []*Repository{}
+	var repositories []*Repository
 
 	util.CheckAndExit(viper.UnmarshalKey("repositories", &repositories))
 	repositories = append(repositories, repository)
 	viper.Set("repositories", repositories)
 	fmt.Println(viper.WriteConfig())
 
+}
+
+func GetRepoInfo() *Repository {
+	home, err := homedir.Dir()
+	util.CheckAndExit(err)
+	viper.AddConfigPath(home)
+	viper.SetConfigName(".gitflow-toolkit")
+	viper.AutomaticEnv()
+	viper.ReadInConfig()
+
+	var repositories []*Repository
+	util.CheckAndExit(viper.UnmarshalKey("repositories", &repositories))
+
+	for _, repo := range repositories {
+		if repo.Path == util.CurrentDir {
+			return repo
+		}
+	}
+	return nil
 }

@@ -1,14 +1,11 @@
 package commit
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"regexp"
-	"runtime"
 	"strings"
 	"text/template"
 
@@ -164,45 +161,9 @@ func InputBody() string {
 	result, err := prompt.Run()
 	util.CheckAndExit(err)
 	if result == "big" {
-		return InputBigBody()
+		return util.OSEditInput()
 	}
 	return result
-}
-
-// 输入超长文本信息
-func InputBigBody() string {
-
-	f, err := ioutil.TempFile("", "gitflow-toolkit")
-	util.CheckAndExit(err)
-	defer os.Remove(f.Name())
-
-	// write utf8 bom
-	bom := []byte{0xef, 0xbb, 0xbf}
-	_, err = f.Write(bom)
-	util.CheckAndExit(err)
-
-	// 获取系统编辑器
-	editor := "vim"
-	if runtime.GOOS == "windows" {
-		editor = "notepad"
-	}
-	if v := os.Getenv("VISUAL"); v != "" {
-		editor = v
-	} else if e := os.Getenv("EDITOR"); e != "" {
-		editor = e
-	}
-
-	// 执行编辑文件
-	cmd := exec.Command(editor, f.Name())
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	util.CheckAndExit(cmd.Run())
-	raw, err := ioutil.ReadFile(f.Name())
-	util.CheckAndExit(err)
-	body := string(bytes.TrimPrefix(raw, bom))
-
-	return body
 }
 
 // 输入提交关联信息

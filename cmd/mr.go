@@ -21,6 +21,11 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+
+	"github.com/mritd/gitflow-toolkit/pkg/prmr"
+	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/spf13/cobra"
 )
 
@@ -33,11 +38,17 @@ func NewMr() *cobra.Command {
 		Aliases: []string{"git-mr"},
 		Run: func(cmd *cobra.Command, args []string) {
 
-			// TODO: 检测当前是否为 git 仓库
-			// TODO: 检测当前路径是否已配置(否则交互配置)
-			// TODO: 获取当前项目 ID
-			// TODO: 交互式输入 构建信息
-			// TODO: 发起 MR
+			if !util.CheckGitProject() {
+				fmt.Println("Not a git repository (or any of the parent directories): .git")
+				os.Exit(1)
+			}
+			repo := prmr.GetRepoInfo()
+			if repo == nil {
+				repo = prmr.ConfigRepository()
+				repo.SaveRepository()
+			}
+
+			repo.Mr()
 		},
 	}
 }

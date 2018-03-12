@@ -1,5 +1,5 @@
-hash: 4acff034bd020d558dd250cd18d053ff88ca2289dd5fcdf40d74028063891c00
-updated: 2018-03-10T17:07:40.904640108+08:00
+hash: a221c15f4ce6111262af6546ce0030750f38c49c38c48035966ecc3ef47e0b5d
+updated: 2018-03-12T17:46:19.123820655+08:00
 imports:
 - name: github.com/chzyer/readline
   version: f6d7a1f6fbf35bbf9beb80dc63c56a29dcfb759f
@@ -9,6 +9,10 @@ imports:
   - md2man
 - name: github.com/fsnotify/fsnotify
   version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
+- name: github.com/google/go-querystring
+  version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
+  subpackages:
+  - query
 - name: github.com/hashicorp/hcl
   version: 23c074d0eceb2b8a5bfdbb271ab780cde70f05a8
   subpackages:
@@ -45,7 +49,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: 00c29f56e2386353d58c599509e8dc3801b0d716
 - name: github.com/mritd/promptui
-  version: 73387a99f86da8126664ebc8d879141192f43940
+  version: f94fc11da389d3982f37aedc33706ec7e265c9f4
 - name: github.com/pelletier/go-toml
   version: 05bcc0fb0d3e60da4b8dd5bd7e0ea563eb4ca943
 - name: github.com/russross/blackfriday
@@ -68,6 +72,8 @@ imports:
   version: aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5
 - name: github.com/tsuyoshiwada/go-gitcmd
   version: 5f1f5f9475df211f8b48620d704284d7375229c3
+- name: github.com/xanzy/go-gitlab
+  version: f8465d0e086756a5ea4e2a383d2a3c4510f283fa
 - name: golang.org/x/sys
   version: dd2ff4accc098aceecb86b36eaa7829b2a17b1c9
   subpackages:

@@ -49,10 +49,7 @@ func NewCi() *cobra.Command {
 		Aliases: []string{"git-ci"},
 		Run: func(cmd *cobra.Command, args []string) {
 
-			if !util.CheckGitProject() {
-				fmt.Println("Not a git repository (or any of the parent directories): .git")
-				os.Exit(1)
-			}
+			util.CheckGitProject()
 
 			if !util.CheckStagedFiles() {
 				fmt.Println("No staged any files")

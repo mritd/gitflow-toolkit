@@ -21,7 +21,6 @@ var GitCMHookPath string
 var CurrentPath string
 var CurrentDir string
 var WorkingDir string
-var GitCIPath = "/usr/local/bin/git-ci"
 
 func init() {
 
@@ -43,6 +42,23 @@ func init() {
 	CheckAndExit(err)
 }
 
+func BinPaths() *[]string {
+	return &[]string{
+		GitCMHookPath,
+		"/usr/local/bin/git-ci",
+		"/usr/local/bin/git-feat",
+		"/usr/local/bin/git-fix",
+		"/usr/local/bin/git-docs",
+		"/usr/local/bin/git-style",
+		"/usr/local/bin/git-refactor",
+		"/usr/local/bin/git-test",
+		"/usr/local/bin/git-chore",
+		"/usr/local/bin/git-perf",
+		"/usr/local/bin/git-xmr",
+		"/usr/local/bin/git-xpr",
+	}
+}
+
 func CheckErr(err error) bool {
 	if err != nil {
 		fmt.Println(err)
@@ -59,9 +75,25 @@ func CheckAndExit(err error) {
 
 func MustExec(name string, arg ...string) {
 	cmd := exec.Command(name, arg...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	b, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println(string(b))
+		os.Exit(1)
+	}
+}
+
+func MustExecRtOut(name string, arg ...string) string {
+	cmd := exec.Command(name, arg...)
+	b, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println(string(b))
+		os.Exit(1)
+	}
+	return string(b)
+}
+
+func MustExecNoOut(name string, arg ...string) {
+	cmd := exec.Command(name, arg...)
 	CheckAndExit(cmd.Run())
 }
 
@@ -71,13 +103,6 @@ func TryExec(name string, arg ...string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
-}
-
-func MustExecRtOut(name string, arg ...string) string {
-	cmd := exec.Command(name, arg...)
-	b, err := cmd.CombinedOutput()
-	CheckAndExit(err)
-	return string(b)
 }
 
 func CheckRoot() {

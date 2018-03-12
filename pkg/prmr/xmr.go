@@ -153,7 +153,7 @@ func GetRepoInfo() *Repository {
 	return nil
 }
 
-func (repo *Repository) Mr() {
+func (repo *Repository) XMr() {
 	git := gitlab.NewClient(nil, repo.Token)
 	git.SetBaseURL(repo.Address + "/api/v3")
 	p, _, err := git.Projects.GetProject(repo.Project)

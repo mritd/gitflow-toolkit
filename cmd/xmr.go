@@ -28,11 +28,11 @@ import (
 
 func NewMr() *cobra.Command {
 	return &cobra.Command{
-		Use:   "mr",
+		Use:   "xmr",
 		Short: "发起 Merge Request",
 		Long: `
-从当前分支向当前项目指定分支发起 Merge Request`,
-		Aliases: []string{"git-mr"},
+从当前分支向指定项目指定分支发起 Merge Request`,
+		Aliases: []string{"git-xmr"},
 		Run: func(cmd *cobra.Command, args []string) {
 
 			util.CheckGitProject()

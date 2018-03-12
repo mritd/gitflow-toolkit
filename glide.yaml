@@ -44,7 +44,7 @@ import:
 - package: github.com/mitchellh/mapstructure
   version: 00c29f56e2386353d58c599509e8dc3801b0d716
 - package: github.com/mritd/promptui
-  version: 73387a99f86da8126664ebc8d879141192f43940
+  version: f94fc11da389d3982f37aedc33706ec7e265c9f4
 - package: github.com/pelletier/go-toml
   version: 05bcc0fb0d3e60da4b8dd5bd7e0ea563eb4ca943
 - package: github.com/russross/blackfriday

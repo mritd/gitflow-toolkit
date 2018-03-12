@@ -3,43 +3,41 @@ package util
 import (
 	"strings"
 
-	"github.com/tsuyoshiwada/go-gitcmd"
+	"fmt"
+
+	"github.com/mritd/gitflow-toolkit/pkg/consts"
 )
 
-func Git() gitcmd.Client {
-	return gitcmd.New(nil)
-}
-
-func CheckGitProject() bool {
-	_, err := Git().Exec("rev-parse", "--show-toplevel")
-	return err == nil
+func CheckGitProject() {
+	MustExec(consts.GitCmd, "rev-parse", "--show-toplevel")
 }
 
 func CheckStagedFiles() bool {
-	output, _ := Git().Exec("diff", "--cached", "--name-only")
-	return strings.Replace(output, " ", "", -1) != ""
+	output := MustExecRtOut(consts.GitCmd, "diff", "--cached", "--name-only")
+	return strings.TrimSpace(output) != ""
 }
 
 func GetLastCommitInfo() *[]string {
-	title, _ := Git().Exec("log", "-1", "--pretty=format:%s")
-	desc, _ := Git().Exec("log", "-1", "--pretty=format:%b")
+	title := MustExecRtOut(consts.GitCmd, "log", "-1", "--pretty=format:%s")
+	desc := MustExecRtOut(consts.GitCmd, "log", "-1", "--pretty=format:%b")
 
 	return &[]string{title, desc}
 }
 
 func GetCurrentBranch() string {
 	// 1.8+ git symbolic-ref --short HEAD
-	branch, _ := Git().Exec("rev-parse", "--abbrev-ref", "HEAD")
-	return branch
+	return strings.TrimSpace(MustExecRtOut(consts.GitCmd, "rev-parse", "--abbrev-ref", "HEAD"))
 }
 
 func Rebase(sourceBranch string, targetBranch string) {
-	_, err := Git().Exec("checkout", targetBranch)
-	CheckAndExit(err)
-	_, err = Git().Exec("pull", "origin", targetBranch)
-	CheckAndExit(err)
-	_, err = Git().Exec("checkout", sourceBranch)
-	CheckAndExit(err)
-	_, err = Git().Exec("rebase", targetBranch)
-	CheckAndExit(err)
+	fmt.Println("checkout branch:", targetBranch)
+	MustExec(consts.GitCmd, "checkout", targetBranch)
+	fmt.Println("pull origin branch:", targetBranch)
+	MustExec(consts.GitCmd, "pull", "origin", targetBranch)
+	fmt.Println("checkout branch:", sourceBranch)
+	MustExec(consts.GitCmd, "checkout", sourceBranch)
+	fmt.Println("exec git rebase")
+	MustExec(consts.GitCmd, "rebase", targetBranch)
+	fmt.Println("push", sourceBranch, "to origin")
+	MustExec(consts.GitCmd, "push", "origin", sourceBranch)
 }

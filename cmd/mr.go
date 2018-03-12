@@ -21,9 +21,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/mritd/gitflow-toolkit/pkg/prmr"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/spf13/cobra"
@@ -38,10 +35,7 @@ func NewMr() *cobra.Command {
 		Aliases: []string{"git-mr"},
 		Run: func(cmd *cobra.Command, args []string) {
 
-			if !util.CheckGitProject() {
-				fmt.Println("Not a git repository (or any of the parent directories): .git")
-				os.Exit(1)
-			}
+			util.CheckGitProject()
 			repo := prmr.GetRepoInfo()
 			if repo == nil {
 				repo = prmr.ConfigRepository()

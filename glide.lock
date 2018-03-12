@@ -1,5 +1,5 @@
-hash: a221c15f4ce6111262af6546ce0030750f38c49c38c48035966ecc3ef47e0b5d
-updated: 2018-03-12T17:46:19.123820655+08:00
+hash: 461502bfd9c5f1866422602e7e2599dd4cc5fe8b06db67935ce9af1f43b4e666
+updated: 2018-03-12T21:48:31.974589641+08:00
 imports:
 - name: github.com/chzyer/readline
   version: f6d7a1f6fbf35bbf9beb80dc63c56a29dcfb759f
@@ -70,8 +70,6 @@ imports:
   version: ee5fd03fd6acfd43e44aea0b4135958546ed8e73
 - name: github.com/spf13/viper
   version: aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5
-- name: github.com/tsuyoshiwada/go-gitcmd
-  version: 5f1f5f9475df211f8b48620d704284d7375229c3
 - name: github.com/xanzy/go-gitlab
   version: f8465d0e086756a5ea4e2a383d2a3c4510f283fa
 - name: golang.org/x/sys

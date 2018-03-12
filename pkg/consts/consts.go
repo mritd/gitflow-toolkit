@@ -4,6 +4,8 @@ type CommitType string
 
 type RepoType string
 
+const GitCmd = "git"
+
 const (
 	FEAT     CommitType = "feat"
 	FIX      CommitType = "fix"

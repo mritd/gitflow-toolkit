@@ -30,8 +30,10 @@ func Install() {
 
 		fmt.Println("Create symbolic file")
 		CheckAndExit(os.MkdirAll(HooksPath, 0755))
-		CheckAndExit(os.Symlink(InstallPath, GitCIPath))
-		CheckAndExit(os.Symlink(InstallPath, GitCMHookPath))
+
+		for _, binPath := range *BinPaths() {
+			CheckAndExit(os.Symlink(InstallPath, binPath))
+		}
 
 		fmt.Println("Config git")
 		MustExec("git", "config", "--global", "core.hooksPath", HooksPath)

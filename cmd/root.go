@@ -50,7 +50,15 @@ func init() {
 	// add sub cmd
 	RootCmd.AddCommand(NewCi())
 	RootCmd.AddCommand(NewCm())
-	RootCmd.AddCommand(NewMr())
+	RootCmd.AddCommand(NewXMr())
+	RootCmd.AddCommand(NewFeat())
+	RootCmd.AddCommand(NewFix())
+	RootCmd.AddCommand(NewDocs())
+	RootCmd.AddCommand(NewStyle())
+	RootCmd.AddCommand(NewRefactor())
+	RootCmd.AddCommand(NewPerf())
+	RootCmd.AddCommand(NewTest())
+	RootCmd.AddCommand(NewChore())
 	RootCmd.AddCommand(NewInstall())
 	RootCmd.AddCommand(NewUninstall())
 }

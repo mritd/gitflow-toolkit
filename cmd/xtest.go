@@ -21,28 +21,27 @@
 package cmd
 
 import (
-	"github.com/mritd/gitflow-toolkit/pkg/prmr"
+	"fmt"
+	"os"
+
+	"github.com/mritd/gitflow-toolkit/pkg/consts"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/spf13/cobra"
 )
 
-func NewXMr() *cobra.Command {
+func NewTest() *cobra.Command {
 	return &cobra.Command{
-		Use:   "xmr",
-		Short: "发起 Merge Request",
+		Use:   "xtest",
+		Short: "创建 test 分支",
 		Long: `
-从当前分支向指定项目指定分支发起 Merge Request`,
-		Aliases: []string{"git-xmr"},
+创建一个以 test 开头的分支`,
+		Aliases: []string{"git-xtest"},
 		Run: func(cmd *cobra.Command, args []string) {
-
-			util.CheckGitProject()
-			repo := prmr.GetRepoInfo()
-			if repo == nil {
-				repo = prmr.ConfigRepository()
-				repo.SaveRepository()
+			if len(args) != 1 {
+				fmt.Println("branch name is blank")
+				os.Exit(1)
 			}
-
-			repo.XMr()
+			util.Checkout(consts.TEST, args[0])
 		},
 	}
 }

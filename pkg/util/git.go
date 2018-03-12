@@ -41,3 +41,7 @@ func Rebase(sourceBranch string, targetBranch string) {
 	fmt.Println("push", sourceBranch, "to origin")
 	MustExec(consts.GitCmd, "push", "origin", sourceBranch)
 }
+
+func Checkout(prefix consts.CommitType, branch string) {
+	MustExec(consts.GitCmd, "checkout", "-b", string(prefix)+"/"+branch)
+}

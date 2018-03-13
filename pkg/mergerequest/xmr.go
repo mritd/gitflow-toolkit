@@ -1,4 +1,4 @@
-package prmr
+package mergerequest
 
 import (
 	"errors"

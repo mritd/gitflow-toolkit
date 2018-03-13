@@ -21,7 +21,7 @@
 package cmd
 
 import (
-	"github.com/mritd/gitflow-toolkit/pkg/prmr"
+	"github.com/mritd/gitflow-toolkit/pkg/mergerequest"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/spf13/cobra"
 )
@@ -36,9 +36,9 @@ func NewXMr() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 
 			util.CheckGitProject()
-			repo := prmr.GetRepoInfo()
+			repo := mergerequest.GetRepoInfo()
 			if repo == nil {
-				repo = prmr.ConfigRepository()
+				repo = mergerequest.ConfigRepository()
 				repo.SaveRepository()
 			}
 

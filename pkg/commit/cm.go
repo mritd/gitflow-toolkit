@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/mritd/gitflow-toolkit/pkg/consts"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
@@ -38,7 +39,9 @@ func CheckCommitMessage(args []string) {
 		case string(consts.CHORE):
 		case string(consts.PERF):
 		default:
-			checkFailed()
+			if !strings.HasPrefix(string(b), "Merge branch") {
+				checkFailed()
+			}
 		}
 	}
 }

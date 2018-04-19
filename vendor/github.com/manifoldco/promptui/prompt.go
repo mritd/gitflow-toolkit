@@ -6,8 +6,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/chzyer/readline"
-	"github.com/manifoldco/promptui/screenbuf"
+	"github.com/mritd/readline"
+	"github.com/mritd/promptui/screenbuf"
 )
 
 const cursor = "\u2588"

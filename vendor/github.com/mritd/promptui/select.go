@@ -7,10 +7,10 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/chzyer/readline"
+	"github.com/mritd/readline"
 	"github.com/juju/ansiterm"
-	"github.com/manifoldco/promptui/list"
-	"github.com/manifoldco/promptui/screenbuf"
+	"github.com/mritd/promptui/list"
+	"github.com/mritd/promptui/screenbuf"
 )
 
 // SelectedAdd is returned from SelectWithAdd when add is selected.

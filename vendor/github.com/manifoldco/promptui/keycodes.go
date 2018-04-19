@@ -2,7 +2,7 @@
 
 package promptui
 
-import "github.com/chzyer/readline"
+import "github.com/mritd/readline"
 
 var (
 	// KeyEnter is the default key for submission/selection

@@ -1,15 +1,14 @@
 package commit
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"regexp"
 	"strings"
 	"text/template"
 
 	"github.com/mritd/gitflow-toolkit/pkg/consts"
+	gitprompt "github.com/mritd/gitflow-toolkit/pkg/prompt"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/mritd/promptui"
 )
@@ -84,106 +83,55 @@ func SelectCommitType() consts.CommitType {
 // 输入影响范围
 func InputScope() string {
 
-	validate := func(input string) error {
-		reg := regexp.MustCompile("\\s+")
-		if reg.ReplaceAllString(input, "") == "" {
-			return errors.New("scope is blank")
+	p := gitprompt.NewDefaultPrompt(func(line []rune) bool {
+		if strings.TrimSpace(string(line)) == "" {
+			return false
+		} else {
+			return true
 		}
-		return nil
-	}
+	}, "Scope:")
 
-	templates := &promptui.PromptTemplates{
-		Prompt:  "{{ . }} ",
-		Valid:   "{{ . | green }} ",
-		Invalid: "{{ . | red }} ",
-		Success: "{{ . | bold }} ",
-	}
-
-	prompt := promptui.Prompt{
-		Label:     "❯ Scope:",
-		Templates: templates,
-		Validate:  validate,
-	}
-
-	result, err := prompt.Run()
-	util.CheckAndExit(err)
-	return result
+	return p.Run()
 
 }
 
 // 输入提交主题
 func InputSubject() string {
 
-	validate := func(input string) error {
-		if strings.TrimSpace(input) == "" {
-			return errors.New("subject is blank")
+	p := gitprompt.NewDefaultPrompt(func(line []rune) bool {
+		if strings.TrimSpace(string(line)) == "" {
+			return false
+		} else {
+			return true
 		}
-		if r := []rune(input); len(r) > 50 {
-			return errors.New("subject too long")
-		}
+	}, "Subject:")
 
-		return nil
-	}
-
-	templates := &promptui.PromptTemplates{
-		Prompt:  "{{ . }} ",
-		Valid:   "{{ . | green }} ",
-		Invalid: "{{ . | red }} ",
-		Success: "{{ . | bold }} ",
-	}
-
-	prompt := promptui.Prompt{
-		Label:     "❯ Subject:",
-		Templates: templates,
-		Validate:  validate,
-	}
-
-	result, err := prompt.Run()
-	util.CheckAndExit(err)
-	return result
+	return p.Run()
 }
 
 // 输入完整提交信息
 func InputBody() string {
 
-	templates := &promptui.PromptTemplates{
-		Prompt:  "{{ . }} ",
-		Valid:   "{{ . | green }} ",
-		Invalid: "{{ . | red }} ",
-		Success: "{{ . | bold }} ",
-	}
+	p := gitprompt.NewDefaultPrompt(func(line []rune) bool {
+		return true
+	}, "Body:")
 
-	prompt := promptui.Prompt{
-		Label:     "❯ Body:",
-		Templates: templates,
-	}
-
-	result, err := prompt.Run()
-	util.CheckAndExit(err)
-	if result == "big" {
+	body := p.Run()
+	if body == "big" {
 		return util.OSEditInput()
 	}
-	return result
+
+	return body
 }
 
 // 输入提交关联信息
 func InputFooter() string {
 
-	templates := &promptui.PromptTemplates{
-		Prompt:  "{{ . }} ",
-		Valid:   "{{ . | green }} ",
-		Invalid: "{{ . | red }} ",
-		Success: "{{ . | bold }} ",
-	}
+	p := gitprompt.NewDefaultPrompt(func(line []rune) bool {
+		return true
+	}, "Footer:")
 
-	prompt := promptui.Prompt{
-		Label:     "❯ Footer:",
-		Templates: templates,
-	}
-
-	result, err := prompt.Run()
-	util.CheckAndExit(err)
-	return result
+	return p.Run()
 }
 
 // 生成 SOB 签名
@@ -221,5 +169,5 @@ func Commit(cm *Message) {
 	t.Execute(f, cm)
 	util.MustExec("git", "commit", "-F", f.Name())
 
-	fmt.Println("\nAlways code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.")
+	fmt.Println("\n✔ Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.")
 }

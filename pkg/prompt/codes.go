@@ -1,9 +1,9 @@
 package prompt
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
-	"fmt"
 	"text/template"
 )
 
@@ -49,9 +49,12 @@ const (
 var ResetCode = fmt.Sprintf("%s%dm", esc, reset)
 
 const (
-	hideCursor = esc + "?25l"
-	showCursor = esc + "?25h"
-	clearLine  = esc + "2K"
+	hideCursor    = esc + "?25l"
+	showCursor    = esc + "?25h"
+	clearLine     = esc + "2K"
+	moveUp        = esc + "1A"
+	moveDown      = esc + "1B"
+	cleanTerminal = "\033c"
 )
 
 // FuncMap defines template helpers for the output. It can be extended as a

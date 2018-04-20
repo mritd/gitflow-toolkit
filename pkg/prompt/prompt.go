@@ -118,7 +118,6 @@ func (p *Prompt) Run() string {
 		FuncFilterInputRune:    filterInput,
 	})
 	util.CheckAndExit(err)
-	l.Terminal.Bell()
 
 	l.Config.SetListener(func(line []rune, pos int, key rune) (newLine []rune, newPos int, ok bool) {
 		// Real-time verification

@@ -53,8 +53,9 @@ const (
 	showCursor    = esc + "?25h"
 	clearLine     = esc + "2K"
 	moveUp        = esc + "1A"
+	move2Up       = esc + "2A"
 	moveDown      = esc + "1B"
-	cleanTerminal = "\033c"
+	clearTerminal = "\033c"
 )
 
 // FuncMap defines template helpers for the output. It can be extended as a

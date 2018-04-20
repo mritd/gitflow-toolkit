@@ -1,5 +1,5 @@
-hash: 461502bfd9c5f1866422602e7e2599dd4cc5fe8b06db67935ce9af1f43b4e666
-updated: 2018-03-12T21:48:31.974589641+08:00
+hash: add3e18a662abc0b80a6c0a24f6dd53aa7bd2d733ce86236544afea87fc07c4a
+updated: 2018-04-20T15:05:24.005004181+08:00
 imports:
 - name: github.com/chzyer/readline
   version: f6d7a1f6fbf35bbf9beb80dc63c56a29dcfb759f
@@ -44,14 +44,20 @@ imports:
   version: 7dc3415be66d7cc68bf0182f35c8d31f8d2ad8a7
 - name: github.com/mattn/go-isatty
   version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
+- name: github.com/mattn/go-runewidth
+  version: ce7b0b5c7b45a81508558cd1dba6bb1e4ddb51bb
 - name: github.com/mitchellh/go-homedir
   version: b8bc1bf767474819792c23f32d8286a45736f1c6
 - name: github.com/mitchellh/mapstructure
   version: 00c29f56e2386353d58c599509e8dc3801b0d716
 - name: github.com/mritd/promptui
   version: f94fc11da389d3982f37aedc33706ec7e265c9f4
+- name: github.com/mritd/readline
+  version: 90db0eb8bda49af6c0c871a98e7f2c54544b09df
 - name: github.com/pelletier/go-toml
   version: 05bcc0fb0d3e60da4b8dd5bd7e0ea563eb4ca943
+- name: github.com/pkg/errors
+  version: 816c9085562cd7ee03e7f8188a1cfd942858cded
 - name: github.com/russross/blackfriday
   version: 55d61fa8aa702f59229e6cff85793c22e580eaf5
 - name: github.com/spf13/afero
@@ -82,5 +88,5 @@ imports:
   - transform
   - unicode/norm
 - name: gopkg.in/yaml.v2
-  version: 7f97868eec74b32b0982dd158a51a446d1da7eb5
+  version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 testImports: []

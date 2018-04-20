@@ -12,7 +12,7 @@ import (
 const (
 	DefaultPrompt         = "»"
 	DefaultErrorMsgPrefix = "✘ "
-	DefaultQuestionTpl    = "{{ . | cyan }} "
+	DefaultAskTpl         = "{{ . | cyan }} "
 	DefaultPromptTpl      = "{{ . | green }} "
 	DefaultInvalidTpl     = "{{ . | red }} "
 	DefaultValidTpl       = "{{ . | green }} "
@@ -20,12 +20,14 @@ const (
 )
 
 type Prompt struct {
-	Question  string
+	Ask       string
 	Prompt    string
 	PromptTpl *Tpl
 	FuncMap   template.FuncMap
 
-	question *template.Template
+	isFirstRun bool
+
+	ask      *template.Template
 	prompt   *template.Template
 	valid    *template.Template
 	invalid  *template.Template
@@ -33,7 +35,7 @@ type Prompt struct {
 }
 
 type Tpl struct {
-	QuestionTpl   string
+	AskTpl        string
 	PromptTpl     string
 	ValidTpl      string
 	InvalidTpl    string
@@ -43,7 +45,7 @@ type Tpl struct {
 
 func NewDefaultTpl(check func(line []rune) error) *Tpl {
 	return &Tpl{
-		QuestionTpl:   DefaultQuestionTpl,
+		AskTpl:        DefaultAskTpl,
 		PromptTpl:     DefaultPromptTpl,
 		InvalidTpl:    DefaultInvalidTpl,
 		ValidTpl:      DefaultValidTpl,
@@ -52,19 +54,20 @@ func NewDefaultTpl(check func(line []rune) error) *Tpl {
 	}
 }
 
-func NewDefaultPrompt(check func(line []rune) error, question string) *Prompt {
+func NewDefaultPrompt(check func(line []rune) error, ask string) *Prompt {
 	return &Prompt{
-		Question:  question,
-		Prompt:    DefaultPrompt,
-		PromptTpl: NewDefaultTpl(check),
-		FuncMap:   FuncMap,
+		isFirstRun: true,
+		Ask:        ask,
+		Prompt:     DefaultPrompt,
+		PromptTpl:  NewDefaultTpl(check),
+		FuncMap:    FuncMap,
 	}
 }
 
 func (p *Prompt) prepareTemplates() {
 
 	var err error
-	p.question, err = template.New("").Funcs(FuncMap).Parse(p.PromptTpl.QuestionTpl)
+	p.ask, err = template.New("").Funcs(FuncMap).Parse(p.PromptTpl.AskTpl)
 	util.CheckAndExit(err)
 	p.prompt, err = template.New("").Funcs(FuncMap).Parse(p.PromptTpl.PromptTpl)
 	util.CheckAndExit(err)
@@ -99,9 +102,9 @@ func (p *Prompt) Run() string {
 
 	p.prepareTemplates()
 
-	displayPrompt := append(render(p.prompt, p.Prompt), render(p.question, p.Question)...)
-	validPrompt := append(render(p.valid, p.Prompt), render(p.question, p.Question)...)
-	invalidPrompt := append(render(p.invalid, p.Prompt), render(p.question, p.Question)...)
+	displayPrompt := append(render(p.prompt, p.Prompt), render(p.ask, p.Ask)...)
+	validPrompt := append(render(p.valid, p.Prompt), render(p.ask, p.Ask)...)
+	invalidPrompt := append(render(p.invalid, p.Prompt), render(p.ask, p.Ask)...)
 
 	l, err := readline.NewEx(&readline.Config{
 		Prompt:                 string(displayPrompt),
@@ -129,6 +132,14 @@ func (p *Prompt) Run() string {
 		s, err := l.Readline()
 		util.CheckAndExit(err)
 		if err = p.PromptTpl.CheckListener([]rune(s)); err != nil {
+			if p.isFirstRun {
+				fmt.Print(moveUp)
+				p.isFirstRun = false
+			} else {
+				fmt.Print(moveUp)
+				fmt.Print(moveUp)
+			}
+			fmt.Print(clearLine)
 			fmt.Println(string(render(p.errorMsg, DefaultErrorMsgPrefix+err.Error())))
 		} else {
 			return s

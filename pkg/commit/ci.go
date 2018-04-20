@@ -102,6 +102,8 @@ func InputSubject() string {
 	p := gitprompt.NewDefaultPrompt(func(line []rune) error {
 		if strings.TrimSpace(string(line)) == "" {
 			return errors.New("Input is empty!")
+		} else if len(line) > 25 {
+			return errors.New("Input length must < 25!")
 		} else {
 			return nil
 		}

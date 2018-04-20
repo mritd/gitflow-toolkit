@@ -1,7 +1,7 @@
 package: github.com/mritd/gitflow-toolkit
 import:
-- package: github.com/chzyer/readline
-  version: f6d7a1f6fbf35bbf9beb80dc63c56a29dcfb759f
+- package: github.com/mritd/readline
+  version: 90db0eb8bda49af6c0c871a98e7f2c54544b09df
 - package: github.com/cpuguy83/go-md2man
   version: 48d8747a2ca13185e7cc8efe6e9fc196a83f71a5
   subpackages:

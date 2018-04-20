@@ -56,11 +56,10 @@ func NewDefaultTpl(check func(line []rune) error) *Tpl {
 
 func NewDefaultPrompt(check func(line []rune) error, ask string) *Prompt {
 	return &Prompt{
-		isFirstRun: true,
-		Ask:        ask,
-		Prompt:     DefaultPrompt,
-		PromptTpl:  NewDefaultTpl(check),
-		FuncMap:    FuncMap,
+		Ask:       ask,
+		Prompt:    DefaultPrompt,
+		PromptTpl: NewDefaultTpl(check),
+		FuncMap:   FuncMap,
 	}
 }
 
@@ -94,12 +93,18 @@ func filterInput(r rune) (rune, bool) {
 	// block CtrlZ feature
 	case readline.CharCtrlZ:
 		return r, false
+	// clear line
+	case readline.CharInterrupt:
+		fmt.Print(moveDown)
+		fmt.Print(clearLine)
+		fmt.Print(moveUp)
+		return r, true
 	}
 	return r, true
 }
 
 func (p *Prompt) Run() string {
-
+	p.isFirstRun = true
 	p.prepareTemplates()
 
 	displayPrompt := append(render(p.prompt, p.Prompt), render(p.ask, p.Ask)...)
@@ -115,32 +120,29 @@ func (p *Prompt) Run() string {
 	util.CheckAndExit(err)
 
 	l.Config.SetListener(func(line []rune, pos int, key rune) (newLine []rune, newPos int, ok bool) {
+		// dynamic verification
 		if err = p.PromptTpl.CheckListener(line); err != nil {
 			l.SetPrompt(string(invalidPrompt))
 			l.Refresh()
-
 		} else {
 			l.SetPrompt(string(validPrompt))
 			l.Refresh()
-
 		}
 		return nil, 0, false
-
 	})
 	defer l.Close()
+
+	// read line
 	for {
+		if !p.isFirstRun {
+			fmt.Print(move2Up)
+		}
 		s, err := l.Readline()
 		util.CheckAndExit(err)
 		if err = p.PromptTpl.CheckListener([]rune(s)); err != nil {
-			if p.isFirstRun {
-				fmt.Print(moveUp)
-				p.isFirstRun = false
-			} else {
-				fmt.Print(moveUp)
-				fmt.Print(moveUp)
-			}
 			fmt.Print(clearLine)
 			fmt.Println(string(render(p.errorMsg, DefaultErrorMsgPrefix+err.Error())))
+			p.isFirstRun = false
 		} else {
 			return s
 		}

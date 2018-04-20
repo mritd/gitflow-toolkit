@@ -34,6 +34,7 @@ type Config struct {
 	// specify the max length of historys, it's 500 by default, set it to -1 to disable history
 	HistoryLimit           int
 	DisableAutoSaveHistory bool
+	DisableBell            bool
 	// enable case-insensitive history searching
 	HistorySearchFold bool
 

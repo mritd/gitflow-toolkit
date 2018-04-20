@@ -1,5 +1,5 @@
-hash: add3e18a662abc0b80a6c0a24f6dd53aa7bd2d733ce86236544afea87fc07c4a
-updated: 2018-04-20T15:05:24.005004181+08:00
+hash: 82754e364c91f9e9daeb3397d5fcf52b6710dd653b59bbeb71ea6f7179996f3c
+updated: 2018-04-20T16:13:38.843442154+08:00
 imports:
 - name: github.com/chzyer/readline
   version: f6d7a1f6fbf35bbf9beb80dc63c56a29dcfb759f
@@ -53,7 +53,7 @@ imports:
 - name: github.com/mritd/promptui
   version: f94fc11da389d3982f37aedc33706ec7e265c9f4
 - name: github.com/mritd/readline
-  version: 90db0eb8bda49af6c0c871a98e7f2c54544b09df
+  version: de392c2a7aa51fec3662bfdd5b262788cc014a83
 - name: github.com/pelletier/go-toml
   version: 05bcc0fb0d3e60da4b8dd5bd7e0ea563eb4ca943
 - name: github.com/pkg/errors

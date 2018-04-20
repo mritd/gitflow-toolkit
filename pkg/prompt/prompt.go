@@ -118,9 +118,10 @@ func (p *Prompt) Run() string {
 		FuncFilterInputRune:    filterInput,
 	})
 	util.CheckAndExit(err)
+	l.Terminal.Bell()
 
 	l.Config.SetListener(func(line []rune, pos int, key rune) (newLine []rune, newPos int, ok bool) {
-		// dynamic verification
+		// Real-time verification
 		if err = p.PromptTpl.CheckListener(line); err != nil {
 			l.SetPrompt(string(invalidPrompt))
 			l.Refresh()

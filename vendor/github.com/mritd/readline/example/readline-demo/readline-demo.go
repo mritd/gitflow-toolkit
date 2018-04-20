@@ -77,17 +77,18 @@ func main() {
 		AutoComplete:    completer,
 		InterruptPrompt: "^C",
 		EOFPrompt:       "exit",
+		DisableBell:     true,
 
 		HistorySearchFold:   true,
 		FuncFilterInputRune: filterInput,
 	})
 
 	l.Config.SetListener(func(line []rune, pos int, key rune) (newLine []rune, newPos int, ok bool) {
-		if len(line)>5 {
+		if len(line) > 5 {
 			l.SetPrompt("\033[31m»\033[0m ")
 			l.Refresh()
 			return nil, 0, false
-		}else {
+		} else {
 			l.SetPrompt("\033[32m»\033[0m ")
 			l.Refresh()
 			return nil, 0, false

@@ -10,19 +10,18 @@ import (
 )
 
 const (
-	DefaultPrompt      = "»"
-	DefaultErrorMsg    = "✘Invalid input!"
-	DefaultQuestionTpl = "{{ . | cyan }} "
-	DefaultPromptTpl   = "{{ . | green }} "
-	DefaultInvalidTpl  = "{{ . | red }} "
-	DefaultValidTpl    = "{{ . | green }} "
-	DefaultErrorMsgTpl = "{{ . | red }} "
+	DefaultPrompt         = "»"
+	DefaultErrorMsgPrefix = "✘ "
+	DefaultQuestionTpl    = "{{ . | cyan }} "
+	DefaultPromptTpl      = "{{ . | green }} "
+	DefaultInvalidTpl     = "{{ . | red }} "
+	DefaultValidTpl       = "{{ . | green }} "
+	DefaultErrorMsgTpl    = "{{ . | red }} "
 )
 
 type Prompt struct {
 	Question  string
 	Prompt    string
-	ErrorMsg  string
 	PromptTpl *Tpl
 	FuncMap   template.FuncMap
 
@@ -39,10 +38,10 @@ type Tpl struct {
 	ValidTpl      string
 	InvalidTpl    string
 	ErrorMsgTpl   string
-	CheckListener func(line []rune) bool
+	CheckListener func(line []rune) error
 }
 
-func NewDefaultTpl(check func(line []rune) bool) *Tpl {
+func NewDefaultTpl(check func(line []rune) error) *Tpl {
 	return &Tpl{
 		QuestionTpl:   DefaultQuestionTpl,
 		PromptTpl:     DefaultPromptTpl,
@@ -53,10 +52,9 @@ func NewDefaultTpl(check func(line []rune) bool) *Tpl {
 	}
 }
 
-func NewDefaultPrompt(check func(line []rune) bool, question string) *Prompt {
+func NewDefaultPrompt(check func(line []rune) error, question string) *Prompt {
 	return &Prompt{
 		Question:  question,
-		ErrorMsg:  DefaultErrorMsg,
 		Prompt:    DefaultPrompt,
 		PromptTpl: NewDefaultTpl(check),
 		FuncMap:   FuncMap,
@@ -104,7 +102,6 @@ func (p *Prompt) Run() string {
 	displayPrompt := append(render(p.prompt, p.Prompt), render(p.question, p.Question)...)
 	validPrompt := append(render(p.valid, p.Prompt), render(p.question, p.Question)...)
 	invalidPrompt := append(render(p.invalid, p.Prompt), render(p.question, p.Question)...)
-	errorMsgPrompt := render(p.errorMsg, p.ErrorMsg)
 
 	l, err := readline.NewEx(&readline.Config{
 		Prompt:                 string(displayPrompt),
@@ -112,44 +109,29 @@ func (p *Prompt) Run() string {
 		InterruptPrompt:        "^C",
 		FuncFilterInputRune:    filterInput,
 	})
+	util.CheckAndExit(err)
 
 	l.Config.SetListener(func(line []rune, pos int, key rune) (newLine []rune, newPos int, ok bool) {
-		if p.PromptTpl.CheckListener(line) {
-
-			l.SetPrompt(string(validPrompt))
-			l.Refresh()
-		} else {
-
+		if err = p.PromptTpl.CheckListener(line); err != nil {
 			l.SetPrompt(string(invalidPrompt))
 			l.Refresh()
+
+		} else {
+			l.SetPrompt(string(validPrompt))
+			l.Refresh()
+
 		}
 		return nil, 0, false
 
 	})
-	if err != nil {
-		panic(err)
-	}
 	defer l.Close()
 	for {
 		s, err := l.Readline()
 		util.CheckAndExit(err)
-		if p.PromptTpl.CheckListener([]rune(s)) {
-			return s
+		if err = p.PromptTpl.CheckListener([]rune(s)); err != nil {
+			fmt.Println(string(render(p.errorMsg, DefaultErrorMsgPrefix+err.Error())))
 		} else {
-			fmt.Println(string(errorMsgPrompt))
+			return s
 		}
 	}
 }
-
-//func Test() {
-//
-//	check := func(line []rune) bool {
-//		if len(line) > 5 {
-//			return false
-//		}
-//		return true
-//	}
-//
-//	p := NewDefaultPrompt(check, "请输入5个字符:")
-//	fmt.Println(p.Run())
-//}

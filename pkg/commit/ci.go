@@ -11,6 +11,7 @@ import (
 	gitprompt "github.com/mritd/gitflow-toolkit/pkg/prompt"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/mritd/promptui"
+	"github.com/pkg/errors"
 )
 
 type TypeMessage struct {
@@ -83,11 +84,11 @@ func SelectCommitType() consts.CommitType {
 // 输入影响范围
 func InputScope() string {
 
-	p := gitprompt.NewDefaultPrompt(func(line []rune) bool {
+	p := gitprompt.NewDefaultPrompt(func(line []rune) error {
 		if strings.TrimSpace(string(line)) == "" {
-			return false
+			return errors.New("Input is empty!")
 		} else {
-			return true
+			return nil
 		}
 	}, "Scope:")
 
@@ -98,11 +99,11 @@ func InputScope() string {
 // 输入提交主题
 func InputSubject() string {
 
-	p := gitprompt.NewDefaultPrompt(func(line []rune) bool {
+	p := gitprompt.NewDefaultPrompt(func(line []rune) error {
 		if strings.TrimSpace(string(line)) == "" {
-			return false
+			return errors.New("Input is empty!")
 		} else {
-			return true
+			return nil
 		}
 	}, "Subject:")
 
@@ -112,8 +113,8 @@ func InputSubject() string {
 // 输入完整提交信息
 func InputBody() string {
 
-	p := gitprompt.NewDefaultPrompt(func(line []rune) bool {
-		return true
+	p := gitprompt.NewDefaultPrompt(func(line []rune) error {
+		return nil
 	}, "Body:")
 
 	body := p.Run()
@@ -127,8 +128,8 @@ func InputBody() string {
 // 输入提交关联信息
 func InputFooter() string {
 
-	p := gitprompt.NewDefaultPrompt(func(line []rune) bool {
-		return true
+	p := gitprompt.NewDefaultPrompt(func(line []rune) error {
+		return nil
 	}, "Footer:")
 
 	return p.Run()

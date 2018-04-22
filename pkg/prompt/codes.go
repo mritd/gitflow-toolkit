@@ -49,13 +49,16 @@ const (
 var ResetCode = fmt.Sprintf("%s%dm", esc, reset)
 
 const (
-	hideCursor    = esc + "?25l"
-	showCursor    = esc + "?25h"
-	clearLine     = esc + "2K"
-	moveUp        = esc + "1A"
-	move2Up       = esc + "2A"
-	moveDown      = esc + "1B"
-	clearTerminal = "\033c"
+	hideCursor       = esc + "?25l"
+	showCursor       = esc + "?25h"
+	clearLine        = esc + "2K"
+	clearDown        = esc + "J"
+	clearStartOfLine = esc + "1K"
+	clearScreen      = esc + "2J"
+	moveUp           = esc + "1A"
+	move2Up          = esc + "2A"
+	moveDown         = esc + "1B"
+	clearTerminal    = "\033c"
 )
 
 // FuncMap defines template helpers for the output. It can be extended as a

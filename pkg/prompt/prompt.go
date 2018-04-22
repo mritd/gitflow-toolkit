@@ -88,7 +88,8 @@ func render(tpl *template.Template, data interface{}) []byte {
 	return buf.Bytes()
 }
 
-func filterInput(r rune) (rune, bool) {
+func promptFilterInput(r rune) (rune, bool) {
+
 	switch r {
 	// block CtrlZ feature
 	case readline.CharCtrlZ:
@@ -99,8 +100,9 @@ func filterInput(r rune) (rune, bool) {
 		fmt.Print(clearLine)
 		fmt.Print(moveUp)
 		return r, true
+	default:
+		return r, true
 	}
-	return r, true
 }
 
 func (p *Prompt) Run() string {
@@ -115,7 +117,7 @@ func (p *Prompt) Run() string {
 		Prompt:                 string(displayPrompt),
 		DisableAutoSaveHistory: true,
 		InterruptPrompt:        "^C",
-		FuncFilterInputRune:    filterInput,
+		FuncFilterInputRune:    promptFilterInput,
 	})
 	util.CheckAndExit(err)
 

@@ -1,99 +1,207 @@
 package prompt
 
 import (
-	"bytes"
 	"text/template"
 
-	"github.com/mritd/idgen/util"
+	"os"
+
+	"bytes"
+
+	"strings"
+
+	"fmt"
+
+	"github.com/mritd/gitflow-toolkit/pkg/prompt/list"
+	"github.com/mritd/gitflow-toolkit/pkg/util"
+	"github.com/mritd/readline"
 )
 
 const (
-	DefaultActiveTpl       = "{{ . | cyan }}"
-	DefaultInactiveTpl     = "{{ . | white }}"
-	DefaultDetailsTpl      = "{{ . | white }}"
-	DefaultSelectHeaderTpl = `{{ "Use the arrow keys to navigate: ↓ ↑ → ←" | faint }}`
-	DefaultSelectPromptTpl = `{{ "Select" . | faint }}:`
-	DefaultSelectAsk       = "Please select"
-	NextLine               = "\n"
+	DefaultActiveTpl       = "{{ . | cyan }}\n"
+	DefaultInactiveTpl     = "{{ . | white }}\n"
+	DefaultDetailsTpl      = "{{ . | white }}\n"
+	DefaultSelectedTpl     = "{{ . | cyan }}\n"
+	DefaultSelectHeaderTpl = "{{ \"Use the arrow keys to navigate: ↓ ↑ → ←\" | faint }}"
+	DefaultSelectPromptTpl = "{{ \"Select\" | faint }} {{ . | faint}}:"
+	DefaultDisPlaySize     = 5
+	NewLine                = "\n"
 )
 
 type Select struct {
-	SelectConfig
-	Items        interface{}
-	SelectPrompt string
+	Config *SelectConfig
+	Items  interface{}
+	buf    bytes.Buffer
+	high   int
 
 	selectPrompt *template.Template
 	selectHeader *template.Template
+	selected     *template.Template
 	active       *template.Template
 	inactive     *template.Template
 	details      *template.Template
 }
 
 type SelectConfig struct {
-	Prompt
-	SelectHeaderTpl string
-	SelectPromptTpl string
-	ActiveTpl       string
-	InactiveTpl     string
-	DetailsTpl      string
-}
+	ActiveTpl    string
+	InactiveTpl  string
+	SelectedTpl  string
+	DetailsTpl   string
+	DisPlaySize  int
+	SelectPrompt string
 
-func NewDefaultSelectConfig(check func(line []rune) error, selectAsk string) SelectConfig {
-	return SelectConfig{
-		Prompt:          NewDefaultPrompt(check, selectAsk),
-		SelectHeaderTpl: DefaultSelectHeaderTpl,
-		SelectPromptTpl: DefaultSelectPromptTpl,
-		ActiveTpl:       DefaultActiveTpl,
-		InactiveTpl:     DefaultInactiveTpl,
-		DetailsTpl:      DefaultDetailsTpl,
-	}
-}
-
-func NewDefaultSelect(check func(line []rune) error, items interface{}) *Select {
-	return &Select{
-		SelectConfig: NewDefaultSelectConfig(check, DefaultSelectAsk),
-		Items:        items,
-	}
+	selectHeaderTpl string
+	selectPromptTpl string
 }
 
 func (s *Select) prepareTemplates() {
 
 	var err error
 
-	// Prompt prepare
-	s.ask, err = template.New("").Funcs(FuncMap).Parse(s.AskTpl)
-	util.CheckAndExit(err)
-	s.prompt, err = template.New("").Funcs(FuncMap).Parse(s.PromptTpl)
-	util.CheckAndExit(err)
-	s.valid, err = template.New("").Funcs(FuncMap).Parse(s.ValidTpl)
-	util.CheckAndExit(err)
-	s.invalid, err = template.New("").Funcs(FuncMap).Parse(s.InvalidTpl)
-	util.CheckAndExit(err)
-	s.errorMsg, err = template.New("").Funcs(FuncMap).Parse(s.ErrorMsgTpl)
-	util.CheckAndExit(err)
+	// set default value
+	if s.Config.selectHeaderTpl == "" {
+		s.Config.selectHeaderTpl = DefaultSelectHeaderTpl
+	}
+	if s.Config.selectPromptTpl == "" {
+		s.Config.selectPromptTpl = DefaultSelectPromptTpl
+	}
+	if s.Config.SelectedTpl == "" {
+		s.Config.SelectedTpl = DefaultSelectedTpl
+	}
+	if s.Config.ActiveTpl == "" {
+		s.Config.ActiveTpl = DefaultActiveTpl
+	}
+	if s.Config.InactiveTpl == "" {
+		s.Config.InactiveTpl = DefaultInactiveTpl
+	}
+	if s.Config.DetailsTpl == "" {
+		s.Config.DetailsTpl = DefaultDetailsTpl
+	}
+	if s.Config.DisPlaySize < 1 {
+		s.Config.DisPlaySize = DefaultDisPlaySize
+	}
 
 	// Select prepare
-	s.selectHeader, err = template.New("").Funcs(FuncMap).Parse(s.SelectHeaderTpl)
+	s.selectHeader, err = template.New("").Funcs(FuncMap).Parse(s.Config.selectHeaderTpl + NewLine)
 	util.CheckAndExit(err)
-	s.selectPrompt, err = template.New("").Funcs(FuncMap).Parse(s.SelectPromptTpl)
+	s.selectPrompt, err = template.New("").Funcs(FuncMap).Parse(s.Config.selectPromptTpl + NewLine)
 	util.CheckAndExit(err)
-	s.active, err = template.New("").Funcs(FuncMap).Parse(s.ActiveTpl)
+	s.selected, err = template.New("").Funcs(FuncMap).Parse(s.Config.SelectedTpl)
 	util.CheckAndExit(err)
-	s.inactive, err = template.New("").Funcs(FuncMap).Parse(s.InactiveTpl)
+	s.active, err = template.New("").Funcs(FuncMap).Parse(s.Config.ActiveTpl + NewLine)
 	util.CheckAndExit(err)
-	s.details, err = template.New("").Funcs(FuncMap).Parse(s.DetailsTpl)
+	s.inactive, err = template.New("").Funcs(FuncMap).Parse(s.Config.InactiveTpl + NewLine)
+	util.CheckAndExit(err)
+	s.details, err = template.New("").Funcs(FuncMap).Parse(s.Config.DetailsTpl + NewLine)
 	util.CheckAndExit(err)
 
 }
 
-func (s *Select) prepareDisplayData(sindex int) {
-	var data bytes.Buffer
+func (s *Select) writeData(l *list.List) {
+
+	// clean buffer
+	s.buf.Reset()
+
+	for i := 0; i < s.high; i++ {
+		s.buf.Write([]byte(moveUp))
+		s.buf.Write([]byte(clearLine))
+	}
+
+	// clean terminal
+	s.buf.Write([]byte(clearStartOfLine))
 
 	// select header
-	data.Write(render(s.selectHeader, NextLine))
+	s.buf.Write(render(s.selectHeader, ""))
+
 	// select prompt
-	data.Write(render(s.selectPrompt, s.SelectPrompt+NextLine))
-	//for it := range s.Items {
-	//
-	//}
+	s.buf.Write(render(s.selectPrompt, s.Config.SelectPrompt))
+
+	items, idx := l.Items()
+
+	for i, item := range items {
+		if i == idx {
+			s.buf.Write(render(s.active, item))
+		} else {
+			s.buf.Write(render(s.inactive, item))
+		}
+	}
+	// detail
+	s.buf.Write(render(s.details, items[idx]))
+
+	// hide cursor
+	s.buf.Write([]byte(hideCursor))
+
+	// set high
+	s.high = len(strings.Split(s.buf.String(), "\n")) - 1
+}
+
+func (s *Select) Run() int {
+
+	s.prepareTemplates()
+
+	dataList, err := list.New(s.Items, s.Config.DisPlaySize)
+	util.CheckAndExit(err)
+
+	l, err := readline.NewEx(&readline.Config{
+		Prompt:                 "",
+		DisableAutoSaveHistory: true,
+		HistoryLimit:           -1,
+		InterruptPrompt:        "^C",
+		UniqueEditLine:         true,
+		DisableBell:            true,
+		Stdin:                  readline.NewCancelableStdin(os.Stdin),
+	})
+	defer l.Close()
+	util.CheckAndExit(err)
+
+	filterInput := func(r rune) (rune, bool) {
+		switch r {
+		case readline.CharInterrupt:
+			// show cursor
+			l.Write([]byte(showCursor))
+			l.Refresh()
+			return r, true
+		case readline.CharNext:
+			dataList.Next()
+		case readline.CharPrev:
+			dataList.Prev()
+		case readline.CharForward:
+			dataList.PageDown()
+		case readline.CharBackward:
+			dataList.PageUp()
+		default:
+			return r, true
+		}
+		s.writeData(dataList)
+		l.Write(s.buf.Bytes())
+		l.Refresh()
+		return r, true
+	}
+
+	l.Config.FuncFilterInputRune = filterInput
+
+	s.writeData(dataList)
+	l.Write(s.buf.Bytes())
+
+	_, err = l.Readline()
+	util.CheckAndExit(err)
+
+	items, idx := dataList.Items()
+	result := items[idx]
+
+	// clean terminal
+	s.buf.Reset()
+	for i := 0; i < s.high; i++ {
+		s.buf.Write([]byte(moveUp))
+		s.buf.Write([]byte(clearLine))
+	}
+	l.Write(s.buf.Bytes())
+
+	// show cursor
+	l.Write([]byte(showCursor))
+	l.Refresh()
+
+	fmt.Println(string(render(s.selected, result)))
+
+	return idx
+
 }

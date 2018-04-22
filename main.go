@@ -45,3 +45,7 @@ func main() {
 	basename := filepath.Base(os.Args[0])
 	util.CheckAndExit(commandFor(basename, cmd.RootCmd).Execute())
 }
+
+//func main() {
+//	commit.TRun()
+//}

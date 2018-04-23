@@ -117,6 +117,11 @@ func (t *ISOTime) UnmarshalJSON(data []byte) error {
 	return err
 }
 
+// String implements the Stringer interface
+func (t ISOTime) String() string {
+	return time.Time(t).Format(iso8601)
+}
+
 // NotificationLevelValue represents a notification level.
 type NotificationLevelValue int
 
@@ -275,6 +280,7 @@ type Client struct {
 	GitIgnoreTemplates   *GitIgnoreTemplatesService
 	Groups               *GroupsService
 	GroupMembers         *GroupMembersService
+	GroupMilestones      *GroupMilestonesService
 	Issues               *IssuesService
 	IssueLinks           *IssueLinksService
 	Jobs                 *JobsService
@@ -363,6 +369,7 @@ func newClient(httpClient *http.Client, tokenType tokenType, token string) *Clie
 	c.GitIgnoreTemplates = &GitIgnoreTemplatesService{client: c}
 	c.Groups = &GroupsService{client: c}
 	c.GroupMembers = &GroupMembersService{client: c}
+	c.GroupMilestones = &GroupMilestonesService{client: c}
 	c.Issues = &IssuesService{client: c, timeStats: timeStats}
 	c.IssueLinks = &IssueLinksService{client: c}
 	c.Jobs = &JobsService{client: c}

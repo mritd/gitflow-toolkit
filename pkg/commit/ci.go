@@ -8,9 +8,8 @@ import (
 	"text/template"
 
 	"github.com/mritd/gitflow-toolkit/pkg/consts"
-	gitprompt "github.com/mritd/gitflow-toolkit/pkg/prompt"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
-	"github.com/mritd/promptui"
+	"github.com/mritd/promptx"
 	"github.com/pkg/errors"
 )
 
@@ -43,48 +42,37 @@ func SelectCommitType() consts.CommitType {
 		{Type: consts.PERF, ZHDescription: "性能优化", ENDescription: "Improving performance"},
 		{Type: consts.EXIT, ZHDescription: "退出", ENDescription: "Exit commit"},
 	}
-	templates := &promptui.SelectTemplates{
-		Label:    "{{ . }}",
-		Active:   "❯ {{ .Type | cyan }} ({{ .ENDescription | cyan }})",
-		Inactive: "  {{ .Type | white }} ({{ .ENDescription | white }})",
-		Selected: "{{ \"❯ Type:\" | green }} {{ .Type }}",
-		Details: `
+	cfg := &promptx.SelectConfig{
+		ActiveTpl:    "»  {{ .Type | cyan }} ({{ .ENDescription | cyan }})",
+		InactiveTpl:  "  {{ .Type | white }} ({{ .ENDescription | white }})",
+		SelectPrompt: "Commit Type",
+		SelectedTpl:  "{{ \"» Type:\" | green }} {{ .Type }}",
+		DisPlaySize:  9,
+		DetailsTpl: `
 --------- Commit Type ----------
 {{ "Type:" | faint }}	{{ .Type }}
 {{ "Description:" | faint }}	{{ .ZHDescription }}({{ .ENDescription }})`,
 	}
 
-	searcher := func(input string, index int) bool {
-		commitType := commitTypes[index]
-		cmType := strings.Replace(strings.ToLower(string(commitType.Type)), " ", "", -1)
-		input = strings.Replace(strings.ToLower(input), " ", "", -1)
-
-		return strings.Contains(cmType, input)
+	s := &promptx.Select{
+		Items:  commitTypes,
+		Config: cfg,
 	}
 
-	prompt := promptui.Select{
-		Label:     "Select Commit Type:",
-		Items:     commitTypes,
-		Templates: templates,
-		Size:      9,
-		Searcher:  searcher,
-	}
+	idx := s.Run()
 
-	i, _, err := prompt.Run()
-	util.CheckAndExit(err)
-
-	if commitTypes[i].Type == consts.EXIT {
+	if commitTypes[idx].Type == consts.EXIT {
 		fmt.Println("Talk is cheap. Show me the code.")
 		os.Exit(0)
 	}
 
-	return commitTypes[i].Type
+	return commitTypes[idx].Type
 }
 
 // 输入影响范围
 func InputScope() string {
 
-	p := gitprompt.NewDefaultPrompt(func(line []rune) error {
+	p := promptx.NewDefaultPrompt(func(line []rune) error {
 		if strings.TrimSpace(string(line)) == "" {
 			return errors.New("Input is empty!")
 		} else {
@@ -99,7 +87,7 @@ func InputScope() string {
 // 输入提交主题
 func InputSubject() string {
 
-	p := gitprompt.NewDefaultPrompt(func(line []rune) error {
+	p := promptx.NewDefaultPrompt(func(line []rune) error {
 		if strings.TrimSpace(string(line)) == "" {
 			return errors.New("Input is empty!")
 		} else if len(line) > 25 {
@@ -115,7 +103,7 @@ func InputSubject() string {
 // 输入完整提交信息
 func InputBody() string {
 
-	p := gitprompt.NewDefaultPrompt(func(line []rune) error {
+	p := promptx.NewDefaultPrompt(func(line []rune) error {
 		return nil
 	}, "Body:")
 
@@ -130,7 +118,7 @@ func InputBody() string {
 // 输入提交关联信息
 func InputFooter() string {
 
-	p := gitprompt.NewDefaultPrompt(func(line []rune) error {
+	p := promptx.NewDefaultPrompt(func(line []rune) error {
 		return nil
 	}, "Footer:")
 

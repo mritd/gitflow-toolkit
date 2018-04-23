@@ -11,10 +11,12 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/mritd/gitflow-toolkit/pkg/consts"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
-	"github.com/mritd/promptui"
+	"github.com/mritd/promptx"
 	"github.com/spf13/viper"
 	"github.com/xanzy/go-gitlab"
 )
+
+const EmptyErrorMassage = "Input is empty!"
 
 type Repository struct {
 	Contributor string
@@ -30,58 +32,52 @@ func ConfigRepository() *Repository {
 
 	repo := Repository{}
 
-	validate := func(input string) error {
-		if strings.TrimSpace(input) == "" {
-			return errors.New("subject is blank")
+	// namespace/project
+	p := promptx.NewDefaultPrompt(func(line []rune) error {
+		if strings.TrimSpace(string(line)) == "" {
+			return errors.New(EmptyErrorMassage)
+		} else {
+			return nil
 		}
-		return nil
-	}
+	}, "Project(eg: namespace/project):")
 
-	templates := &promptui.PromptTemplates{
-		Prompt:  "{{ . }} ",
-		Valid:   "{{ . | green }} ",
-		Invalid: "{{ . | red }} ",
-		Success: "{{ . | bold }} ",
-	}
-
-	prompt := promptui.Prompt{
-		Label:     "❯ Project(eg: namespace/project):",
-		Templates: templates,
-		Validate:  validate,
-	}
-
-	project, err := prompt.Run()
-	util.CheckAndExit(err)
+	project := p.Run()
 	repo.Project = strings.ToLower(project)
 
-	prompt = promptui.Prompt{
-		Label:     "❯ Contributor(eg: mritd):",
-		Templates: templates,
-		Validate:  validate,
-	}
+	// Contributor
+	p = promptx.NewDefaultPrompt(func(line []rune) error {
+		if strings.TrimSpace(string(line)) == "" {
+			return errors.New(EmptyErrorMassage)
+		} else {
+			return nil
+		}
+	}, "Contributor(eg: mritd):")
 
-	contributor, err := prompt.Run()
-	util.CheckAndExit(err)
+	contributor := p.Run()
 	repo.Contributor = contributor
 
-	prompt = promptui.Prompt{
-		Label:     "❯ Token(eg: q6C49FK47WhU68ofb):",
-		Templates: templates,
-		Validate:  validate,
-	}
+	// Token
+	p = promptx.NewDefaultPrompt(func(line []rune) error {
+		if strings.TrimSpace(string(line)) == "" {
+			return errors.New(EmptyErrorMassage)
+		} else {
+			return nil
+		}
+	}, "Token(eg: q6C49FK47WhU68ofb):")
 
-	token, err := prompt.Run()
-	util.CheckAndExit(err)
+	token := p.Run()
 	repo.Token = token
 
-	prompt = promptui.Prompt{
-		Label:     "❯ Address(eg: https://github.com):",
-		Templates: templates,
-		Validate:  validate,
-	}
+	// Address
+	p = promptx.NewDefaultPrompt(func(line []rune) error {
+		if strings.TrimSpace(string(line)) == "" {
+			return errors.New(EmptyErrorMassage)
+		} else {
+			return nil
+		}
+	}, "Address(eg: https://github.com):")
 
-	address, err := prompt.Run()
-	util.CheckAndExit(err)
+	address := p.Run()
 	repo.Address = strings.ToLower(address)
 
 	if strings.Contains(repo.Address, "github.com") {
@@ -90,25 +86,18 @@ func ConfigRepository() *Repository {
 		repo.Type = consts.GitLabRepo
 	}
 
-	validate = func(input string) error {
-		if strings.TrimSpace(input) == "" {
+	// Automatic rebase
+	p = promptx.NewDefaultPrompt(func(line []rune) error {
+		if strings.TrimSpace(string(line)) == "" {
 			return errors.New("subject is blank")
 		}
-		if strings.ToLower(strings.TrimSpace(input)) != "y" && strings.ToLower(strings.TrimSpace(input)) != "n" {
+		if strings.ToLower(strings.TrimSpace(string(line))) != "y" && strings.ToLower(strings.TrimSpace(string(line))) != "n" {
 			return errors.New("only enter y or n")
 		}
 		return nil
-	}
+	}, "Automatic rebase before merge request?(y/n)")
 
-	prompt = promptui.Prompt{
-		Label:     "❯ Automatic rebase before merge request?(y/n)",
-		Templates: templates,
-		Validate:  validate,
-		IsVimMode: true,
-	}
-
-	autoRebase, err := prompt.Run()
-	util.CheckAndExit(err)
+	autoRebase := p.Run()
 
 	if strings.ToLower(strings.TrimSpace(autoRebase)) == "y" {
 		repo.AutoRebase = true
@@ -161,38 +150,25 @@ func (repo *Repository) XMr() {
 
 	lastCommitInfo := *util.GetLastCommitInfo()
 
-	validate := func(input string) error {
-		if strings.TrimSpace(input) == "" {
-			return errors.New("target branch is blank")
+	// Title
+	prompt := promptx.NewDefaultPrompt(func(line []rune) error {
+		if strings.TrimSpace(string(line)) == "" {
+			return errors.New("Title is blank!")
 		}
 		return nil
-	}
+	}, "Title(eg: fix(v0.0.1):fix a bug):")
 
-	templates := &promptui.PromptTemplates{
-		Prompt:  "{{ . }} ",
-		Valid:   "{{ . | green }} ",
-		Invalid: "{{ . | red }} ",
-		Success: "{{ . | bold }} ",
-	}
-
-	prompt := promptui.Prompt{
-		Label:     "❯ Title(eg: fix(v0.0.1):fix a bug):",
-		Templates: templates,
-	}
-
-	title, err := prompt.Run()
-	util.CheckAndExit(err)
+	title := prompt.Run()
 	if strings.TrimSpace(title) == "" {
 		title = lastCommitInfo[0]
 	}
 
-	prompt = promptui.Prompt{
-		Label:     "❯ Description(eg: Rollback etcd server version to 3.1.11):",
-		Templates: templates,
-	}
+	// Description
+	prompt = promptx.NewDefaultPrompt(func(line []rune) error {
+		return nil
+	}, "Description(eg: Rollback etcd server version to 3.1.11):")
 
-	desc, err := prompt.Run()
-	util.CheckAndExit(err)
+	desc := prompt.Run()
 
 	if strings.TrimSpace(desc) == "big" {
 		desc = util.OSEditInput()
@@ -202,15 +178,15 @@ func (repo *Repository) XMr() {
 		desc = lastCommitInfo[1]
 	}
 
-	prompt = promptui.Prompt{
-		Label:     "❯ Target Branch(eg: develop):",
-		Templates: templates,
-		Validate:  validate,
-	}
+	// Target Branch
+	prompt = promptx.NewDefaultPrompt(func(line []rune) error {
+		if strings.TrimSpace(string(line)) == "" {
+			return errors.New("Target branch is blank!")
+		}
+		return nil
+	}, "Target Branch(eg: develop)")
 
-	targetBranch, err := prompt.Run()
-	util.CheckAndExit(err)
-
+	targetBranch := prompt.Run()
 	sourceBranch := util.GetCurrentBranch()
 
 	if repo.AutoRebase {

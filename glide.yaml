@@ -30,11 +30,6 @@ import:
   version: d14193dfc626125c831501c1c42340b4248e1f5a
 - package: github.com/magiconair/properties
   version: 2c9e9502788518c97fe44e8955cd069417ee89df
-- package: github.com/manifoldco/promptui
-  version: 8debffa8c66b4342872ef0465eee2aa01481849d
-  subpackages:
-  - list
-  - screenbuf
 - package: github.com/mattn/go-colorable
   version: 7dc3415be66d7cc68bf0182f35c8d31f8d2ad8a7
 - package: github.com/mattn/go-isatty
@@ -43,8 +38,6 @@ import:
   version: b8bc1bf767474819792c23f32d8286a45736f1c6
 - package: github.com/mitchellh/mapstructure
   version: 00c29f56e2386353d58c599509e8dc3801b0d716
-- package: github.com/mritd/promptui
-  version: f94fc11da389d3982f37aedc33706ec7e265c9f4
 - package: github.com/pelletier/go-toml
   version: 05bcc0fb0d3e60da4b8dd5bd7e0ea563eb4ca943
 - package: github.com/russross/blackfriday

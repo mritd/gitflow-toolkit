@@ -1,8 +1,6 @@
-hash: 82754e364c91f9e9daeb3397d5fcf52b6710dd653b59bbeb71ea6f7179996f3c
-updated: 2018-04-20T16:13:38.843442154+08:00
+hash: 5752041ba321608ffc1e4a41b1a640c85cf9c11730d5af628213e8a700b994e3
+updated: 2018-04-24T00:21:25.022142+08:00
 imports:
-- name: github.com/chzyer/readline
-  version: f6d7a1f6fbf35bbf9beb80dc63c56a29dcfb759f
 - name: github.com/cpuguy83/go-md2man
   version: 48d8747a2ca13185e7cc8efe6e9fc196a83f71a5
   subpackages:
@@ -35,11 +33,6 @@ imports:
   version: d14193dfc626125c831501c1c42340b4248e1f5a
 - name: github.com/magiconair/properties
   version: 2c9e9502788518c97fe44e8955cd069417ee89df
-- name: github.com/manifoldco/promptui
-  version: 8debffa8c66b4342872ef0465eee2aa01481849d
-  subpackages:
-  - list
-  - screenbuf
 - name: github.com/mattn/go-colorable
   version: 7dc3415be66d7cc68bf0182f35c8d31f8d2ad8a7
 - name: github.com/mattn/go-isatty
@@ -50,8 +43,11 @@ imports:
   version: b8bc1bf767474819792c23f32d8286a45736f1c6
 - name: github.com/mitchellh/mapstructure
   version: 00c29f56e2386353d58c599509e8dc3801b0d716
-- name: github.com/mritd/promptui
-  version: f94fc11da389d3982f37aedc33706ec7e265c9f4
+- name: github.com/mritd/promptx
+  version: 9cf057eea92e22d4790b515c50207c187fc009f8
+  subpackages:
+  - list
+  - util
 - name: github.com/mritd/readline
   version: de392c2a7aa51fec3662bfdd5b262788cc014a83
 - name: github.com/pelletier/go-toml
@@ -77,7 +73,7 @@ imports:
 - name: github.com/spf13/viper
   version: aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5
 - name: github.com/xanzy/go-gitlab
-  version: f8465d0e086756a5ea4e2a383d2a3c4510f283fa
+  version: 60ef0cdb1b7e433233e0fb28f6cbe397e5c462a4
 - name: golang.org/x/sys
   version: dd2ff4accc098aceecb86b36eaa7829b2a17b1c9
   subpackages:

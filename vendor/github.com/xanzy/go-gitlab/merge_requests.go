@@ -68,16 +68,32 @@ type MergeRequest struct {
 	Milestone                 *Milestone `json:"milestone"`
 	MergeWhenPipelineSucceeds bool       `json:"merge_when_pipeline_succeeds"`
 	MergeStatus               string     `json:"merge_status"`
-	Subscribed                bool       `json:"subscribed"`
-	SHA                       string     `json:"sha"`
-	MergeCommitSHA            string     `json:"merge_commit_sha"`
-	UserNotesCount            int        `json:"user_notes_count"`
-	ChangesCount              string     `json:"changes_count"`
-	ShouldRemoveSourceBranch  bool       `json:"should_remove_source_branch"`
-	ForceRemoveSourceBranch   bool       `json:"force_remove_source_branch"`
-	WebURL                    string     `json:"web_url"`
-	DiscussionLocked          bool       `json:"discussion_locked"`
-	Changes                   []struct {
+	MergedBy                  struct {
+		ID        int        `json:"id"`
+		Username  string     `json:"username"`
+		Name      string     `json:"name"`
+		State     string     `json:"state"`
+		CreatedAt *time.Time `json:"created_at"`
+	} `json:"merged_by"`
+	MergedAt *time.Time `json:"merged_at"`
+	ClosedBy struct {
+		ID        int        `json:"id"`
+		Username  string     `json:"username"`
+		Name      string     `json:"name"`
+		State     string     `json:"state"`
+		CreatedAt *time.Time `json:"created_at"`
+	} `json:"closed_by"`
+	ClosedAt                 *time.Time `json:"closed_at"`
+	Subscribed               bool       `json:"subscribed"`
+	SHA                      string     `json:"sha"`
+	MergeCommitSHA           string     `json:"merge_commit_sha"`
+	UserNotesCount           int        `json:"user_notes_count"`
+	ChangesCount             string     `json:"changes_count"`
+	ShouldRemoveSourceBranch bool       `json:"should_remove_source_branch"`
+	ForceRemoveSourceBranch  bool       `json:"force_remove_source_branch"`
+	WebURL                   string     `json:"web_url"`
+	DiscussionLocked         bool       `json:"discussion_locked"`
+	Changes                  []struct {
 		OldPath     string `json:"old_path"`
 		NewPath     string `json:"new_path"`
 		AMode       string `json:"a_mode"`
@@ -88,6 +104,7 @@ type MergeRequest struct {
 		DeletedFile bool   `json:"deleted_file"`
 	} `json:"changes"`
 	TimeStats *TimeStats `json:"time_stats"`
+	Squash    bool       `json:"squash"`
 }
 
 func (m MergeRequest) String() string {
@@ -345,6 +362,31 @@ func (s *MergeRequestsService) GetMergeRequestChanges(pid interface{}, mergeRequ
 	}
 
 	return m, resp, err
+}
+
+// ListMergeRequestPipelines gets all pipelines for the provided merge request.
+//
+// GitLab API docs:
+// https://docs.gitlab.com/ce/api/merge_requests.html#list-mr-pipelines
+func (s *MergeRequestsService) ListMergeRequestPipelines(pid interface{}, mergeRequest int, options ...OptionFunc) (PipelineList, *Response, error) {
+	project, err := parseID(pid)
+	if err != nil {
+		return nil, nil, err
+	}
+	u := fmt.Sprintf("projects/%s/merge_requests/%v/pipelines", url.QueryEscape(project), mergeRequest)
+
+	req, err := s.client.NewRequest("GET", u, nil, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var p PipelineList
+	resp, err := s.client.Do(req, &p)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return p, resp, err
 }
 
 // GetIssuesClosedOnMergeOptions represents the available GetIssuesClosedOnMerge()

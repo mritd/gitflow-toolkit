@@ -1,20 +1,16 @@
 package commit
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
-	"regexp"
-	"runtime"
 	"strings"
 	"text/template"
 
 	"github.com/mritd/gitflow-toolkit/pkg/consts"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
-	"github.com/mritd/promptui"
+	"github.com/mritd/promptx"
+	"github.com/pkg/errors"
 )
 
 type TypeMessage struct {
@@ -46,161 +42,75 @@ func SelectCommitType() consts.CommitType {
 		{Type: consts.PERF, ZHDescription: "性能优化", ENDescription: "Improving performance"},
 		{Type: consts.EXIT, ZHDescription: "退出", ENDescription: "Exit commit"},
 	}
-	templates := &promptui.SelectTemplates{
-		Label:    "{{ . }}",
-		Active:   "❯ {{ .Type | cyan }} ({{ .ENDescription | cyan }})",
-		Inactive: "  {{ .Type | white }} ({{ .ENDescription | white }})",
-		Selected: "{{ \"❯ Type:\" | green }} {{ .Type }}",
-		Details: `
+	cfg := &promptx.SelectConfig{
+		ActiveTpl:    "»  {{ .Type | cyan }} ({{ .ENDescription | cyan }})",
+		InactiveTpl:  "  {{ .Type | white }} ({{ .ENDescription | white }})",
+		SelectPrompt: "Commit Type",
+		SelectedTpl:  "{{ \"» Type:\" | green }} {{ .Type }}",
+		DisPlaySize:  9,
+		DetailsTpl: `
 --------- Commit Type ----------
 {{ "Type:" | faint }}	{{ .Type }}
 {{ "Description:" | faint }}	{{ .ZHDescription }}({{ .ENDescription }})`,
 	}
 
-	searcher := func(input string, index int) bool {
-		commitType := commitTypes[index]
-		cmType := strings.Replace(strings.ToLower(string(commitType.Type)), " ", "", -1)
-		input = strings.Replace(strings.ToLower(input), " ", "", -1)
-
-		return strings.Contains(cmType, input)
+	s := &promptx.Select{
+		Items:  commitTypes,
+		Config: cfg,
 	}
 
-	prompt := promptui.Select{
-		Label:     "Select Commit Type:",
-		Items:     commitTypes,
-		Templates: templates,
-		Size:      9,
-		Searcher:  searcher,
-	}
+	idx := s.Run()
 
-	i, _, err := prompt.Run()
-	util.CheckAndExit(err)
-
-	if commitTypes[i].Type == consts.EXIT {
+	if commitTypes[idx].Type == consts.EXIT {
 		fmt.Println("Talk is cheap. Show me the code.")
 		os.Exit(0)
 	}
 
-	return commitTypes[i].Type
+	return commitTypes[idx].Type
 }
 
 // 输入影响范围
 func InputScope() string {
 
-	validate := func(input string) error {
-		reg := regexp.MustCompile("\\s+")
-		if reg.ReplaceAllString(input, "") == "" {
-			return errors.New("scope is blank")
+	p := promptx.NewDefaultPrompt(func(line []rune) error {
+		if strings.TrimSpace(string(line)) == "" {
+			return errors.New("Input is empty!")
+		} else {
+			return nil
 		}
-		return nil
-	}
+	}, "Scope:")
 
-	templates := &promptui.PromptTemplates{
-		Prompt:  "{{ . }} ",
-		Valid:   "{{ . | green }} ",
-		Invalid: "{{ . | red }} ",
-		Success: "{{ . | bold }} ",
-	}
-
-	prompt := promptui.Prompt{
-		Label:     "❯ Scope:",
-		Templates: templates,
-		Validate:  validate,
-	}
-
-	result, err := prompt.Run()
-	util.CheckAndExit(err)
-	return result
+	return p.Run()
 
 }
 
 // 输入提交主题
 func InputSubject() string {
 
-	validate := func(input string) error {
-		if strings.TrimSpace(input) == "" {
-			return errors.New("subject is blank")
+	p := promptx.NewDefaultPrompt(func(line []rune) error {
+		if strings.TrimSpace(string(line)) == "" {
+			return errors.New("Input is empty!")
+		} else if len(line) > 50 {
+			return errors.New("Input length must < 25!")
+		} else {
+			return nil
 		}
-		if r := []rune(input); len(r) > 50 {
-			return errors.New("subject too long")
-		}
+	}, "Subject:")
 
-		return nil
-	}
-
-	templates := &promptui.PromptTemplates{
-		Prompt:  "{{ . }} ",
-		Valid:   "{{ . | green }} ",
-		Invalid: "{{ . | red }} ",
-		Success: "{{ . | bold }} ",
-	}
-
-	prompt := promptui.Prompt{
-		Label:     "❯ Subject:",
-		Templates: templates,
-		Validate:  validate,
-	}
-
-	result, err := prompt.Run()
-	util.CheckAndExit(err)
-	return result
+	return p.Run()
 }
 
 // 输入完整提交信息
 func InputBody() string {
 
-	templates := &promptui.PromptTemplates{
-		Prompt:  "{{ . }} ",
-		Valid:   "{{ . | green }} ",
-		Invalid: "{{ . | red }} ",
-		Success: "{{ . | bold }} ",
+	p := promptx.NewDefaultPrompt(func(line []rune) error {
+		return nil
+	}, "Body:")
+
+	body := p.Run()
+	if body == "big" {
+		return util.OSEditInput()
 	}
-
-	prompt := promptui.Prompt{
-		Label:     "❯ Body:",
-		Templates: templates,
-	}
-
-	result, err := prompt.Run()
-	util.CheckAndExit(err)
-	if result == "big" {
-		return InputBigBody()
-	}
-	return result
-}
-
-// 输入超长文本信息
-func InputBigBody() string {
-
-	f, err := ioutil.TempFile("", "gitflow-toolkit")
-	util.CheckAndExit(err)
-	defer os.Remove(f.Name())
-
-	// write utf8 bom
-	bom := []byte{0xef, 0xbb, 0xbf}
-	_, err = f.Write(bom)
-	util.CheckAndExit(err)
-
-	// 获取系统编辑器
-	editor := "vim"
-	if runtime.GOOS == "windows" {
-		editor = "notepad"
-	}
-	if v := os.Getenv("VISUAL"); v != "" {
-		editor = v
-	} else if e := os.Getenv("EDITOR"); e != "" {
-		editor = e
-	}
-
-	// 执行编辑文件
-	cmd := exec.Command(editor, f.Name())
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	util.CheckAndExit(cmd.Run())
-	raw, err := ioutil.ReadFile(f.Name())
-	util.CheckAndExit(err)
-	body := string(bytes.TrimPrefix(raw, bom))
 
 	return body
 }
@@ -208,21 +118,11 @@ func InputBigBody() string {
 // 输入提交关联信息
 func InputFooter() string {
 
-	templates := &promptui.PromptTemplates{
-		Prompt:  "{{ . }} ",
-		Valid:   "{{ . | green }} ",
-		Invalid: "{{ . | red }} ",
-		Success: "{{ . | bold }} ",
-	}
+	p := promptx.NewDefaultPrompt(func(line []rune) error {
+		return nil
+	}, "Footer:")
 
-	prompt := promptui.Prompt{
-		Label:     "❯ Footer:",
-		Templates: templates,
-	}
-
-	result, err := prompt.Run()
-	util.CheckAndExit(err)
-	return result
+	return p.Run()
 }
 
 // 生成 SOB 签名
@@ -260,5 +160,5 @@ func Commit(cm *Message) {
 	t.Execute(f, cm)
 	util.MustExec("git", "commit", "-F", f.Name())
 
-	fmt.Println("\nAlways code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.")
+	fmt.Println("\n✔ Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.")
 }

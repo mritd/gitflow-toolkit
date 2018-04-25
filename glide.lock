@@ -1,14 +1,16 @@
-hash: 4acff034bd020d558dd250cd18d053ff88ca2289dd5fcdf40d74028063891c00
-updated: 2018-03-10T17:07:40.904640108+08:00
+hash: 08e6c504a4b264d74934c0998cbc3df1f9c3506356c073a1ad51f632988335ea
+updated: 2018-04-26T00:09:40.118312+08:00
 imports:
-- name: github.com/chzyer/readline
-  version: f6d7a1f6fbf35bbf9beb80dc63c56a29dcfb759f
 - name: github.com/cpuguy83/go-md2man
   version: 48d8747a2ca13185e7cc8efe6e9fc196a83f71a5
   subpackages:
   - md2man
 - name: github.com/fsnotify/fsnotify
   version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
+- name: github.com/google/go-querystring
+  version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
+  subpackages:
+  - query
 - name: github.com/hashicorp/hcl
   version: 23c074d0eceb2b8a5bfdbb271ab780cde70f05a8
   subpackages:
@@ -31,23 +33,27 @@ imports:
   version: d14193dfc626125c831501c1c42340b4248e1f5a
 - name: github.com/magiconair/properties
   version: 2c9e9502788518c97fe44e8955cd069417ee89df
-- name: github.com/manifoldco/promptui
-  version: 8debffa8c66b4342872ef0465eee2aa01481849d
-  subpackages:
-  - list
-  - screenbuf
 - name: github.com/mattn/go-colorable
   version: 7dc3415be66d7cc68bf0182f35c8d31f8d2ad8a7
 - name: github.com/mattn/go-isatty
   version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
+- name: github.com/mattn/go-runewidth
+  version: ce7b0b5c7b45a81508558cd1dba6bb1e4ddb51bb
 - name: github.com/mitchellh/go-homedir
   version: b8bc1bf767474819792c23f32d8286a45736f1c6
 - name: github.com/mitchellh/mapstructure
   version: 00c29f56e2386353d58c599509e8dc3801b0d716
-- name: github.com/mritd/promptui
-  version: 73387a99f86da8126664ebc8d879141192f43940
+- name: github.com/mritd/promptx
+  version: cd327e50600f1fc3e5ff14d047b127ad6a0c1fbd
+  subpackages:
+  - list
+  - util
+- name: github.com/mritd/readline
+  version: ae245b60ddeb65cbbbe2b42da961f46d0b812f43
 - name: github.com/pelletier/go-toml
   version: 05bcc0fb0d3e60da4b8dd5bd7e0ea563eb4ca943
+- name: github.com/pkg/errors
+  version: 816c9085562cd7ee03e7f8188a1cfd942858cded
 - name: github.com/russross/blackfriday
   version: 55d61fa8aa702f59229e6cff85793c22e580eaf5
 - name: github.com/spf13/afero
@@ -66,8 +72,8 @@ imports:
   version: ee5fd03fd6acfd43e44aea0b4135958546ed8e73
 - name: github.com/spf13/viper
   version: aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5
-- name: github.com/tsuyoshiwada/go-gitcmd
-  version: 5f1f5f9475df211f8b48620d704284d7375229c3
+- name: github.com/xanzy/go-gitlab
+  version: 60ef0cdb1b7e433233e0fb28f6cbe397e5c462a4
 - name: golang.org/x/sys
   version: dd2ff4accc098aceecb86b36eaa7829b2a17b1c9
   subpackages:
@@ -78,5 +84,5 @@ imports:
   - transform
   - unicode/norm
 - name: gopkg.in/yaml.v2
-  version: 7f97868eec74b32b0982dd158a51a446d1da7eb5
+  version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 testImports: []

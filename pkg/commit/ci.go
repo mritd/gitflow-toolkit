@@ -162,37 +162,3 @@ func Commit(cm *Message) {
 
 	fmt.Println("\n✔ Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.")
 }
-
-//func TRun() {
-//
-//	commitTypes := []TypeMessage{
-//		{Type: consts.FEAT, ZHDescription: "新功能", ENDescription: "Introducing new features"},
-//		{Type: consts.FIX, ZHDescription: "修复 Bug", ENDescription: "Bug fix"},
-//		{Type: consts.DOCS, ZHDescription: "添加文档", ENDescription: "Writing docs"},
-//		{Type: consts.STYLE, ZHDescription: "调整格式", ENDescription: "Improving structure/format of the code"},
-//		{Type: consts.REFACTOR, ZHDescription: "重构代码", ENDescription: "Refactoring code"},
-//		{Type: consts.TEST, ZHDescription: "增加测试", ENDescription: "When adding missing tests"},
-//		{Type: consts.CHORE, ZHDescription: "CI/CD 变动", ENDescription: "Changing CI/CD"},
-//		{Type: consts.PERF, ZHDescription: "性能优化", ENDescription: "Improving performance"},
-//		{Type: consts.EXIT, ZHDescription: "退出", ENDescription: "Exit commit"},
-//	}
-//
-//	cfg := &gitprompt.SelectConfig{
-//		ActiveTpl:    "»  {{ .Type | cyan }} ({{ .ENDescription | cyan }})",
-//		InactiveTpl:  "  {{ .Type | white }} ({{ .ENDescription | white }})",
-//		SelectPrompt: "Commit Type",
-//		SelectedTpl:  "{{ \"» Type:\" | green }} {{ .Type }}",
-//		DisPlaySize:  9,
-//		DetailsTpl: `
-//--------- Commit Type ----------
-//{{ "Type:" | faint }}	{{ .Type }}
-//{{ "Description:" | faint }}	{{ .ZHDescription }}({{ .ENDescription }})`,
-//	}
-//
-//	s := &gitprompt.Select{
-//		Items:  commitTypes,
-//		Config: cfg,
-//	}
-//
-//	fmt.Println(commitTypes[s.Run()])
-//}

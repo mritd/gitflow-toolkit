@@ -4,6 +4,8 @@ type CommitType string
 
 type RepoType string
 
+const GitCmd = "git"
+
 const (
 	FEAT     CommitType = "feat"
 	FIX      CommitType = "fix"
@@ -13,6 +15,7 @@ const (
 	TEST     CommitType = "test"
 	CHORE    CommitType = "chore"
 	PERF     CommitType = "perf"
+	HOTFIX   CommitType = "hotfix"
 	EXIT     CommitType = "exit"
 )
 
@@ -30,4 +33,4 @@ const CommitTpl = `{{ .Type }}({{ .Scope }}): {{ .Subject }}
 {{ .Sob }}
 `
 
-const CommitMessagePattern = `^(?:fixup!\s*)?(\w*)(\(([\w\$\.\*/-]*)\))?\: (.*)`
+const CommitMessagePattern = `^(?:fixup!\s*)?(\w*)(\(([\w\$\.\*/-]*)\))?\: (.*)|^Merge\ branch(.*)`

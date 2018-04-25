@@ -1,5 +1,5 @@
-hash: 9138c9fc7928c1fb54274693794484407844c88cb65bd094fa75d9e71eb93398
-updated: 2018-04-25T23:49:36.022646+08:00
+hash: 08e6c504a4b264d74934c0998cbc3df1f9c3506356c073a1ad51f632988335ea
+updated: 2018-04-26T00:09:40.118312+08:00
 imports:
 - name: github.com/cpuguy83/go-md2man
   version: 48d8747a2ca13185e7cc8efe6e9fc196a83f71a5
@@ -44,7 +44,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: 00c29f56e2386353d58c599509e8dc3801b0d716
 - name: github.com/mritd/promptx
-  version: 417c1838d34bce59519830b1b8669c3eefbfcb6c
+  version: cd327e50600f1fc3e5ff14d047b127ad6a0c1fbd
   subpackages:
   - list
   - util

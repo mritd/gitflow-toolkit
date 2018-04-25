@@ -15,6 +15,7 @@ const (
 	TEST     CommitType = "test"
 	CHORE    CommitType = "chore"
 	PERF     CommitType = "perf"
+	HOTFIX   CommitType = "hotfix"
 	EXIT     CommitType = "exit"
 )
 

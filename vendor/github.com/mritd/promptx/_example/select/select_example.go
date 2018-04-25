@@ -55,6 +55,5 @@ func main() {
 		Items:  commitTypes,
 		Config: cfg,
 	}
-
-	fmt.Println(commitTypes[s.Run()])
+	fmt.Println(s.Run())
 }

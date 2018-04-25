@@ -18,35 +18,46 @@ var (
 )
 
 const (
-	CharLineStart = 1
-	CharBackward  = 2
-	CharInterrupt = 3
-	CharDelete    = 4
-	CharLineEnd   = 5
-	CharForward   = 6
-	CharBell      = 7
-	CharCtrlH     = 8
-	CharTab       = 9
-	CharCtrlJ     = 10
-	CharKill      = 11
-	CharCtrlL     = 12
-	CharEnter     = 13
-	CharNext      = 14
-	CharPrev      = 16
-	CharBckSearch = 18
-	CharFwdSearch = 19
-	CharTranspose = 20
-	CharCtrlU     = 21
-	CharCtrlW     = 23
-	CharCtrlY     = 25
-	CharCtrlZ     = 26
-	CharEsc       = 27
-	CharEscapeEx  = 91
-	CharBackspace = 127
+	CharReadLineExit = 0
+	CharLineStart    = 1
+	CharBackward     = 2
+	CharInterrupt    = 3
+	CharDelete       = 4
+	CharLineEnd      = 5
+	CharForward      = 6
+	CharBell         = 7
+	CharCtrlH        = 8
+	CharTab          = 9
+	CharCtrlJ        = 10
+	CharKill         = 11
+	CharCtrlL        = 12
+	CharEnter        = 13
+	CharNext         = 14
+	CharPrev         = 16
+	CharBckSearch    = 18
+	CharFwdSearch    = 19
+	CharTranspose    = 20
+	CharCtrlU        = 21
+	CharCtrlW        = 23
+	CharCtrlY        = 25
+	CharCtrlZ        = 26
+	CharEsc          = 27
+	CharZero         = 48
+	CharOne          = 49
+	CharTwo          = 50
+	CharThree        = 51
+	CharFour         = 52
+	CharFive         = 53
+	CharSix          = 54
+	CharSeven        = 55
+	CharEight        = 56
+	CharNine         = 57
+	CharEscapeEx     = 91
+	CharBackspace    = 127
 )
 
 const (
-	MetaBackward rune = -iota - 1
+	MetaBackward  rune = -iota - 1
 	MetaForward
 	MetaDelete
 	MetaBackspace

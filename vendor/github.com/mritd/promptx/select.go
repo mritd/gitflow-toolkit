@@ -239,5 +239,5 @@ func (s *Select) Run() int {
 
 	fmt.Println(string(util.Render(s.selected, result)))
 
-	return idx
+	return dataList.Index()
 }

@@ -54,6 +54,7 @@ func BinPaths() *[]string {
 		"/usr/local/bin/git-test",
 		"/usr/local/bin/git-chore",
 		"/usr/local/bin/git-perf",
+		"/usr/local/bin/git-hotfix",
 		"/usr/local/bin/git-xmr",
 		"/usr/local/bin/git-xpr",
 	}

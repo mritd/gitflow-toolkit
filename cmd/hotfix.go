@@ -21,58 +21,27 @@
 package cmd
 
 import (
-	"github.com/mitchellh/go-homedir"
+	"fmt"
+	"os"
+
+	"github.com/mritd/gitflow-toolkit/pkg/consts"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-var cfgFile string
-
-var RootCmd = &cobra.Command{
-	Use:   "gitflow-toolkit",
-	Short: "Git Flow 辅助工具",
-	Long: `
-一个用于 CI/CD 实施的 Git Flow 辅助工具`,
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
-	},
-}
-
-func init() {
-
-	// init config
-	cobra.OnInitialize(initConfig)
-
-	// add flags
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gitflow-toolkit.yaml)")
-
-	// add sub cmd
-	RootCmd.AddCommand(NewCi())
-	RootCmd.AddCommand(NewCm())
-	RootCmd.AddCommand(NewXMr())
-	RootCmd.AddCommand(NewFeat())
-	RootCmd.AddCommand(NewFix())
-	RootCmd.AddCommand(NewDocs())
-	RootCmd.AddCommand(NewStyle())
-	RootCmd.AddCommand(NewRefactor())
-	RootCmd.AddCommand(NewPerf())
-	RootCmd.AddCommand(NewHotFix())
-	RootCmd.AddCommand(NewTest())
-	RootCmd.AddCommand(NewChore())
-	RootCmd.AddCommand(NewInstall())
-	RootCmd.AddCommand(NewUninstall())
-}
-
-func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		home, err := homedir.Dir()
-		util.CheckAndExit(err)
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".gitflow-toolkit")
+func NewHotFix() *cobra.Command {
+	return &cobra.Command{
+		Use:   "hotfix",
+		Short: "创建 hotfix 分支",
+		Long: `
+创建一个以 hotfix 开头的分支，通常用于对 master 的紧急修复`,
+		Aliases: []string{"git-hotfix"},
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) != 1 {
+				fmt.Println("branch name is blank")
+				os.Exit(1)
+			}
+			util.Checkout(consts.HOTFIX, args[0])
+		},
 	}
-	viper.AutomaticEnv()
-	viper.ReadInConfig()
 }

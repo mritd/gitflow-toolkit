@@ -1,5 +1,5 @@
-hash: 5752041ba321608ffc1e4a41b1a640c85cf9c11730d5af628213e8a700b994e3
-updated: 2018-04-24T00:21:25.022142+08:00
+hash: 9138c9fc7928c1fb54274693794484407844c88cb65bd094fa75d9e71eb93398
+updated: 2018-04-25T23:49:36.022646+08:00
 imports:
 - name: github.com/cpuguy83/go-md2man
   version: 48d8747a2ca13185e7cc8efe6e9fc196a83f71a5
@@ -44,12 +44,12 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: 00c29f56e2386353d58c599509e8dc3801b0d716
 - name: github.com/mritd/promptx
-  version: 9cf057eea92e22d4790b515c50207c187fc009f8
+  version: 417c1838d34bce59519830b1b8669c3eefbfcb6c
   subpackages:
   - list
   - util
 - name: github.com/mritd/readline
-  version: de392c2a7aa51fec3662bfdd5b262788cc014a83
+  version: ae245b60ddeb65cbbbe2b42da961f46d0b812f43
 - name: github.com/pelletier/go-toml
   version: 05bcc0fb0d3e60da4b8dd5bd7e0ea563eb4ca943
 - name: github.com/pkg/errors

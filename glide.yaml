@@ -1,7 +1,9 @@
 package: github.com/mritd/gitflow-toolkit
 import:
 - package: github.com/mritd/readline
-  version: de392c2a7aa51fec3662bfdd5b262788cc014a83
+  version: ae245b60ddeb65cbbbe2b42da961f46d0b812f43
+- package: github.com/mritd/promptx
+  version: 417c1838d34bce59519830b1b8669c3eefbfcb6c
 - package: github.com/cpuguy83/go-md2man
   version: 48d8747a2ca13185e7cc8efe6e9fc196a83f71a5
   subpackages:

@@ -104,6 +104,20 @@ func (l *List) Next() {
 	}
 }
 
+func (l *List) Go(i int) {
+	max := len(l.items)
+
+	if i > 0 && i <= max {
+		l.cursor = i - 1
+		if l.start+l.size <= l.cursor {
+			l.start = l.cursor - l.size + 1
+		}
+		if l.start > l.cursor {
+			l.start = l.cursor
+		}
+	}
+}
+
 // PageUp moves the visible list backward by x items. Where x is the size of the
 // visible items on the list. The selected item becomes the first visible item.
 // If the list is already at the bottom, the selected item becomes the last

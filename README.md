@@ -23,4 +23,4 @@
 
 ## 安装与卸载
 
-下载对应二进制文件，执行 `gitflow-toolkit install/uninstall` 即可
+下载对应二进制文件，执行 `sudo gitflow-toolkit install/uninstall` 即可

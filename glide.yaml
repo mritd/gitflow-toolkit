@@ -3,7 +3,7 @@ import:
 - package: github.com/mritd/readline
   version: ae245b60ddeb65cbbbe2b42da961f46d0b812f43
 - package: github.com/mritd/promptx
-  version: cd327e50600f1fc3e5ff14d047b127ad6a0c1fbd
+  version: 986febf1a1c03a68067e2edc59123f9478c40345
 - package: github.com/cpuguy83/go-md2man
   version: 48d8747a2ca13185e7cc8efe6e9fc196a83f71a5
   subpackages:

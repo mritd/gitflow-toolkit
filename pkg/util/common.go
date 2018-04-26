@@ -124,7 +124,7 @@ func OSEditInput() string {
 	CheckAndExit(err)
 	defer func() {
 		f.Close()
-		CheckErr(os.Remove(f.Name()))
+		os.Remove(f.Name())
 	}()
 
 	// write utf8 bom
@@ -145,6 +145,9 @@ func OSEditInput() string {
 
 	// 执行编辑文件
 	cmd := exec.Command(editor, f.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	CheckAndExit(cmd.Run())
 	raw, err := ioutil.ReadFile(f.Name())
 	CheckAndExit(err)

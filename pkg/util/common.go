@@ -14,6 +14,8 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
+const InstallBaseDir = "/usr/local/bin"
+
 var GitFlowToolKitHome string
 var InstallPath string
 var HooksPath string
@@ -29,10 +31,10 @@ func init() {
 	home, err := homedir.Dir()
 	CheckAndExit(err)
 
-	GitFlowToolKitHome = home + string(filepath.Separator) + ".gitflow-toolkit"
-	InstallPath = GitFlowToolKitHome + string(filepath.Separator) + "gitflow-toolkit"
-	HooksPath = GitFlowToolKitHome + string(filepath.Separator) + "hooks"
-	GitCMHookPath = HooksPath + string(filepath.Separator) + "commit-msg"
+	GitFlowToolKitHome = home + "/.gitflow-toolkit"
+	InstallPath = GitFlowToolKitHome + "/gitflow-toolkit"
+	HooksPath = GitFlowToolKitHome + "/hooks"
+	GitCMHookPath = HooksPath + "/commit-msg"
 
 	CurrentPath, err = exec.LookPath(os.Args[0])
 	CheckAndExit(err)
@@ -45,18 +47,18 @@ func init() {
 func BinPaths() *[]string {
 	return &[]string{
 		GitCMHookPath,
-		"/usr/local/bin/git-ci",
-		"/usr/local/bin/git-feat",
-		"/usr/local/bin/git-fix",
-		"/usr/local/bin/git-docs",
-		"/usr/local/bin/git-style",
-		"/usr/local/bin/git-refactor",
-		"/usr/local/bin/git-test",
-		"/usr/local/bin/git-chore",
-		"/usr/local/bin/git-perf",
-		"/usr/local/bin/git-hotfix",
-		"/usr/local/bin/git-xmr",
-		"/usr/local/bin/git-xpr",
+		InstallBaseDir + "/git-ci",
+		InstallBaseDir + "/git-feat",
+		InstallBaseDir + "/git-fix",
+		InstallBaseDir + "/git-docs",
+		InstallBaseDir + "/git-style",
+		InstallBaseDir + "/git-refactor",
+		InstallBaseDir + "/git-test",
+		InstallBaseDir + "/git-chore",
+		InstallBaseDir + "/git-perf",
+		InstallBaseDir + "/git-hotfix",
+		InstallBaseDir + "/git-xmr",
+		InstallBaseDir + "/git-xpr",
 	}
 }
 
@@ -120,7 +122,10 @@ func OSEditInput() string {
 
 	f, err := ioutil.TempFile("", "gitflow-toolkit")
 	CheckAndExit(err)
-	defer os.Remove(f.Name())
+	defer func() {
+		f.Close()
+		os.Remove(f.Name())
+	}()
 
 	// write utf8 bom
 	bom := []byte{0xef, 0xbb, 0xbf}

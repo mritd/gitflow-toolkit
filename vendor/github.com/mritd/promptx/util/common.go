@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"syscall"
 	"text/template"
-	"unsafe"
 )
 
 type winsize struct {
@@ -37,17 +35,4 @@ func Render(tpl *template.Template, data interface{}) []byte {
 		return []byte(fmt.Sprintf("%v", data))
 	}
 	return buf.Bytes()
-}
-
-func GetTerminalHeight() uint {
-	ws := &winsize{}
-	retCode, _, errno := syscall.Syscall(syscall.SYS_IOCTL,
-		uintptr(syscall.Stdin),
-		uintptr(syscall.TIOCGWINSZ),
-		uintptr(unsafe.Pointer(ws)))
-
-	if int(retCode) == -1 {
-		panic(errno)
-	}
-	return uint(ws.Row)
 }

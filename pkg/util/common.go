@@ -124,7 +124,7 @@ func OSEditInput() string {
 	CheckAndExit(err)
 	defer func() {
 		f.Close()
-		os.Remove(f.Name())
+		CheckErr(os.Remove(f.Name()))
 	}()
 
 	// write utf8 bom

@@ -46,7 +46,7 @@ func SelectCommitType() consts.CommitType {
 		ActiveTpl:    "»  {{ .Type | cyan }} ({{ .ENDescription | cyan }})",
 		InactiveTpl:  "  {{ .Type | white }} ({{ .ENDescription | white }})",
 		SelectPrompt: "Commit Type",
-		SelectedTpl:  "{{ \"» Type:\" | green }} {{ .Type }}",
+		SelectedTpl:  "{{ \"» \" | green }}{{\"Type:\" | cyan }} {{ .Type }}",
 		DisPlaySize:  9,
 		DetailsTpl: `
 --------- Commit Type ----------

@@ -9,7 +9,7 @@ import (
 )
 
 func CheckGitProject() {
-	MustExec(consts.GitCmd, "rev-parse", "--show-toplevel")
+	MustExecNoOut(consts.GitCmd, "rev-parse", "--show-toplevel")
 }
 
 func CheckStagedFiles() bool {

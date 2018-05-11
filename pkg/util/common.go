@@ -87,6 +87,8 @@ func MustExec(name string, arg ...string) {
 
 func MustExecRtOut(name string, arg ...string) string {
 	cmd := exec.Command(name, arg...)
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
 	b, err := cmd.Output()
 	if err != nil {
 		fmt.Print(err)

@@ -80,7 +80,7 @@ func InputScope() string {
 		}
 	}, "Scope:")
 
-	return p.Run()
+	return strings.TrimSpace(p.Run())
 
 }
 
@@ -97,7 +97,7 @@ func InputSubject() string {
 		}
 	}, "Subject:")
 
-	return p.Run()
+	return strings.TrimSpace(p.Run())
 }
 
 // 输入完整提交信息
@@ -107,7 +107,7 @@ func InputBody() string {
 		return nil
 	}, "Body:")
 
-	body := p.Run()
+	body := strings.TrimSpace(p.Run())
 	if body == "big" {
 		return util.OSEditInput()
 	}
@@ -122,7 +122,7 @@ func InputFooter() string {
 		return nil
 	}, "Footer:")
 
-	return p.Run()
+	return strings.TrimSpace(p.Run())
 }
 
 // 生成 SOB 签名

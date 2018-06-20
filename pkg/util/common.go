@@ -99,6 +99,7 @@ func MustExecRtOut(name string, arg ...string) string {
 
 func MustExecNoOut(name string, arg ...string) {
 	cmd := exec.Command(name, arg...)
+	cmd.Stderr = os.Stderr
 	CheckAndExit(cmd.Run())
 }
 

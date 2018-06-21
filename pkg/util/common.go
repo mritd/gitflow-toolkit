@@ -151,3 +151,10 @@ func OSEditInput() string {
 
 	return input
 }
+
+func CheckOS() {
+	if runtime.GOOS != "linux" && runtime.GOOS != "darwin" {
+		fmt.Println("Platform not support!")
+		os.Exit(1)
+	}
+}

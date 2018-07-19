@@ -59,6 +59,7 @@ func BinPaths() *[]string {
 		InstallBaseDir + "/git-hotfix",
 		InstallBaseDir + "/git-xmr",
 		InstallBaseDir + "/git-xpr",
+		InstallBaseDir + "/git-ps",
 	}
 }
 
@@ -78,18 +79,19 @@ func CheckAndExit(err error) {
 
 func MustExec(name string, arg ...string) {
 	cmd := exec.Command(name, arg...)
-	b, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println(string(b))
-		os.Exit(1)
-	}
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	CheckAndExit(cmd.Run())
 }
 
 func MustExecRtOut(name string, arg ...string) string {
 	cmd := exec.Command(name, arg...)
-	b, err := cmd.CombinedOutput()
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+	b, err := cmd.Output()
 	if err != nil {
-		fmt.Println(string(b))
+		fmt.Print(err)
 		os.Exit(1)
 	}
 	return string(b)
@@ -97,14 +99,12 @@ func MustExecRtOut(name string, arg ...string) string {
 
 func MustExecNoOut(name string, arg ...string) {
 	cmd := exec.Command(name, arg...)
+	cmd.Stderr = os.Stderr
 	CheckAndExit(cmd.Run())
 }
 
 func TryExec(name string, arg ...string) error {
 	cmd := exec.Command(name, arg...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
 
@@ -144,14 +144,17 @@ func OSEditInput() string {
 	}
 
 	// 执行编辑文件
-	cmd := exec.Command(editor, f.Name())
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	CheckAndExit(cmd.Run())
+	MustExec(editor, f.Name())
 	raw, err := ioutil.ReadFile(f.Name())
 	CheckAndExit(err)
 	input := string(bytes.TrimPrefix(raw, bom))
 
 	return input
+}
+
+func CheckOS() {
+	if runtime.GOOS != "linux" && runtime.GOOS != "darwin" {
+		fmt.Println("Platform not support!")
+		os.Exit(1)
+	}
 }

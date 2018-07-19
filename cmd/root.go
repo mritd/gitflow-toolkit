@@ -62,6 +62,7 @@ func init() {
 	RootCmd.AddCommand(NewChore())
 	RootCmd.AddCommand(NewInstall())
 	RootCmd.AddCommand(NewUninstall())
+	RootCmd.AddCommand(NewPs())
 }
 
 func initConfig() {

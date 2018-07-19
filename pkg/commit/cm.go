@@ -38,6 +38,7 @@ func CheckCommitMessage(args []string) {
 		case string(consts.TEST):
 		case string(consts.CHORE):
 		case string(consts.PERF):
+		case string(consts.HOTFIX):
 		default:
 			if !strings.HasPrefix(string(b), "Merge branch") {
 				checkFailed()

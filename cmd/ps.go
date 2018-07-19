@@ -18,29 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package main
+package cmd
 
 import (
-	"os"
-	"path/filepath"
-
-	"github.com/mritd/gitflow-toolkit/cmd"
 	"github.com/mritd/gitflow-toolkit/pkg/util"
 	"github.com/spf13/cobra"
 )
 
-func commandFor(basename string, rootCommand *cobra.Command) *cobra.Command {
-
-	c, _, _ := rootCommand.Find([]string{basename})
-	if c != nil {
-		// 从顶级 cmd 移除子 cmd，以保证子 cmd HasParent()=false
-		rootCommand.RemoveCommand(c)
-		return c
+func NewPs() *cobra.Command {
+	return &cobra.Command{
+		Use:   "ps",
+		Short: "推送本地分支",
+		Long: `
+将本地分支推送到远程`,
+		Aliases: []string{"git-ps"},
+		Run: func(cmd *cobra.Command, args []string) {
+			util.Push()
+		},
 	}
-	return rootCommand
-}
-
-func main() {
-	basename := filepath.Base(os.Args[0])
-	util.CheckAndExit(commandFor(basename, cmd.RootCmd).Execute())
 }

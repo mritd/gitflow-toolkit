@@ -9,7 +9,7 @@ import (
 )
 
 func CheckGitProject() {
-	MustExec(consts.GitCmd, "rev-parse", "--show-toplevel")
+	MustExecNoOut(consts.GitCmd, "rev-parse", "--show-toplevel")
 }
 
 func CheckStagedFiles() bool {
@@ -44,4 +44,8 @@ func Rebase(sourceBranch string, targetBranch string) {
 
 func Checkout(prefix consts.CommitType, branch string) {
 	MustExec(consts.GitCmd, "checkout", "-b", string(prefix)+"/"+branch)
+}
+
+func Push() {
+	MustExec(consts.GitCmd, "push", "origin", strings.TrimSpace(GetCurrentBranch()))
 }

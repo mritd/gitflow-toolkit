@@ -20,6 +20,7 @@
 | chore | 创建 chore 分支 |
 | perf | 创建 perf 分支 |
 | style | 创建 style 分支 |
+| ps | 推送当前分支到远程(git push origin xxxx) |
 
 ## 安装与卸载
 

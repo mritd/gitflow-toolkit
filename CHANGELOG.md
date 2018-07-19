@@ -1,5 +1,24 @@
 ## [Unreleased]
 
+<a name="v0.0.2"></a>
+## [v0.0.2] - 2018-06-21
+### Docs
+- **changelog:** update changelog
+- **changelog:** update changelog
+- **changelog:** add changelog
+
+### Feat
+- **Prompt:** fix Prompt space
+- **git:** add build file to gitignore
+- **push:** add git ps command
+- **uninstall:** add os check
+
+### Fix
+- **ci:** fix ci useless log
+- **commit msg check:** allow branch prefix hotfix
+- **exec util:** fix Stderr no msg
+- **git-check:** fix no output when git repo check failed
+
 <a name="v0.0.1"></a>
 ## v0.0.1 - 2018-04-26
 ### Chore
@@ -74,5 +93,6 @@
 - **0.0.1:** 格式化代码
 - **0.0.1:** format
 
-[Unreleased]: https://github.com/mritd/gitflow-toolkit/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/mritd/gitflow-toolkit/compare/v0.0.2...HEAD
+[v0.0.2]: https://github.com/mritd/gitflow-toolkit/compare/v0.0.1...v0.0.2
 

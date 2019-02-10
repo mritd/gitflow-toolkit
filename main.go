@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/mritd/gitflow-toolkit/cmd"
-	"github.com/mritd/gitflow-toolkit/util"
+	"github.com/mritd/gitflow-toolkit/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -20,5 +20,5 @@ func commandFor(basename string, rootCommand *cobra.Command) *cobra.Command {
 
 func main() {
 	basename := filepath.Base(os.Args[0])
-	util.CheckAndExit(commandFor(basename, cmd.RootCmd).Execute())
+	utils.CheckAndExit(commandFor(basename, cmd.RootCmd).Execute())
 }

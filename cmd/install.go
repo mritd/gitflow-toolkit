@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/mritd/gitflow-toolkit/util"
+	"github.com/mritd/gitflow-toolkit/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +13,7 @@ func NewInstall() *cobra.Command {
 Install gitflow-toolkit(only support *Unix).`,
 		Aliases: []string{"install"},
 		Run: func(cmd *cobra.Command, args []string) {
-			util.Install()
+			utils.Install()
 		},
 	}
 }

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/mritd/gitflow-toolkit/util"
+	"github.com/mritd/gitflow-toolkit/git"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +13,7 @@ func NewPs() *cobra.Command {
 Push local branch to remote.`,
 		Aliases: []string{"git-ps"},
 		Run: func(cmd *cobra.Command, args []string) {
-			util.Push()
+			git.Push()
 		},
 	}
 }

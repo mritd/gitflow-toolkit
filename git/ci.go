@@ -1,4 +1,4 @@
-package commit
+package git
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"text/template"
 
 	"github.com/mritd/gitflow-toolkit/consts"
-	"github.com/mritd/gitflow-toolkit/util"
+	"github.com/mritd/gitflow-toolkit/utils"
 	"github.com/mritd/promptx"
 	"github.com/pkg/errors"
 )
@@ -109,7 +109,7 @@ func InputBody() string {
 
 	body := strings.TrimSpace(p.Run())
 	if body == "big" {
-		return util.OSEditInput()
+		return utils.OSEditInput()
 	}
 
 	return body
@@ -131,7 +131,7 @@ func GenSOB() string {
 	author := "Undefined"
 	email := "Undefined"
 
-	output := util.MustExecRtOut("git", "var", "GIT_AUTHOR_IDENT")
+	output := utils.MustExecRtOut("git", "var", "GIT_AUTHOR_IDENT")
 	authorInfo := strings.Fields(output)
 
 	if len(authorInfo) > 1 && authorInfo[0] != "" {
@@ -152,13 +152,17 @@ func Commit(cm *Message) {
 	}
 
 	t, err := template.New("commitMessage").Parse(consts.CommitTpl)
-	util.CheckAndExit(err)
+	utils.CheckAndExit(err)
+
 	f, err := ioutil.TempFile("", "git-commit")
-	defer f.Close()
-	defer os.Remove(f.Name())
-	util.CheckAndExit(err)
-	t.Execute(f, cm)
-	util.MustExec("git", "commit", "-F", f.Name())
+	utils.CheckAndExit(err)
+	defer func() {
+		_ = f.Close()
+		_ = os.Remove(f.Name())
+	}()
+
+	_ = t.Execute(f, cm)
+	utils.MustExec("git", "commit", "-F", f.Name())
 
 	fmt.Println("\n✔ Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.")
 }

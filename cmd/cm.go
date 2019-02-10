@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/mritd/gitflow-toolkit/commit"
+	"github.com/mritd/gitflow-toolkit/git"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +16,7 @@ Check if the file content meets the Angular Community Specification.`,
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				commit.CheckCommitMessage(args)
+				git.CheckCommitMessage(args[0])
 			}
 		},
 	}

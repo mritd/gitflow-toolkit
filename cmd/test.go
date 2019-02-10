@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/mritd/gitflow-toolkit/consts"
-	"github.com/mritd/gitflow-toolkit/util"
+	"github.com/mritd/gitflow-toolkit/git"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +17,7 @@ Create a branch with a prefix of test.`,
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				util.Checkout(consts.TEST, args[0])
+				git.Checkout(consts.TEST, args[0])
 			}
 		},
 	}

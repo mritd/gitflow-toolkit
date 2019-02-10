@@ -1,4 +1,4 @@
-package commit
+package git
 
 import (
 	"fmt"
@@ -8,22 +8,15 @@ import (
 	"strings"
 
 	"github.com/mritd/gitflow-toolkit/consts"
-	"github.com/mritd/gitflow-toolkit/util"
+	"github.com/mritd/gitflow-toolkit/utils"
 )
 
-func CheckCommitMessage(args []string) {
-	if len(args) != 1 {
-		checkFailed()
-	}
+func CheckCommitMessage(file string) {
 
 	reg := regexp.MustCompile(consts.CommitMessagePattern)
 
-	f, err := os.Open(args[0])
-	defer f.Close()
-	util.CheckAndExit(err)
-
-	b, err := ioutil.ReadAll(f)
-	util.CheckAndExit(err)
+	b, err := ioutil.ReadFile(file)
+	utils.CheckAndExit(err)
 
 	commitTypes := reg.FindAllStringSubmatch(string(b), -1)
 	if len(commitTypes) != 1 {

@@ -6,7 +6,6 @@ import (
 
 	"github.com/mritd/gitflow-toolkit/git"
 
-	"github.com/mritd/gitflow-toolkit/consts"
 	"github.com/spf13/cobra"
 )
 
@@ -39,7 +38,7 @@ func NewCi() *cobra.Command {
 			cm := &git.Message{Sob: git.GenSOB()}
 
 			if fastCommit {
-				cm.Type = consts.FEAT
+				cm.Type = git.FEAT
 				cm.Scope = "Undefined"
 				cm.Subject = git.InputSubject()
 				git.Commit(cm)

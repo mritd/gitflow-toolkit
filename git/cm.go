@@ -7,13 +7,12 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mritd/gitflow-toolkit/consts"
 	"github.com/mritd/gitflow-toolkit/utils"
 )
 
 func CheckCommitMessage(file string) {
 
-	reg := regexp.MustCompile(consts.CommitMessagePattern)
+	reg := regexp.MustCompile(CommitMessagePattern)
 
 	b, err := ioutil.ReadFile(file)
 	utils.CheckAndExit(err)
@@ -23,15 +22,15 @@ func CheckCommitMessage(file string) {
 		checkFailed()
 	} else {
 		switch commitTypes[0][1] {
-		case string(consts.FEAT):
-		case string(consts.FIX):
-		case string(consts.DOCS):
-		case string(consts.STYLE):
-		case string(consts.REFACTOR):
-		case string(consts.TEST):
-		case string(consts.CHORE):
-		case string(consts.PERF):
-		case string(consts.HOTFIX):
+		case string(FEAT):
+		case string(FIX):
+		case string(DOCS):
+		case string(STYLE):
+		case string(REFACTOR):
+		case string(TEST):
+		case string(CHORE):
+		case string(PERF):
+		case string(HOTFIX):
 		default:
 			if !strings.HasPrefix(string(b), "Merge branch") {
 				checkFailed()

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mritd/gitflow-toolkit/commit"
+	"github.com/mritd/gitflow-toolkit/git"
+
 	"github.com/mritd/gitflow-toolkit/consts"
-	"github.com/mritd/gitflow-toolkit/util"
 	"github.com/spf13/cobra"
 )
 
@@ -29,27 +29,27 @@ func NewCi() *cobra.Command {
 		Aliases: []string{"git-ci"},
 		Run: func(cmd *cobra.Command, args []string) {
 
-			util.CheckGitProject()
+			git.CheckGitProject()
 
-			if !util.CheckStagedFiles() {
+			if !git.CheckStagedFiles() {
 				fmt.Println("No staged any files")
 				os.Exit(1)
 			}
 
-			cm := &commit.Message{Sob: commit.GenSOB()}
+			cm := &git.Message{Sob: git.GenSOB()}
 
 			if fastCommit {
 				cm.Type = consts.FEAT
 				cm.Scope = "Undefined"
-				cm.Subject = commit.InputSubject()
-				commit.Commit(cm)
+				cm.Subject = git.InputSubject()
+				git.Commit(cm)
 			} else {
-				cm.Type = commit.SelectCommitType()
-				cm.Scope = commit.InputScope()
-				cm.Subject = commit.InputSubject()
-				cm.Body = commit.InputBody()
-				cm.Footer = commit.InputFooter()
-				commit.Commit(cm)
+				cm.Type = git.SelectCommitType()
+				cm.Scope = git.InputScope()
+				cm.Subject = git.InputSubject()
+				cm.Body = git.InputBody()
+				cm.Footer = git.InputFooter()
+				git.Commit(cm)
 			}
 		},
 	}

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/mitchellh/go-homedir"
-	"github.com/mritd/gitflow-toolkit/util"
+	"github.com/mritd/gitflow-toolkit/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -49,7 +49,7 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		home, err := homedir.Dir()
-		util.CheckAndExit(err)
+		utils.CheckAndExit(err)
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".gitflow-toolkit")
 	}

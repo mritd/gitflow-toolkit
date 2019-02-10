@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/mritd/gitflow-toolkit/util"
+	"github.com/mritd/gitflow-toolkit/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +13,7 @@ func NewUninstall() *cobra.Command {
 Uninstall gitflow-toolkit`,
 		Aliases: []string{"uninstall"},
 		Run: func(cmd *cobra.Command, args []string) {
-			util.Uninstall()
+			utils.Uninstall()
 		},
 	}
 }

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/mritd/gitflow-toolkit/consts"
 	"github.com/mritd/gitflow-toolkit/git"
 	"github.com/spf13/cobra"
 )
@@ -18,7 +17,7 @@ Create a branch with a prefix of feat.`,
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				git.Checkout(consts.FEAT, args[0])
+				git.Checkout(git.FEAT, args[0])
 			}
 		},
 	}
@@ -36,7 +35,7 @@ Create a branch with a prefix of fix.`,
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				git.Checkout(consts.FIX, args[0])
+				git.Checkout(git.FIX, args[0])
 			}
 		},
 	}
@@ -54,7 +53,7 @@ Create a branch with a prefix of hotfix.`,
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				git.Checkout(consts.HOTFIX, args[0])
+				git.Checkout(git.HOTFIX, args[0])
 			}
 		},
 	}
@@ -72,7 +71,7 @@ Create a branch with a prefix of perf.`,
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				git.Checkout(consts.PERF, args[0])
+				git.Checkout(git.PERF, args[0])
 			}
 		},
 	}
@@ -90,7 +89,7 @@ Create a branch with a prefix of refactor.`,
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				git.Checkout(consts.REFACTOR, args[0])
+				git.Checkout(git.REFACTOR, args[0])
 			}
 		},
 	}
@@ -108,7 +107,7 @@ Create a branch with a prefix of test.`,
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				git.Checkout(consts.TEST, args[0])
+				git.Checkout(git.TEST, args[0])
 			}
 		},
 	}
@@ -126,7 +125,7 @@ Create a branch with a prefix of chore.`,
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				git.Checkout(consts.CHORE, args[0])
+				git.Checkout(git.CHORE, args[0])
 			}
 
 		},
@@ -145,7 +144,7 @@ Create a branch with a prefix of style.`,
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				git.Checkout(consts.STYLE, args[0])
+				git.Checkout(git.STYLE, args[0])
 			}
 		},
 	}
@@ -163,7 +162,7 @@ Create a branch with a prefix of docs.`,
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				git.Checkout(consts.DOCS, args[0])
+				git.Checkout(git.DOCS, args[0])
 			}
 		},
 	}

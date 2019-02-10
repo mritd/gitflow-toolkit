@@ -7,20 +7,19 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/mritd/gitflow-toolkit/consts"
 	"github.com/mritd/gitflow-toolkit/utils"
 	"github.com/mritd/promptx"
 	"github.com/pkg/errors"
 )
 
 type TypeMessage struct {
-	Type          consts.CommitType
+	Type          CommitType
 	ZHDescription string
 	ENDescription string
 }
 
 type Message struct {
-	Type    consts.CommitType
+	Type    CommitType
 	Scope   string
 	Subject string
 	Body    string
@@ -29,18 +28,18 @@ type Message struct {
 }
 
 // 选择提交类型
-func SelectCommitType() consts.CommitType {
+func SelectCommitType() CommitType {
 
 	commitTypes := []TypeMessage{
-		{Type: consts.FEAT, ZHDescription: "新功能", ENDescription: "Introducing new features"},
-		{Type: consts.FIX, ZHDescription: "修复 Bug", ENDescription: "Bug fix"},
-		{Type: consts.DOCS, ZHDescription: "添加文档", ENDescription: "Writing docs"},
-		{Type: consts.STYLE, ZHDescription: "调整格式", ENDescription: "Improving structure/format of the code"},
-		{Type: consts.REFACTOR, ZHDescription: "重构代码", ENDescription: "Refactoring code"},
-		{Type: consts.TEST, ZHDescription: "增加测试", ENDescription: "When adding missing tests"},
-		{Type: consts.CHORE, ZHDescription: "CI/CD 变动", ENDescription: "Changing CI/CD"},
-		{Type: consts.PERF, ZHDescription: "性能优化", ENDescription: "Improving performance"},
-		{Type: consts.EXIT, ZHDescription: "退出", ENDescription: "Exit commit"},
+		{Type: FEAT, ZHDescription: "新功能", ENDescription: "Introducing new features"},
+		{Type: FIX, ZHDescription: "修复 Bug", ENDescription: "Bug fix"},
+		{Type: DOCS, ZHDescription: "添加文档", ENDescription: "Writing docs"},
+		{Type: STYLE, ZHDescription: "调整格式", ENDescription: "Improving structure/format of the code"},
+		{Type: REFACTOR, ZHDescription: "重构代码", ENDescription: "Refactoring code"},
+		{Type: TEST, ZHDescription: "增加测试", ENDescription: "When adding missing tests"},
+		{Type: CHORE, ZHDescription: "CI/CD 变动", ENDescription: "Changing CI/CD"},
+		{Type: PERF, ZHDescription: "性能优化", ENDescription: "Improving performance"},
+		{Type: EXIT, ZHDescription: "退出", ENDescription: "Exit commit"},
 	}
 	cfg := &promptx.SelectConfig{
 		ActiveTpl:    "»  {{ .Type | cyan }} ({{ .ENDescription | cyan }})",
@@ -61,7 +60,7 @@ func SelectCommitType() consts.CommitType {
 
 	idx := s.Run()
 
-	if commitTypes[idx].Type == consts.EXIT {
+	if commitTypes[idx].Type == EXIT {
 		fmt.Println("Talk is cheap. Show me the code.")
 		os.Exit(0)
 	}
@@ -151,7 +150,7 @@ func Commit(cm *Message) {
 		cm.Body = cm.Subject
 	}
 
-	t, err := template.New("commitMessage").Parse(consts.CommitTpl)
+	t, err := template.New("commitMessage").Parse(CommitTpl)
 	utils.CheckAndExit(err)
 
 	f, err := ioutil.TempFile("", "git-commit")

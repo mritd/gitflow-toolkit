@@ -6,18 +6,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewFeat() *cobra.Command {
+func NewTest() *cobra.Command {
 	return &cobra.Command{
-		Use:   "feat BRANCH_NAME",
-		Short: "Create feature branch",
+		Use:   "test BRANCH_NAME",
+		Short: "Create test branch",
 		Long: `
-Create a branch with a prefix of feat.`,
-		Aliases: []string{"git-feat"},
+Create a branch with a prefix of test.`,
+		Aliases: []string{"git-test"},
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) != 1 {
 				_ = cmd.Help()
 			} else {
-				util.Checkout(consts.FEAT, args[0])
+				util.Checkout(consts.TEST, args[0])
 			}
 		},
 	}

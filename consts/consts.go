@@ -19,11 +19,6 @@ const (
 	EXIT     CommitType = "exit"
 )
 
-const (
-	GitHubRepo RepoType = "github"
-	GitLabRepo RepoType = "gitlab"
-)
-
 const CommitTpl = `{{ .Type }}({{ .Scope }}): {{ .Subject }}
 
 {{ .Body }}

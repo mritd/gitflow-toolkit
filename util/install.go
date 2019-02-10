@@ -17,11 +17,11 @@ func Install() {
 	fmt.Println("Copy file to install home")
 	currentFile, err := os.Open(CurrentPath)
 	CheckAndExit(err)
-	defer currentFile.Close()
+	defer func() { _ = currentFile.Close() }()
 
 	installFile, err := os.OpenFile(InstallPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
 	CheckAndExit(err)
-	defer installFile.Close()
+	defer func() { _ = installFile.Close() }()
 
 	_, err = io.Copy(installFile, currentFile)
 	CheckAndExit(err)
@@ -29,7 +29,7 @@ func Install() {
 	fmt.Println("Create symbolic file")
 	CheckAndExit(os.MkdirAll(HooksPath, 0755))
 
-	for _, binPath := range *BinPaths() {
+	for _, binPath := range BinPaths() {
 		CheckAndExit(os.Symlink(InstallPath, binPath))
 	}
 

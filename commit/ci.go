@@ -7,8 +7,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/mritd/gitflow-toolkit/pkg/consts"
-	"github.com/mritd/gitflow-toolkit/pkg/util"
+	"github.com/mritd/gitflow-toolkit/consts"
+	"github.com/mritd/gitflow-toolkit/util"
 	"github.com/mritd/promptx"
 	"github.com/pkg/errors"
 )

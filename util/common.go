@@ -21,8 +21,6 @@ var InstallPath string
 var HooksPath string
 var GitCMHookPath string
 var CurrentPath string
-var CurrentDir string
-var WorkingDir string
 
 func init() {
 
@@ -31,21 +29,17 @@ func init() {
 	home, err := homedir.Dir()
 	CheckAndExit(err)
 
-	GitFlowToolKitHome = home + "/.gitflow-toolkit"
-	InstallPath = GitFlowToolKitHome + "/gitflow-toolkit"
-	HooksPath = GitFlowToolKitHome + "/hooks"
-	GitCMHookPath = HooksPath + "/commit-msg"
+	GitFlowToolKitHome = filepath.Join(home, ".gitflow-toolkit")
+	InstallPath = filepath.Join(GitFlowToolKitHome, "gitflow-toolkit")
+	HooksPath = filepath.Join(GitFlowToolKitHome, "hooks")
+	GitCMHookPath = filepath.Join(HooksPath, "commit-msg")
 
 	CurrentPath, err = exec.LookPath(os.Args[0])
 	CheckAndExit(err)
-	CurrentDir, err = filepath.Abs(filepath.Dir(os.Args[0]))
-	CheckAndExit(err)
-	WorkingDir, err = os.Getwd()
-	CheckAndExit(err)
 }
 
-func BinPaths() *[]string {
-	return &[]string{
+func BinPaths() []string {
+	return []string{
 		GitCMHookPath,
 		InstallBaseDir + "/git-ci",
 		InstallBaseDir + "/git-feat",
@@ -123,8 +117,8 @@ func OSEditInput() string {
 	f, err := ioutil.TempFile("", "gitflow-toolkit")
 	CheckAndExit(err)
 	defer func() {
-		f.Close()
-		os.Remove(f.Name())
+		_ = f.Close()
+		_ = os.Remove(f.Name())
 	}()
 
 	// write utf8 bom

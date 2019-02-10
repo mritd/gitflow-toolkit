@@ -5,7 +5,7 @@ import (
 
 	"fmt"
 
-	"github.com/mritd/gitflow-toolkit/pkg/consts"
+	"github.com/mritd/gitflow-toolkit/consts"
 )
 
 func CheckGitProject() {

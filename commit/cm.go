@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mritd/gitflow-toolkit/pkg/consts"
-	"github.com/mritd/gitflow-toolkit/pkg/util"
+	"github.com/mritd/gitflow-toolkit/consts"
+	"github.com/mritd/gitflow-toolkit/util"
 )
 
 func CheckCommitMessage(args []string) {

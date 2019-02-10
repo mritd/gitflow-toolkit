@@ -30,18 +30,19 @@ func init() {
 	// add sub cmd
 	RootCmd.AddCommand(NewCi())
 	RootCmd.AddCommand(NewCm())
-	RootCmd.AddCommand(NewFeat())
-	RootCmd.AddCommand(NewFix())
-	RootCmd.AddCommand(NewDocs())
-	RootCmd.AddCommand(NewStyle())
-	RootCmd.AddCommand(NewRefactor())
-	RootCmd.AddCommand(NewPerf())
-	RootCmd.AddCommand(NewHotFix())
-	RootCmd.AddCommand(NewTest())
-	RootCmd.AddCommand(NewChore())
+	RootCmd.AddCommand(NewFeatBranch())
+	RootCmd.AddCommand(NewFixBranch())
+	RootCmd.AddCommand(NewDocsBranch())
+	RootCmd.AddCommand(NewStyleBranch())
+	RootCmd.AddCommand(NewRefactorBranch())
+	RootCmd.AddCommand(NewPerfBranch())
+	RootCmd.AddCommand(NewHotFixBranch())
+	RootCmd.AddCommand(NewTestBranch())
+	RootCmd.AddCommand(NewChoreBranch())
 	RootCmd.AddCommand(NewInstall())
 	RootCmd.AddCommand(NewUninstall())
 	RootCmd.AddCommand(NewPs())
+	RootCmd.AddCommand(NewVersion())
 }
 
 func initConfig() {

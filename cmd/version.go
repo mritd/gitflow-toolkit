@@ -26,17 +26,16 @@ var (
 	CommitID  string
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print version",
-	Long: `
+// Print toolkit version
+func NewVersion() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Print version",
+		Long: `
 Print version.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		banner, _ := base64.StdEncoding.DecodeString(bannerBase64)
-		fmt.Printf(versionTpl, banner, Version, runtime.GOOS+"/"+runtime.GOARCH, BuildTime, CommitID)
-	},
-}
-
-func init() {
-	RootCmd.AddCommand(versionCmd)
+		Run: func(cmd *cobra.Command, args []string) {
+			banner, _ := base64.StdEncoding.DecodeString(bannerBase64)
+			fmt.Printf(versionTpl, banner, Version, runtime.GOOS+"/"+runtime.GOARCH, BuildTime, CommitID)
+		},
+	}
 }

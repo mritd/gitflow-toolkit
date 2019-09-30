@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"github.com/mitchellh/go-homedir"
-	"github.com/mritd/gitflow-toolkit/utils"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var cfgFile string
@@ -21,11 +18,14 @@ var RootCmd = &cobra.Command{
 
 func init() {
 
-	// init config
-	cobra.OnInitialize(initConfig)
+	installCmd := NewInstall()
+	installCmd.PersistentFlags().StringVar(&installDir, "dir", "/usr/local/bin", "install dir")
 
-	// add flags
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gitflow-toolkit.yaml)")
+	uninstallCmd := NewUninstall()
+	uninstallCmd.PersistentFlags().StringVar(&installDir, "dir", "/usr/local/bin", "install dir")
+
+	RootCmd.AddCommand(installCmd)
+	RootCmd.AddCommand(uninstallCmd)
 
 	// add sub cmd
 	RootCmd.AddCommand(NewCi())
@@ -39,21 +39,6 @@ func init() {
 	RootCmd.AddCommand(NewHotFixBranch())
 	RootCmd.AddCommand(NewTestBranch())
 	RootCmd.AddCommand(NewChoreBranch())
-	RootCmd.AddCommand(NewInstall())
-	RootCmd.AddCommand(NewUninstall())
 	RootCmd.AddCommand(NewPs())
 	RootCmd.AddCommand(NewVersion())
-}
-
-func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		home, err := homedir.Dir()
-		utils.CheckAndExit(err)
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".gitflow-toolkit")
-	}
-	viper.AutomaticEnv()
-	viper.ReadInConfig()
 }

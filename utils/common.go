@@ -14,8 +14,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
-const InstallBaseDir = "/usr/local/bin"
-
 var GitFlowToolKitHome string
 var InstallPath string
 var HooksPath string
@@ -36,25 +34,6 @@ func init() {
 
 	CurrentPath, err = exec.LookPath(os.Args[0])
 	CheckAndExit(err)
-}
-
-func BinPaths() []string {
-	return []string{
-		GitCMHookPath,
-		InstallBaseDir + "/git-ci",
-		InstallBaseDir + "/git-feat",
-		InstallBaseDir + "/git-fix",
-		InstallBaseDir + "/git-docs",
-		InstallBaseDir + "/git-style",
-		InstallBaseDir + "/git-refactor",
-		InstallBaseDir + "/git-test",
-		InstallBaseDir + "/git-chore",
-		InstallBaseDir + "/git-perf",
-		InstallBaseDir + "/git-hotfix",
-		InstallBaseDir + "/git-xmr",
-		InstallBaseDir + "/git-xpr",
-		InstallBaseDir + "/git-ps",
-	}
 }
 
 func CheckErr(err error) bool {
@@ -102,14 +81,10 @@ func TryExec(name string, arg ...string) error {
 	return cmd.Run()
 }
 
-func CheckRoot() {
+func Root() bool {
 	u, err := user.Current()
 	CheckAndExit(err)
-
-	if u.Uid != "0" || u.Gid != "0" {
-		fmt.Println("This command must be run as root! (sudo)")
-		os.Exit(1)
-	}
+	return u.Uid == "0" || u.Gid == "0"
 }
 
 func OSEditInput() string {

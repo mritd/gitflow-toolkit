@@ -13,7 +13,7 @@ func NewUninstall() *cobra.Command {
 Uninstall gitflow-toolkit`,
 		Aliases: []string{"uninstall"},
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.Uninstall()
+			utils.Uninstall(installDir)
 		},
 	}
 }

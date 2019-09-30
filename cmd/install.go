@@ -5,6 +5,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var installDir string
+
 func NewInstall() *cobra.Command {
 	return &cobra.Command{
 		Use:   "install",
@@ -13,7 +15,7 @@ func NewInstall() *cobra.Command {
 Install gitflow-toolkit(only support *Unix).`,
 		Aliases: []string{"install"},
 		Run: func(cmd *cobra.Command, args []string) {
-			utils.Install()
+			utils.Install(installDir)
 		},
 	}
 }

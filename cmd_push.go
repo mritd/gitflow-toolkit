@@ -4,10 +4,11 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func pushRepo() *cli.Command {
+func pushCmd() *cli.Command {
 	return &cli.Command{
-		Name:  "push",
-		Usage: "Push local branch to remote",
+		Name:    "push",
+		Aliases: []string{"git-push"},
+		Usage:   "Push local branch to remote",
 		Action: func(c *cli.Context) error {
 			if c.NArg() != 0 {
 				return cli.ShowAppHelp(c)

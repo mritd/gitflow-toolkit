@@ -9,6 +9,7 @@ import (
 func newBranchCmd(ct CommitType) *cli.Command {
 	return &cli.Command{
 		Name:      string(ct),
+		Aliases:   []string{"git-" + string(ct)},
 		Usage:     fmt.Sprintf("Create %s branch", ct),
 		UsageText: fmt.Sprintf("%s NAME", ct),
 		Action: func(c *cli.Context) error {

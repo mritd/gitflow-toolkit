@@ -16,8 +16,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/mritd/bubbles/selector"
-
-	"github.com/go-git/go-git/v5/config"
 )
 
 type MessageType struct {
@@ -36,6 +34,10 @@ type CommitMessage struct {
 }
 
 func createBranch(name string) error {
+	err := repoCheck()
+	if err != nil {
+		return fmt.Errorf("the current directory is not a git repository")
+	}
 	return gitCommand(os.Stdout, []string{"checkout", "-b", name})
 }
 
@@ -81,14 +83,32 @@ func commitMessageCheck(f string) error {
 }
 
 func author() (string, string, error) {
-	c, err := config.LoadConfig(config.GlobalScope)
+	name := "Undefined"
+	email := "Undefined"
+
+	var buf bytes.Buffer
+	err := gitCommand(&buf, []string{"var", "GIT_AUTHOR_IDENT"})
 	if err != nil {
 		return "", "", err
 	}
-	return c.Author.Name, c.Author.Email, nil
+
+	authorInfo := strings.Fields(buf.String())
+
+	if len(authorInfo) > 1 && authorInfo[0] != "" {
+		name = authorInfo[0]
+	}
+	if len(authorInfo) > 2 && authorInfo[1] != "" {
+		email = authorInfo[1]
+	}
+	return name, email, nil
 }
 
 func commit() error {
+	err := repoCheck()
+	if err != nil {
+		return fmt.Errorf("the current directory is not a git repository")
+	}
+
 	ok, err := hasStagedFiles()
 	if err != nil {
 		return err
@@ -150,7 +170,14 @@ func commit() error {
 		return err
 	}
 
-	return gitCommand(os.Stdout, []string{"commit", "-F", f.Name()})
+	err = gitCommand(os.Stdout, []string{"commit", "-F", f.Name()})
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("\n✔ Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.")
+
+	return nil
 }
 
 func commitType() (MessageType, error) {

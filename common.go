@@ -128,5 +128,6 @@ func linkPath(dir string) []string {
 		filepath.Join(dir, "git-perf"),
 		filepath.Join(dir, "git-hotfix"),
 		filepath.Join(dir, "git-ps"),
+		filepath.Join(dir, "git-cm"),
 	}
 }

@@ -1,0 +1,258 @@
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"regexp"
+	"strings"
+	"text/template"
+
+	"github.com/mritd/bubbles/common"
+
+	"github.com/mritd/bubbles/prompt"
+
+	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/mritd/bubbles/selector"
+
+	"github.com/go-git/go-git/v5/config"
+)
+
+type MessageType struct {
+	Type          CommitType
+	ZHDescription string
+	ENDescription string
+}
+
+type CommitMessage struct {
+	Type    MessageType
+	Scope   string
+	Subject string
+	Body    string
+	Footer  string
+	Sob     string
+}
+
+func createBranch(name string) error {
+	return gitCommand(os.Stdout, []string{"checkout", "-b", name})
+}
+
+func hasStagedFiles() (bool, error) {
+	var buf bytes.Buffer
+	err := gitCommand(&buf, []string{"diff", "--cached", "--name-only"})
+	if err != nil {
+		return false, err
+	}
+	return strings.TrimSpace(buf.String()) == "", nil
+}
+
+func currentBranch() (string, error) {
+	var buf bytes.Buffer
+	err := gitCommand(&buf, []string{"symbolic-ref", "--short", "HEAD"})
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(buf.String()), nil
+}
+
+func push() error {
+	branch, err := currentBranch()
+	if err != nil {
+		return err
+	}
+	return gitCommand(os.Stdout, []string{"push", "origin", branch})
+}
+
+func commitMessageCheck(f string) error {
+	reg := regexp.MustCompile(commitMessagePattern)
+	bs, err := ioutil.ReadFile(f)
+	if err != nil {
+		return err
+	}
+
+	msgs := reg.FindAllStringSubmatch(string(bs), -1)
+	if len(msgs) != 3 {
+		return fmt.Errorf("the commit message does not match the regexp: %s", commitMessagePattern)
+	}
+
+	return nil
+}
+
+func author() (string, string, error) {
+	c, err := config.LoadConfig(config.GlobalScope)
+	if err != nil {
+		return "", "", err
+	}
+	return c.Author.Name, c.Author.Email, nil
+}
+
+func commit() error {
+	ok, err := hasStagedFiles()
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return fmt.Errorf("please execute the `add` command to add files before commit")
+	}
+
+	cmType, err := commitType()
+	if err != nil {
+		return err
+	}
+	cmScope, err := commitScope()
+	if err != nil {
+		return err
+	}
+	cmSubject, err := commitSubject()
+	if err != nil {
+		return err
+	}
+	cmBody, err := commitBody()
+	if err != nil {
+		return err
+	}
+	cmFooter, err := commitFooter()
+	if err != nil {
+		return err
+	}
+	cmSOB, err := createSOB()
+	if err != nil {
+		return err
+	}
+
+	msg := CommitMessage{
+		Type:    cmType,
+		Scope:   cmScope,
+		Subject: cmSubject,
+		Body:    cmBody,
+		Footer:  cmFooter,
+		Sob:     cmSOB,
+	}
+	if msg.Body == "" {
+		msg.Body = cmSubject
+	}
+
+	f, err := ioutil.TempFile("", "git-commit")
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = f.Close()
+		_ = os.Remove(f.Name())
+	}()
+
+	tpl, _ := template.New("").Parse(commitMessageTpl)
+	err = tpl.Execute(f, msg)
+	if err != nil {
+		return err
+	}
+
+	return gitCommand(os.Stdout, []string{"commit", "-F", f.Name()})
+}
+
+func commitType() (MessageType, error) {
+	m := &selector.Model{
+		Data: []interface{}{
+			MessageType{Type: FEAT, ZHDescription: "新功能", ENDescription: "Introducing new features"},
+			MessageType{Type: FIX, ZHDescription: "修复 Bug", ENDescription: "Bug fix"},
+			MessageType{Type: DOCS, ZHDescription: "添加文档", ENDescription: "Writing docs"},
+			MessageType{Type: STYLE, ZHDescription: "调整格式", ENDescription: "Improving structure/format of the code"},
+			MessageType{Type: REFACTOR, ZHDescription: "重构代码", ENDescription: "Refactoring code"},
+			MessageType{Type: TEST, ZHDescription: "增加测试", ENDescription: "When adding missing tests"},
+			MessageType{Type: CHORE, ZHDescription: "CI/CD 变动", ENDescription: "Changing CI/CD"},
+			MessageType{Type: PERF, ZHDescription: "性能优化", ENDescription: "Improving performance"},
+			MessageType{Type: HOTFIX, ZHDescription: "紧急修复", ENDescription: "Bug fix urgently"},
+		},
+		PerPage: 5,
+		// Use the arrow keys to navigate: ↓ ↑ → ←
+		// Select Commit Type:
+		HeaderFunc: selector.DefaultHeaderFuncWithAppend("Select Commit Type:"),
+		// [1] feat (Introducing new features)
+		SelectedFunc: func(m selector.Model, obj interface{}, gdIndex int) string {
+			t := obj.(MessageType)
+			return fmt.Sprintf("[%d] %s (%s)", gdIndex+1, t.Type, t.ENDescription)
+		},
+		// 2. fix (Bug fix)
+		UnSelectedFunc: func(m selector.Model, obj interface{}, gdIndex int) string {
+			t := obj.(MessageType)
+			return fmt.Sprintf(" %d. %s (%s)", gdIndex+1, t.Type, t.ENDescription)
+		},
+		// --------- Commit Type ----------
+		// Type: feat
+		// Description: 新功能(Introducing new features)
+		FooterFunc: func(m selector.Model, obj interface{}, gdIndex int) string {
+			t := m.PageSelected().(MessageType)
+			footerTpl := `--------- Commit Type ----------
+Type: %s
+Description: %s(%s)`
+			return fmt.Sprintf(footerTpl, t.Type, t.ZHDescription, t.ENDescription)
+		},
+	}
+
+	p := tea.NewProgram(m)
+	err := p.Start()
+	if err != nil {
+		return MessageType{}, err
+	}
+
+	return m.Selected().(MessageType), nil
+}
+
+func commitScope() (string, error) {
+	m := &prompt.Model{
+		Prompt:       common.FontColor("Scope: ", "2"),
+		ValidateFunc: prompt.VFNotBlank,
+	}
+	p := tea.NewProgram(m)
+	err := p.Start()
+	if err != nil {
+		return "", err
+	}
+	return m.Value(), nil
+}
+
+func commitSubject() (string, error) {
+	m := &prompt.Model{
+		Prompt:       common.FontColor("Subject: ", "2"),
+		ValidateFunc: prompt.VFNotBlank,
+	}
+	p := tea.NewProgram(m)
+	err := p.Start()
+	if err != nil {
+		return "", err
+	}
+	return m.Value(), nil
+}
+
+func commitBody() (string, error) {
+	m := &prompt.Model{
+		Prompt: common.FontColor("Body: ", "2"),
+	}
+	p := tea.NewProgram(m)
+	err := p.Start()
+	if err != nil {
+		return "", err
+	}
+	value := m.Value()
+
+	reg := regexp.MustCompile(commitBodyEditPattern)
+	if reg.MatchString(value) {
+		return openEditor()
+	}
+	return m.Value(), nil
+}
+
+func commitFooter() (string, error) {
+	m := &prompt.Model{
+		Prompt: common.FontColor("Footer: ", "2"),
+	}
+	p := tea.NewProgram(m)
+	err := p.Start()
+	if err != nil {
+		return "", err
+	}
+	return m.Value(), nil
+}

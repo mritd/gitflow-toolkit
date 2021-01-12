@@ -12,8 +12,7 @@ func pushRepo() *cli.Command {
 			if c.NArg() != 0 {
 				return cli.ShowAppHelp(c)
 			}
-			// TODO: Check commit message file
-			return nil
+			return push()
 		},
 	}
 }

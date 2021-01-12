@@ -6,7 +6,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func newBranch(ct CommitType) *cli.Command {
+func newBranchCmd(ct CommitType) *cli.Command {
 	return &cli.Command{
 		Name:      string(ct),
 		Usage:     fmt.Sprintf("Create %s branch", ct),
@@ -15,8 +15,7 @@ func newBranch(ct CommitType) *cli.Command {
 			if c.NArg() != 1 {
 				return cli.ShowAppHelp(c)
 			}
-
-			err := createBranch(c.Args().First())
+			err := createBranch(fmt.Sprintf("%s/%s", ct, c.Args().First()))
 			if err != nil {
 				return fmt.Errorf("failed to create branch %s/%s: %s", ct, c.Args().First(), err)
 			}

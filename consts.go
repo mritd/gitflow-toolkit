@@ -12,5 +12,17 @@ const (
 	CHORE    CommitType = "chore"
 	PERF     CommitType = "perf"
 	HOTFIX   CommitType = "hotfix"
-	EXIT     CommitType = "exit"
 )
+
+const commitMessagePattern = `^(feat|fix|docs|style|refactor|test|chore|perf|hotfix)\((\S*)\):\s(\S.*)|^Merge.*`
+
+const commitBodyEditPattern = `^\/\/\s*(?i)edit`
+
+const commitMessageTpl = `{{ .Type }}({{ .Scope }}): {{ .Subject }}
+
+{{ .Body }}
+
+{{ .Footer }}
+
+{{ .Sob }}
+`

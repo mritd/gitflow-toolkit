@@ -88,7 +88,6 @@ func Root() bool {
 }
 
 func OSEditInput() string {
-
 	f, err := ioutil.TempFile("", "gitflow-toolkit")
 	CheckAndExit(err)
 	defer func() {

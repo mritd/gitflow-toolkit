@@ -4,7 +4,20 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func checkMessage() *cli.Command {
+func commitCmd() *cli.Command {
+	return &cli.Command{
+		Name:  "ci",
+		Usage: "Commit",
+		Action: func(c *cli.Context) error {
+			if c.NArg() != 0 {
+				return cli.ShowAppHelp(c)
+			}
+			return commit()
+		},
+	}
+}
+
+func checkMessageCmd() *cli.Command {
 	return &cli.Command{
 		Name:      "check",
 		Usage:     "Check commit message",
@@ -13,8 +26,7 @@ func checkMessage() *cli.Command {
 			if c.NArg() != 1 {
 				return cli.ShowAppHelp(c)
 			}
-			// TODO: Check commit message file
-			return nil
+			return commitMessageCheck(c.Args().First())
 		},
 	}
 }

@@ -63,9 +63,9 @@ func commitApp() *cli.App {
 
 func checkMessageApp() *cli.App {
 	return &cli.App{
-		Name:                 "git-cm",
-		Usage:                "Check commit message",
-		UsageText:            "git cm FILE",
+		Name:                 "commit-msg",
+		Usage:                "Commit message hook",
+		UsageText:            "commit-msg FILE",
 		Version:              fmt.Sprintf("%s %s %s", version, buildDate, commitID),
 		Authors:              []*cli.Author{{Name: "mritd", Email: "mritd@linux.com"}},
 		Copyright:            "Copyright (c) 2020 mritd, All rights reserved.",

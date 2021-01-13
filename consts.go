@@ -14,7 +14,7 @@ const (
 	HOTFIX   CommitType = "hotfix"
 )
 
-const commitMessagePattern = `^(feat|fix|docs|style|refactor|test|chore|perf|hotfix)\((\S*)\):\s(\S.*)|^Merge.*`
+const commitMessagePattern = `^(feat|fix|docs|style|refactor|test|chore|perf|hotfix)\((\S.*)\):\s(\S.*)|^Merge.*`
 
 const commitBodyEditPattern = `^\/\/\s*(?i)edit`
 

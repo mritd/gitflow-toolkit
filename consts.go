@@ -14,6 +14,8 @@ const (
 	HOTFIX   CommitType = "hotfix"
 )
 
+const commitWarn = "✔ Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live."
+
 const commitMessagePattern = `^(feat|fix|docs|style|refactor|test|chore|perf|hotfix)\((\S.*)\):\s(\S.*)|^Merge.*`
 
 const commitBodyEditPattern = `^\/\/\s*(?i)edit`

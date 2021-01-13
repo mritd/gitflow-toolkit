@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/charmbracelet/bubbletea v0.12.2
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mritd/bubbles v0.0.0-20210113114249-8a5426ed6a10
+	github.com/mritd/bubbles v0.0.0-20210113152436-12363c089d42
 	github.com/urfave/cli/v2 v2.3.0
 )
 

@@ -25,7 +25,7 @@ type MessageType struct {
 }
 
 type CommitMessage struct {
-	Type    MessageType
+	Type    CommitType
 	Scope   string
 	Subject string
 	Body    string
@@ -144,7 +144,7 @@ func commit() error {
 	}
 
 	msg := CommitMessage{
-		Type:    cmType,
+		Type:    cmType.Type,
 		Scope:   cmScope,
 		Subject: cmSubject,
 		Body:    cmBody,
@@ -225,6 +225,10 @@ Description: %s(%s)`
 		return MessageType{}, err
 	}
 
+	if m.Canceled() {
+		return MessageType{}, fmt.Errorf("user has cancelled this commit")
+	}
+
 	return m.Selected().(MessageType), nil
 }
 
@@ -237,6 +241,9 @@ func commitScope() (string, error) {
 	err := p.Start()
 	if err != nil {
 		return "", err
+	}
+	if m.Canceled() {
+		return "", fmt.Errorf("user has cancelled this commit")
 	}
 	return m.Value(), nil
 }
@@ -251,6 +258,9 @@ func commitSubject() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if m.Canceled() {
+		return "", fmt.Errorf("user has cancelled this commit")
+	}
 	return m.Value(), nil
 }
 
@@ -264,6 +274,9 @@ func commitBody() (string, error) {
 		return "", err
 	}
 	value := m.Value()
+	if m.Canceled() {
+		return "", fmt.Errorf("user has cancelled this commit")
+	}
 
 	reg := regexp.MustCompile(commitBodyEditPattern)
 	if reg.MatchString(value) {
@@ -280,6 +293,9 @@ func commitFooter() (string, error) {
 	err := p.Start()
 	if err != nil {
 		return "", err
+	}
+	if m.Canceled() {
+		return "", fmt.Errorf("user has cancelled this commit")
 	}
 	return m.Value(), nil
 }

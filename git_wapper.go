@@ -200,12 +200,12 @@ func commitType() (MessageType, error) {
 		// [1] feat (Introducing new features)
 		SelectedFunc: func(m selector.Model, obj interface{}, gdIndex int) string {
 			t := obj.(MessageType)
-			return fmt.Sprintf("[%d] %s (%s)", gdIndex+1, t.Type, t.ENDescription)
+			return common.FontColor(fmt.Sprintf("[%d] %s (%s)", gdIndex+1, t.Type, t.ENDescription), selector.ColorSelected)
 		},
 		// 2. fix (Bug fix)
 		UnSelectedFunc: func(m selector.Model, obj interface{}, gdIndex int) string {
 			t := obj.(MessageType)
-			return fmt.Sprintf(" %d. %s (%s)", gdIndex+1, t.Type, t.ENDescription)
+			return common.FontColor(fmt.Sprintf(" %d. %s (%s)", gdIndex+1, t.Type, t.ENDescription), selector.ColorUnSelected)
 		},
 		// --------- Commit Type ----------
 		// Type: feat
@@ -215,7 +215,11 @@ func commitType() (MessageType, error) {
 			footerTpl := `--------- Commit Type ----------
 Type: %s
 Description: %s(%s)`
-			return fmt.Sprintf(footerTpl, t.Type, t.ZHDescription, t.ENDescription)
+			return common.FontColor(fmt.Sprintf(footerTpl, t.Type, t.ZHDescription, t.ENDescription), selector.ColorFooter)
+		},
+		FinishedFunc: func(s interface{}) string {
+			mt := s.(MessageType)
+			return common.FontColor("✔ Type:", selector.ColorFinished) + string(mt.Type) + "\n"
 		},
 	}
 

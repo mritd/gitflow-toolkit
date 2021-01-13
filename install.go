@@ -128,6 +128,7 @@ func uninstall(dir string) error {
 	}
 
 	toolKitHome := filepath.Join(home, ".gitflow-toolkit")
+	toolKitPath := filepath.Join(dir, "gitflow-toolkit")
 
 	m := &progressbar.Model{
 		Width:       40,
@@ -152,6 +153,13 @@ func uninstall(dir string) error {
 					}
 				}
 				return "✔ Clean symlinks...", nil
+			},
+			func() (string, error) {
+				err := os.RemoveAll(toolKitPath)
+				if err != nil {
+					return "", fmt.Errorf("💔 failed to remove bin file: %s: %s", toolKitPath, err)
+				}
+				return "✔ Clean bin file...", nil
 			},
 			func() (string, error) {
 				// ignore unset failed error

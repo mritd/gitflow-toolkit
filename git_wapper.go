@@ -158,7 +158,7 @@ func commit() error {
 		return err
 	}
 
-	fmt.Println("\n✔ Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.")
+	fmt.Println("\n" + common.FontColor(commitWarn, "2"))
 
 	return nil
 }

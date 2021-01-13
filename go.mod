@@ -1,10 +1,12 @@
-module github.com/mritd/gitflow-toolkit
+module github.com/mritd/gitflow-toolkit/v2
 
-go 1.13
+go 1.15
 
 require (
+	github.com/charmbracelet/bubbletea v0.12.2
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mritd/promptx v0.0.0-20190919142911-51b6aa75496f
-	github.com/pkg/errors v0.8.1
-	github.com/spf13/cobra v0.0.5
+	github.com/mritd/bubbles v0.0.0-20210113114249-8a5426ed6a10
+	github.com/urfave/cli/v2 v2.3.0
 )
+
+replace github.com/charmbracelet/bubbletea v0.12.2 => github.com/mritd/bubbletea v0.12.3-0.20210112015836-b36bfa653250

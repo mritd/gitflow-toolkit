@@ -178,3 +178,19 @@ func uninstall(dir string) error {
 
 	return tea.NewProgram(m).Start()
 }
+
+func linkPath(dir string) []string {
+	return []string{
+		filepath.Join(dir, "git-ci"),
+		filepath.Join(dir, "git-feat"),
+		filepath.Join(dir, "git-fix"),
+		filepath.Join(dir, "git-docs"),
+		filepath.Join(dir, "git-style"),
+		filepath.Join(dir, "git-refactor"),
+		filepath.Join(dir, "git-test"),
+		filepath.Join(dir, "git-chore"),
+		filepath.Join(dir, "git-perf"),
+		filepath.Join(dir, "git-hotfix"),
+		filepath.Join(dir, "git-ps"),
+	}
+}

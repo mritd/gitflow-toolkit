@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 )
 
@@ -101,32 +100,4 @@ func gitCommand(out io.Writer, cmds []string) error {
 	}
 
 	return cmd.Run()
-}
-
-func repoCheck() error {
-	return gitCommand(ioutil.Discard, []string{"rev-parse", "--show-toplevel"})
-}
-
-func createSOB() (string, error) {
-	name, email, err := author()
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("Signed-off-by: %s %s", name, email), nil
-}
-
-func linkPath(dir string) []string {
-	return []string{
-		filepath.Join(dir, "git-ci"),
-		filepath.Join(dir, "git-feat"),
-		filepath.Join(dir, "git-fix"),
-		filepath.Join(dir, "git-docs"),
-		filepath.Join(dir, "git-style"),
-		filepath.Join(dir, "git-refactor"),
-		filepath.Join(dir, "git-test"),
-		filepath.Join(dir, "git-chore"),
-		filepath.Join(dir, "git-perf"),
-		filepath.Join(dir, "git-hotfix"),
-		filepath.Join(dir, "git-ps"),
-	}
 }

@@ -219,7 +219,7 @@ Description: %s(%s)`
 		},
 		FinishedFunc: func(s interface{}) string {
 			mt := s.(MessageType)
-			return common.FontColor("✔ Type:", selector.ColorFinished) + string(mt.Type) + "\n"
+			return common.FontColor("✔ Type: ", selector.ColorFinished) + string(mt.Type) + "\n"
 		},
 	}
 

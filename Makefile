@@ -12,8 +12,10 @@ install:
 	go install -trimpath -ldflags	"-X 'main.version=${BUILD_VERSION}' \
                						-X 'main.buildDate=${BUILD_DATE}' \
                						-X 'main.commitID=${COMMIT_SHA1}'"
+debug:
+	go install  -trimpath -gcflags "all=-N -l"
 
 clean:
 	rm -rf dist
 
-.PHONY: all release clean install
+.PHONY: all release clean install debug

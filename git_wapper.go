@@ -47,7 +47,7 @@ func hasStagedFiles() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return strings.TrimSpace(buf.String()) == "", nil
+	return strings.TrimSpace(buf.String()) != "", nil
 }
 
 func currentBranch() (string, error) {

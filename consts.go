@@ -34,6 +34,6 @@ const commitMessageCheckFailedTpl = `
 ##    💔 It must match the regular expression:      ##
 ##                                                  ##
 ##    ^(feat|fix|docs|style|refactor|test|chore|    ##
-##     perf|hotfix)\((\S*)\):\s(\S.*)|^Merge.*      ##
+##     perf|hotfix)\((\S.*)\):\s(\S.*)|^Merge.*     ##
 ##                                                  ##
 ######################################################`

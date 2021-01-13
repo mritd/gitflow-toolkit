@@ -87,26 +87,6 @@ func commitMessageCheck(f string) error {
 	return nil
 }
 
-func author() (string, string, error) {
-	name := "Undefined"
-	email := "Undefined"
-
-	var buf bytes.Buffer
-	err := gitCommand(&buf, []string{"var", "GIT_AUTHOR_IDENT"})
-	if err != nil {
-		return "", "", err
-	}
-
-	authorInfo := strings.Fields(buf.String())
-	if len(authorInfo) > 1 && authorInfo[0] != "" {
-		name = authorInfo[0]
-	}
-	if len(authorInfo) > 2 && authorInfo[1] != "" {
-		email = authorInfo[1]
-	}
-	return name, email, nil
-}
-
 func commit() error {
 	err := repoCheck()
 	if err != nil {
@@ -305,4 +285,36 @@ func commitFooter() (string, error) {
 		return "", fmt.Errorf("user has cancelled this commit")
 	}
 	return m.Value(), nil
+}
+
+func createSOB() (string, error) {
+	name, email, err := gitAuthor()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("Signed-off-by: %s %s", name, email), nil
+}
+
+func gitAuthor() (string, string, error) {
+	name := "Undefined"
+	email := "Undefined"
+
+	var buf bytes.Buffer
+	err := gitCommand(&buf, []string{"var", "GIT_AUTHOR_IDENT"})
+	if err != nil {
+		return "", "", err
+	}
+
+	authorInfo := strings.Fields(buf.String())
+	if len(authorInfo) > 1 && authorInfo[0] != "" {
+		name = authorInfo[0]
+	}
+	if len(authorInfo) > 2 && authorInfo[1] != "" {
+		email = authorInfo[1]
+	}
+	return name, email, nil
+}
+
+func repoCheck() error {
+	return gitCommand(ioutil.Discard, []string{"rev-parse", "--show-toplevel"})
 }

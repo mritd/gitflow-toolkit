@@ -6,6 +6,22 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+var mainApp = &cli.App{
+	Name:                 "gitflow-toolkit",
+	Usage:                "Git Flow ToolKit",
+	Version:              fmt.Sprintf("%s %s %s", version, buildDate, commitID),
+	Authors:              []*cli.Author{{Name: "mritd", Email: "mritd@linux.com"}},
+	Copyright:            "Copyright (c) 2020 mritd, All rights reserved.",
+	EnableBashCompletion: true,
+	Action: func(c *cli.Context) error {
+		return cli.ShowAppHelp(c)
+	},
+	Commands: []*cli.Command{
+		installCmd(),
+		uninstallCmd(),
+	},
+}
+
 var subApps = []*cli.App{
 	newBranchApp(FEAT),
 	newBranchApp(FIX),

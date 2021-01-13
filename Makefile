@@ -8,6 +8,9 @@ all: clean
 release: all
 	ghr -u mritd -t ${GITHUB_TOKEN} -replace -recreate -name "Bump ${BUILD_VERSION}" --debug ${BUILD_VERSION} dist
 
+pre-release: all
+	ghr -u mritd -t ${GITHUB_TOKEN} -replace -recreate -prerelease -name "Bump ${BUILD_VERSION}" --debug ${BUILD_VERSION} dist
+
 install:
 	go install -trimpath -ldflags	"-X 'main.version=${BUILD_VERSION}' \
                						-X 'main.buildDate=${BUILD_DATE}' \
@@ -18,4 +21,4 @@ debug:
 clean:
 	rm -rf dist
 
-.PHONY: all release clean install debug
+.PHONY: all release pre-release clean install debug

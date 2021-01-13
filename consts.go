@@ -26,3 +26,14 @@ const commitMessageTpl = `{{ .Type }}({{ .Scope }}): {{ .Subject }}
 
 {{ .Sob }}
 `
+
+const commitMessageCheckFailedTpl = `
+######################################################
+##                                                  ##
+##    💔 The commit message is not standardized.    ##
+##    💔 It must match the regular expression:      ##
+##                                                  ##
+##    ^(feat|fix|docs|style|refactor|test|chore|    ##
+##     perf|hotfix)\((\S*)\):\s(\S.*)|^Merge.*      ##
+##                                                  ##
+######################################################`

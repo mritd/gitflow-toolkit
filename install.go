@@ -102,7 +102,7 @@ func install(dir string) error {
 				if err != nil {
 					return "", fmt.Errorf("💔 failed to create commit hook synlink: %s: %s", filepath.Join(toolKitHooks, "commit-msg"), err)
 				}
-				err = gitCommand(ioutil.Discard, []string{"config", "--global", "core.hooksPath", filepath.Join(dir, "git-cm")})
+				err = gitCommand(ioutil.Discard, []string{"config", "--global", "core.hooksPath", toolKitHooks})
 				if err != nil {
 					return "", fmt.Errorf("💔 failed to set commit hooks: %s", err)
 				}

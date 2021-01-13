@@ -74,9 +74,9 @@ func commitMessageCheck(f string) error {
 		return err
 	}
 
-	msgs := reg.FindAllStringSubmatch(string(bs), -1)
-	if len(msgs) != 3 {
-		return fmt.Errorf("the commit message does not match the regexp: %s", commitMessagePattern)
+	msgs := reg.FindStringSubmatch(string(bs))
+	if len(msgs) != 4 {
+		return fmt.Errorf(commitMessageCheckFailedTpl)
 	}
 
 	return nil
@@ -115,7 +115,7 @@ func commit() error {
 	}
 
 	if !ok {
-		return fmt.Errorf("please execute the `add` command to add files before commit")
+		return fmt.Errorf("\nPlease execute the `git add` command to add files before commit.\n")
 	}
 
 	cmType, err := commitType()

@@ -2,6 +2,10 @@
 
 > 这是一个使用 go 编写的简单的 GitFlow 提交工具，用于规范 git commit 提交格式，目前仅支持 [Angular 社区规范](https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#heading=h.greljkmo14y0)；同时该工具集成了一些扩展动作，比如快速创建指定名称前缀分支等
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/mritd/gitflow-toolkit/master/gitflow-toolkit.svg?sanitize=true" width="572" alt="gitflow-toolkit demo">
+</p>
+
 ## 支持命令
 
 | 命令 | 描述 |

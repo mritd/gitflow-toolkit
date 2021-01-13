@@ -17,8 +17,8 @@ github.com/mattn/go-runewidth v0.0.9 h1:Lm995f3rfxdpd6TSmuVCHVb/QhupuXlYr8sCI/Qd
 github.com/mattn/go-runewidth v0.0.9/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m2gUSrubnMI=
 github.com/mitchellh/go-homedir v1.1.0 h1:lukF9ziXFxDFPkA1vsr5zpc1XuPDn/wFntq5mG+4E0Y=
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
-github.com/mritd/bubbles v0.0.0-20210112142038-fc6834213045 h1:DUFK4WhH6s/+uNufXA1F4uvTffDL6a4Ylv6BBNIdRYU=
-github.com/mritd/bubbles v0.0.0-20210112142038-fc6834213045/go.mod h1:McuZVsw6CJ6loKW9vDHIxVoJBJ6ryCzNnca51T6lbTo=
+github.com/mritd/bubbles v0.0.0-20210113042325-30dc5c5965f5 h1:Dj/GmsDPibhCd1wQQfr9iSBlvy9gpsLnfMoRiMsBpTo=
+github.com/mritd/bubbles v0.0.0-20210113042325-30dc5c5965f5/go.mod h1:McuZVsw6CJ6loKW9vDHIxVoJBJ6ryCzNnca51T6lbTo=
 github.com/mritd/bubbletea v0.12.3-0.20210112015836-b36bfa653250 h1:NxJiJHahsbLFgwN+zXZG6sRDgYIej1dWbTEwq8iQ4KM=
 github.com/mritd/bubbletea v0.12.3-0.20210112015836-b36bfa653250/go.mod h1:3GlIveDq1Yxu3h40dqw1RmBmFktapld2qNZUC/kaMqw=
 github.com/muesli/reflow v0.2.0 h1:2o0UBJPHHH4fa2GCXU4Rg4DwOtWPMekCeyc5EWbAQp0=

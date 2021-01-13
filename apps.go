@@ -81,7 +81,7 @@ func checkMessageApp() *cli.App {
 
 func pushApp() *cli.App {
 	return &cli.App{
-		Name:                 "git-push",
+		Name:                 "git-ps",
 		Usage:                "Push local branch to remote",
 		UsageText:            "git ps",
 		Version:              fmt.Sprintf("%s %s %s", version, buildDate, commitID),

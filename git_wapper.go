@@ -176,7 +176,7 @@ func commitType() (MessageType, error) {
 			MessageType{Type: PERF, ZHDescription: "性能优化", ENDescription: "Improving performance"},
 			MessageType{Type: HOTFIX, ZHDescription: "紧急修复", ENDescription: "Bug fix urgently"},
 		},
-		PerPage: 5,
+		PerPage: 6,
 		// Use the arrow keys to navigate: ↓ ↑ → ←
 		// Select Commit Type:
 		HeaderFunc: selector.DefaultHeaderFuncWithAppend("Select Commit Type:"),

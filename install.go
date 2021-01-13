@@ -47,10 +47,8 @@ func install(dir string) error {
 				return "✔ Clean symlinks...", nil
 			},
 			func() (string, error) {
-				err := gitCommand(ioutil.Discard, []string{"config", "--global", "--unset", "core.hooksPath"})
-				if err != nil {
-					return "", fmt.Errorf("💔 failed to unset commit hooks: %s", err)
-				}
+				// ignore unset failed error
+				_ = gitCommand(ioutil.Discard, []string{"config", "--global", "--unset", "core.hooksPath"})
 				return "✔ Unset commit hooks...", nil
 			},
 			func() (string, error) {
@@ -102,7 +100,7 @@ func install(dir string) error {
 				return "✔ Set commit hooks...", nil
 			},
 			func() (string, error) {
-				err := gitCommand(ioutil.Discard, []string{"ci", "--help"})
+				err := gitCommand(ioutil.Discard, []string{"cm"})
 				if err != nil {
 					return "", fmt.Errorf("💔 install failed: %s", err)
 				}

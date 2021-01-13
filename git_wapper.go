@@ -60,6 +60,11 @@ func currentBranch() (string, error) {
 }
 
 func push() error {
+	err := repoCheck()
+	if err != nil {
+		return fmt.Errorf("the current directory is not a git repository")
+	}
+
 	branch, err := currentBranch()
 	if err != nil {
 		return err
@@ -93,7 +98,6 @@ func author() (string, string, error) {
 	}
 
 	authorInfo := strings.Fields(buf.String())
-
 	if len(authorInfo) > 1 && authorInfo[0] != "" {
 		name = authorInfo[0]
 	}
@@ -113,7 +117,6 @@ func commit() error {
 	if err != nil {
 		return err
 	}
-
 	if !ok {
 		return fmt.Errorf("\nPlease execute the `git add` command to add files before commit.\n")
 	}

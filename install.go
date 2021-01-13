@@ -21,6 +21,8 @@ func install(dir string) error {
 	}
 
 	toolKitHome := filepath.Join(home, ".gitflow-toolkit")
+	toolKitPath := filepath.Join(dir, "gitflow-toolkit")
+	toolKitHooks := filepath.Join(toolKitHome, "hooks")
 
 	m := &progressbar.Model{
 		Width:       40,
@@ -70,7 +72,7 @@ func install(dir string) error {
 				}
 				defer func() { _ = currentFile.Close() }()
 
-				installFile, err := os.OpenFile(filepath.Join(toolKitHome, "gitflow-toolkit"), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
+				installFile, err := os.OpenFile(filepath.Join(dir, "gitflow-toolkit"), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
 				if err != nil {
 					return "", fmt.Errorf("💔 failed to create bin file: %s: %s", filepath.Join(toolKitHome, "gitflow-toolkit"), err)
 				}
@@ -83,7 +85,6 @@ func install(dir string) error {
 				return "✔ Install executable file...", nil
 			},
 			func() (string, error) {
-				toolKitPath := filepath.Join(toolKitHome, "gitflow-toolkit")
 				for _, link := range linkPath(dir) {
 					err := os.Symlink(toolKitPath, link)
 					if err != nil {
@@ -93,14 +94,22 @@ func install(dir string) error {
 				return "✔ Create symlink...", nil
 			},
 			func() (string, error) {
-				err := gitCommand(ioutil.Discard, []string{"config", "--global", "core.hooksPath", filepath.Join(dir, "git-cm")})
+				err := os.MkdirAll(toolKitHooks, 0755)
+				if err != nil {
+					return "", fmt.Errorf("💔 failed to create hooks dir: %s: %s", toolKitHooks, err)
+				}
+				err = os.Symlink(toolKitPath, filepath.Join(toolKitHooks, "commit-msg"))
+				if err != nil {
+					return "", fmt.Errorf("💔 failed to create commit hook synlink: %s: %s", filepath.Join(toolKitHooks, "commit-msg"), err)
+				}
+				err = gitCommand(ioutil.Discard, []string{"config", "--global", "core.hooksPath", filepath.Join(dir, "git-cm")})
 				if err != nil {
 					return "", fmt.Errorf("💔 failed to set commit hooks: %s", err)
 				}
 				return "✔ Set commit hooks...", nil
 			},
 			func() (string, error) {
-				err := gitCommand(ioutil.Discard, []string{"cm"})
+				err := gitCommand(ioutil.Discard, []string{"test"})
 				if err != nil {
 					return "", fmt.Errorf("💔 install failed: %s", err)
 				}
@@ -145,14 +154,12 @@ func uninstall(dir string) error {
 				return "✔ Clean symlinks...", nil
 			},
 			func() (string, error) {
-				err := gitCommand(ioutil.Discard, []string{"config", "--global", "--unset", "core.hooksPath"})
-				if err != nil {
-					return "", fmt.Errorf("💔 failed to unset commit hooks: %s", err)
-				}
+				// ignore unset failed error
+				_ = gitCommand(ioutil.Discard, []string{"config", "--global", "--unset", "core.hooksPath"})
 				return "✔ Unset commit hooks...", nil
 			},
 			func() (string, error) {
-				err := gitCommand(ioutil.Discard, []string{"ci", "--help"})
+				err := gitCommand(ioutil.Discard, []string{"test"})
 				if err == nil {
 					return "", fmt.Errorf("💔 uninstall failed: %s", err)
 				}

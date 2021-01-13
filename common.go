@@ -112,7 +112,7 @@ func createSOB() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("Signed-off-by: %s <%s>", name, email), nil
+	return fmt.Sprintf("Signed-off-by: %s %s", name, email), nil
 }
 
 func linkPath(dir string) []string {

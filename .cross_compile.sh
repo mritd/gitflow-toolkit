@@ -4,7 +4,7 @@ set -e
 
 DIST_PREFIX="gitflow-toolkit"
 TARGET_DIR="dist"
-PLATFORMS="darwin/amd64 linux/386 linux/amd64 linux/arm linux/arm64"
+PLATFORMS="darwin/amd64 darwin/arm64  linux/386 linux/amd64 linux/arm linux/arm64"
 
 rm -rf ${TARGET_DIR}
 mkdir ${TARGET_DIR}

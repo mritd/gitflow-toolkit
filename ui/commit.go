@@ -44,15 +44,17 @@ func (m *model) Update(msg tea.Msg) (mod tea.Model, cmd tea.Cmd) {
 		m.cSubject = m.inputsModel.subject
 		m.cBody = m.inputsModel.body
 		m.cFooter = m.inputsModel.footer
-		return m, tea.Quit
+		m.cSOB = "sob"
 	}
 
 	if m.cType == "" {
 		mod, cmd = m.selectorModel.Update(msg)
 		m.selectorModel = mod.(selectorModel)
-	} else {
+	} else if m.cSOB == "" {
 		mod, cmd = m.inputsModel.Update(msg)
 		m.inputsModel = mod.(inputsModel)
+	} else {
+		return m, tea.Quit
 	}
 	return m, cmd
 }
@@ -60,8 +62,10 @@ func (m *model) Update(msg tea.Msg) (mod tea.Model, cmd tea.Cmd) {
 func (m model) View() string {
 	if m.cType == "" {
 		return m.selectorModel.View()
-	} else {
+	} else if m.cSOB == "" {
 		return m.inputsModel.View()
+	} else {
+		return "✔ Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live."
 	}
 }
 

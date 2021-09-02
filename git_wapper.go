@@ -9,13 +9,13 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/mritd/bubbles/common"
+	mcommon "github.com/mritd/bubbles/common"
 
-	"github.com/mritd/bubbles/prompt"
+	mprompt "github.com/mritd/bubbles/prompt"
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/mritd/bubbles/selector"
+	mselector "github.com/mritd/bubbles/selector"
 )
 
 type MessageType struct {
@@ -158,13 +158,13 @@ func commit() error {
 		return err
 	}
 
-	fmt.Println("\n" + common.FontColor(commitWarn, "2"))
+	fmt.Println("\n" + mcommon.FontColor(commitWarn, "2"))
 
 	return nil
 }
 
 func commitType() (MessageType, error) {
-	m := &selector.Model{
+	m := &mselector.Model{
 		Data: []interface{}{
 			MessageType{Type: FEAT, ZHDescription: "新功能", ENDescription: "Introducing new features"},
 			MessageType{Type: FIX, ZHDescription: "修复 Bug", ENDescription: "Bug fix"},
@@ -179,30 +179,30 @@ func commitType() (MessageType, error) {
 		PerPage: 6,
 		// Use the arrow keys to navigate: ↓ ↑ → ←
 		// Select Commit Type:
-		HeaderFunc: selector.DefaultHeaderFuncWithAppend("Select Commit Type:"),
+		HeaderFunc: mselector.DefaultHeaderFuncWithAppend("Select Commit Type:"),
 		// [1] feat (Introducing new features)
-		SelectedFunc: func(m selector.Model, obj interface{}, gdIndex int) string {
+		SelectedFunc: func(m mselector.Model, obj interface{}, gdIndex int) string {
 			t := obj.(MessageType)
-			return common.FontColor(fmt.Sprintf("[%d] %s (%s)", gdIndex+1, t.Type, t.ENDescription), selector.ColorSelected)
+			return mcommon.FontColor(fmt.Sprintf("[%d] %s (%s)", gdIndex+1, t.Type, t.ENDescription), mselector.ColorSelected)
 		},
 		// 2. fix (Bug fix)
-		UnSelectedFunc: func(m selector.Model, obj interface{}, gdIndex int) string {
+		UnSelectedFunc: func(m mselector.Model, obj interface{}, gdIndex int) string {
 			t := obj.(MessageType)
-			return common.FontColor(fmt.Sprintf(" %d. %s (%s)", gdIndex+1, t.Type, t.ENDescription), selector.ColorUnSelected)
+			return mcommon.FontColor(fmt.Sprintf(" %d. %s (%s)", gdIndex+1, t.Type, t.ENDescription), mselector.ColorUnSelected)
 		},
 		// --------- Commit Type ----------
 		// Type: feat
 		// Description: 新功能(Introducing new features)
-		FooterFunc: func(m selector.Model, obj interface{}, gdIndex int) string {
+		FooterFunc: func(m mselector.Model, obj interface{}, gdIndex int) string {
 			t := m.PageSelected().(MessageType)
 			footerTpl := `--------- Commit Type ----------
 Type: %s
 Description: %s(%s)`
-			return common.FontColor(fmt.Sprintf(footerTpl, t.Type, t.ZHDescription, t.ENDescription), selector.ColorFooter)
+			return mcommon.FontColor(fmt.Sprintf(footerTpl, t.Type, t.ZHDescription, t.ENDescription), mselector.ColorFooter)
 		},
 		FinishedFunc: func(s interface{}) string {
 			mt := s.(MessageType)
-			return common.FontColor("✔ Type: ", selector.ColorFinished) + string(mt.Type) + "\n"
+			return mcommon.FontColor("✔ Type: ", mselector.ColorFinished) + string(mt.Type) + "\n"
 		},
 	}
 
@@ -220,9 +220,9 @@ Description: %s(%s)`
 }
 
 func commitScope() (string, error) {
-	m := &prompt.Model{
-		Prompt:       common.FontColor("Scope: ", "2"),
-		ValidateFunc: prompt.VFNotBlank,
+	m := &mprompt.Model{
+		Prompt:       mcommon.FontColor("Scope: ", "2"),
+		ValidateFunc: mprompt.VFNotBlank,
 	}
 	p := tea.NewProgram(m)
 	err := p.Start()
@@ -236,9 +236,9 @@ func commitScope() (string, error) {
 }
 
 func commitSubject() (string, error) {
-	m := &prompt.Model{
-		Prompt:       common.FontColor("Subject: ", "2"),
-		ValidateFunc: prompt.VFNotBlank,
+	m := &mprompt.Model{
+		Prompt:       mcommon.FontColor("Subject: ", "2"),
+		ValidateFunc: mprompt.VFNotBlank,
 	}
 	p := tea.NewProgram(m)
 	err := p.Start()
@@ -252,8 +252,8 @@ func commitSubject() (string, error) {
 }
 
 func commitBody() (string, error) {
-	m := &prompt.Model{
-		Prompt: common.FontColor("Body: ", "2"),
+	m := &mprompt.Model{
+		Prompt: mcommon.FontColor("Body: ", "2"),
 	}
 	p := tea.NewProgram(m)
 	err := p.Start()
@@ -273,8 +273,8 @@ func commitBody() (string, error) {
 }
 
 func commitFooter() (string, error) {
-	m := &prompt.Model{
-		Prompt: common.FontColor("Footer: ", "2"),
+	m := &mprompt.Model{
+		Prompt: mcommon.FontColor("Footer: ", "2"),
 	}
 	p := tea.NewProgram(m)
 	err := p.Start()

@@ -58,6 +58,7 @@ type model struct {
 
 	cSelect bool
 	cInputs bool
+	cCommit bool
 
 	err           error
 	selectorModel selectorModel
@@ -92,6 +93,7 @@ func (m *model) Update(msg tea.Msg) (mod tea.Model, cmd tea.Cmd) {
 		m.inputsModel = mod.(inputsModel)
 		return m, cmd
 	}
+
 
 	m.err = execCommit(m)
 	return m, tea.Quit

@@ -90,8 +90,9 @@ func commit() error {
 	}
 
 	m := model{
-		selectorModel: newSelectorModel(),
-		inputsModel:   newInputsModel(),
+		selector: newSelectorModel(),
+		inputs:   newInputsModel(),
+		spinner:  newSpinnerModel(),
 	}
 
 	return tea.NewProgram(&m).Start()

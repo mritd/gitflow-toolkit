@@ -32,7 +32,7 @@ var (
 				Foreground(lipgloss.Color("#25A065"))
 
 	inputsPromptNormalStyle = lipgloss.NewStyle().
-		Padding(0, 0, 0, 2)
+				Padding(0, 0, 0, 2)
 
 	inputsPromptStyle = lipgloss.NewStyle().
 				Border(lipgloss.NormalBorder(), false, false, false, true).
@@ -63,6 +63,7 @@ type inputsModel struct {
 	body    string
 	footer  string
 
+	done       bool
 	focusIndex int
 	title      string
 	inputs     []textinput.Model
@@ -88,7 +89,8 @@ func (m inputsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.subject = m.inputs[1].Value()
 				m.body = m.inputs[2].Value()
 				m.footer = m.inputs[3].Value()
-				return m, inputsDoneDone
+				m.done = true
+				return m, nil
 			}
 
 			// Cycle indexes

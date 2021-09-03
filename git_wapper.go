@@ -81,14 +81,6 @@ func commit() error {
 		return fmt.Errorf("the current directory is not a git repository")
 	}
 
-	ok, err := hasStagedFiles()
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return fmt.Errorf("\nPlease execute the `git add` command to add files before commit.\n")
-	}
-
 	m := model{
 		selector: newSelectorModel(),
 		inputs:   newInputsModel(),
@@ -99,10 +91,17 @@ func commit() error {
 }
 
 func execCommit(m *model) error {
+	ok, err := hasStagedFiles()
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("\nPlease execute the `git add` command to add files before commit.\n")
+	}
+
 	sob, err := createSOB()
 	if err != nil {
-		fmt.Printf("ERROR(SOB): %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("ERROR(SOB): %v\n", err)
 	}
 
 	msg := CommitMessage{

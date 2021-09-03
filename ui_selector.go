@@ -10,19 +10,21 @@ import (
 
 var (
 	selectorTitleStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFFDF5")).
-			Background(lipgloss.Color("#25A065")).
-			Padding(0, 1)
+				Foreground(lipgloss.Color("#FFFDF5")).
+				Background(lipgloss.Color("#25A065")).
+				Bold(true).
+				Padding(0, 1)
 
 	selectorNormalStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.AdaptiveColor{Light: "#1A1A1A", Dark: "#DDDDDD"}).
-			Padding(0, 0, 0, 2)
+				Foreground(lipgloss.AdaptiveColor{Light: "#1A1A1A", Dark: "#DDDDDD"}).
+				Padding(0, 0, 0, 2)
 
 	selectorSelectedStyle = lipgloss.NewStyle().
-			Border(lipgloss.NormalBorder(), false, false, false, true).
-			BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
-			Foreground(lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: "#EE6FF8"}).
-			Padding(0, 0, 0, 1)
+				Border(lipgloss.NormalBorder(), false, false, false, true).
+				BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
+				Foreground(lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: "#EE6FF8"}).
+				Bold(true).
+				Padding(0, 0, 0, 1)
 
 	selectorPaginationStyle = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
 )
@@ -110,15 +112,15 @@ func (m selectorModel) View() string {
 
 func newSelectorModel() selectorModel {
 	l := list.NewModel([]list.Item{
-		selectorItem{ct: "feat", title: "FEAT (Introducing new features)"},
-		selectorItem{ct: "fix", title: "FIX (Bug fix)"},
-		selectorItem{ct: "docs", title: "DOCS (Writing docs)"},
-		selectorItem{ct: "style", title: "STYLE (Improving structure/format of the code)"},
-		selectorItem{ct: "refactor", title: "REFACTOR (Refactoring code)"},
-		selectorItem{ct: "test", title: "TEST (When adding missing tests)"},
-		selectorItem{ct: "chore", title: "CHORE (Changing CI/CD)"},
-		selectorItem{ct: "perf", title: "PERF (Improving performance)"},
-		selectorItem{ct: "hotfix", title: "HOTFIX (Bug fix urgently)"},
+		selectorItem{ct: FEAT, title: FEAT_DESC},
+		selectorItem{ct: FIX, title: FIX_DESC},
+		selectorItem{ct: DOCS, title: DOCS_DESC},
+		selectorItem{ct: STYLE, title: STYLE_DESC},
+		selectorItem{ct: REFACTOR, title: REFACTOR_DESC},
+		selectorItem{ct: TEST, title: TEST_DESC},
+		selectorItem{ct: CHORE, title: CHORE_DESC},
+		selectorItem{ct: PERF, title: PERF_DESC},
+		selectorItem{ct: HOTFIX, title: HOTFIX_DESC},
 	}, selectorDelegate{}, 20, 12)
 
 	l.Title = "Select Commit Type"
@@ -129,4 +131,3 @@ func newSelectorModel() selectorModel {
 
 	return selectorModel{list: l}
 }
-

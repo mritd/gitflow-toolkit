@@ -56,9 +56,10 @@ func (d selectorDelegate) Render(w io.Writer, m list.Model, index int, listItem 
 }
 
 type selectorModel struct {
-	list     list.Model
-	choice   string
-	quitting bool
+	list   list.Model
+	choice string
+
+	done bool
 }
 
 func (m selectorModel) Init() tea.Cmd {
@@ -73,20 +74,16 @@ func (m selectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {
-		case "ctrl+c":
-			m.quitting = true
+		case "ctrl+c", "esc":
 			return m, tea.Quit
 
 		case "enter":
-			i, ok := m.list.SelectedItem().(selectorItem)
-			if ok {
-				m.choice = i.ct
-			}
-			return m, selectDone
+			m.choice = m.list.SelectedItem().(selectorItem).ct
+			m.done = true
+			return m, nil
 
 		default:
 			if !m.list.SettingFilter() && (keypress == "q" || keypress == "esc") {
-				m.quitting = true
 				return m, tea.Quit
 			}
 
@@ -103,9 +100,6 @@ func (m selectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m selectorModel) View() string {
 	if m.choice != "" {
 		return m.choice
-	}
-	if m.quitting {
-		return "exit"
 	}
 	return "\n" + m.list.View()
 }

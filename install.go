@@ -22,7 +22,7 @@ func install(dir string) error {
 
 	toolKitHome := filepath.Join(home, ".gitflow-toolkit")
 	toolKitPath := filepath.Join(dir, "gitflow-toolkit")
-	toolKitHooks := filepath.Join(toolKitHome, "hooks")
+	//toolKitHooks := filepath.Join(toolKitHome, "hooks")
 
 	m := &progressbar.Model{
 		Width:       40,
@@ -93,21 +93,21 @@ func install(dir string) error {
 				}
 				return "✔ Create symlink...", nil
 			},
-			func() (string, error) {
-				err := os.MkdirAll(toolKitHooks, 0755)
-				if err != nil {
-					return "", fmt.Errorf("💔 failed to create hooks dir: %s: %s", toolKitHooks, err)
-				}
-				err = os.Symlink(toolKitPath, filepath.Join(toolKitHooks, "commit-msg"))
-				if err != nil {
-					return "", fmt.Errorf("💔 failed to create commit hook synlink: %s: %s", filepath.Join(toolKitHooks, "commit-msg"), err)
-				}
-				err = gitCommand(ioutil.Discard, []string{"config", "--global", "core.hooksPath", toolKitHooks})
-				if err != nil {
-					return "", fmt.Errorf("💔 failed to set commit hooks: %s", err)
-				}
-				return "✔ Set commit hooks...", nil
-			},
+			//func() (string, error) {
+			//	err := os.MkdirAll(toolKitHooks, 0755)
+			//	if err != nil {
+			//		return "", fmt.Errorf("💔 failed to create hooks dir: %s: %s", toolKitHooks, err)
+			//	}
+			//	err = os.Symlink(toolKitPath, filepath.Join(toolKitHooks, "commit-msg"))
+			//	if err != nil {
+			//		return "", fmt.Errorf("💔 failed to create commit hook synlink: %s: %s", filepath.Join(toolKitHooks, "commit-msg"), err)
+			//	}
+			//	err = gitCommand(ioutil.Discard, []string{"config", "--global", "core.hooksPath", toolKitHooks})
+			//	if err != nil {
+			//		return "", fmt.Errorf("💔 failed to set commit hooks: %s", err)
+			//	}
+			//	return "✔ Set commit hooks...", nil
+			//},
 			func() (string, error) {
 				err := gitCommand(ioutil.Discard, []string{"test"})
 				if err != nil {

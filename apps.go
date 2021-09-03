@@ -37,7 +37,7 @@ var subApps = []*cli.App{
 	pushApp(),
 }
 
-func newBranchApp(ct CommitType) *cli.App {
+func newBranchApp(ct string) *cli.App {
 	return &cli.App{
 		Name:                 "git-" + string(ct),
 		Usage:                fmt.Sprintf("Create %s branch", ct),

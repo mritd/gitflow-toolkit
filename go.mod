@@ -5,7 +5,8 @@ go 1.17
 require (
 	github.com/charmbracelet/bubbles v0.8.1-0.20210823213054-d987ef84f266
 	github.com/charmbracelet/bubbletea v0.14.1
-	github.com/charmbracelet/lipgloss v0.3.0
+	github.com/charmbracelet/lipgloss v0.4.0
+	github.com/mattn/go-runewidth v0.0.13
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mritd/bubbles v0.0.0-20210113152436-12363c089d42
 	github.com/urfave/cli/v2 v2.3.0
@@ -17,7 +18,6 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
-	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.9.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

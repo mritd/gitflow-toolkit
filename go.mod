@@ -28,9 +28,3 @@ require (
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
 	golang.org/x/term v0.0.0-20210422114643-f5beecf764ed // indirect
 )
-
-//replace (
-//	github.com/charmbracelet/bubbles v0.8.1-0.20210823213054-d987ef84f266 => /Users/bleem/gopath/src/github.com/charmbracelet/bubbles
-//	github.com/charmbracelet/bubbletea v0.12.2 => /Users/bleem/gopath/src/github.com/charmbracelet/bubbletea
-//	github.com/charmbracelet/lipgloss v0.3.0 => /Users/bleem/gopath/src/github.com/charmbracelet/lipgloss
-//)

@@ -32,15 +32,6 @@ const (
 
 const commitMessagePattern = `^(feat|fix|docs|style|refactor|test|chore|perf|hotfix)\((\S.*)\):\s(\S.*)|^Merge.*`
 
-const commitMessageTpl = `{{ .Type }}({{ .Scope }}): {{ .Subject }}
-
-{{ .Body }}
-
-{{ .Footer }}
-
-{{ .Sob }}
-`
-
 const commitMessageCheckFailedTpl = `
 ######################################################
 ##                                                  ##

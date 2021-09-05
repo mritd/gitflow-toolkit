@@ -2,14 +2,13 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	tea "github.com/charmbracelet/bubbletea"
 	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
-	"text/template"
-
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 type CommitMessage struct {
@@ -29,13 +28,13 @@ func createBranch(name string) error {
 	return gitCommand(os.Stdout, []string{"checkout", "-b", name})
 }
 
-func hasStagedFiles() (bool, error) {
+func hasStagedFiles() error {
 	var buf bytes.Buffer
 	err := gitCommand(&buf, []string{"diff", "--cached", "--name-only"})
 	if err != nil {
-		return false, err
+		return errors.New(buf.String())
 	}
-	return strings.TrimSpace(buf.String()) != "", nil
+	return nil
 }
 
 func currentBranch() (string, error) {
@@ -91,17 +90,13 @@ func commit() error {
 }
 
 func execCommit(m *model) error {
-	ok, err := hasStagedFiles()
-	if err != nil {
+	if err := hasStagedFiles(); err != nil {
 		return err
-	}
-	if !ok {
-		return fmt.Errorf("\nPlease execute the `git add` command to add files before commit.\n")
 	}
 
 	sob, err := createSOB()
 	if err != nil {
-		return fmt.Errorf("ERROR(SOB): %v\n", err)
+		return fmt.Errorf("failed to create SOB: %v", err)
 	}
 
 	msg := CommitMessage{
@@ -125,13 +120,18 @@ func execCommit(m *model) error {
 		_ = os.Remove(f.Name())
 	}()
 
-	tpl, _ := template.New("").Parse(commitMessageTpl)
-	err = tpl.Execute(f, msg)
+	_, err = fmt.Fprintf(f, "%s(%s): %s\n\n%s\n\n%s\n\n%s\n", msg.Type, msg.Scope, msg.Subject, msg.Body, msg.Footer, msg.Sob)
 	if err != nil {
 		return err
 	}
 
-	return gitCommand(os.Stdout, []string{"commit", "-F", f.Name()})
+	var errBuf bytes.Buffer
+	err = gitCommand(&errBuf, []string{"commit", "-F", f.Name()})
+	if err != nil {
+		return errors.New(errBuf.String())
+	}
+
+	return nil
 }
 
 func createSOB() (string, error) {

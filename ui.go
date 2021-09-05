@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mattn/go-runewidth"
+	"strings"
 	"time"
 )
 
@@ -16,7 +16,7 @@ func init() {
 
 var (
 	layOutStyle = lipgloss.NewStyle().
-			Padding(0, 1, 2, 1)
+			Padding(1, 0, 1, 2)
 
 	doneTitleStyle = lipgloss.NewStyle().
 			Bold(true).
@@ -60,11 +60,11 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m *model) Update(msg tea.Msg) (mod tea.Model, cmd tea.Cmd) {
-
 	switch m.stage {
 	case 0:
 		mod, cmd = m.selector.Update(msg)
 		m.selector = mod.(selectorModel)
+
 		if m.selector.done {
 			m.cType = m.selector.choice
 			m.stage++
@@ -81,34 +81,30 @@ func (m *model) Update(msg tea.Msg) (mod tea.Model, cmd tea.Cmd) {
 			m.cBody = m.inputs.body
 			m.cFooter = m.inputs.footer
 			m.stage++
+
+			commit := func() tea.Msg {
+				time.Sleep(500 * time.Millisecond)
+				return execCommit(m)
+			}
+
+			return m, tea.Batch(cmd, spinner.Tick, commit)
 		}
 
-		return m, spinner.Tick
+		return m, cmd
 	case 2:
 		switch msg.(type) {
 		case error:
 			m.err = msg.(error)
 			m.stage++
 			return m, nil
-		case string:
+		case nil:
 			m.stage++
 			return m, nil
+		default:
+			mod, cmd := m.spinner.Update(msg)
+			m.spinner = mod.(spinnerModel)
+			return m, cmd
 		}
-
-		mod, cmd = m.spinner.Update(msg)
-		m.spinner = mod.(spinnerModel)
-		return m, tea.Batch(cmd, func() tea.Msg {
-			if !m.committing {
-				m.committing = true
-				time.Sleep(3*time.Second)
-				if err := execCommit(m);err != nil {
-					return err
-				}else {
-					return "ok"
-				}
-			}
-			return nil
-		})
 	}
 
 	return m, tea.Quit
@@ -129,7 +125,7 @@ func (m model) View() string {
 			return layOutStyle.Render(successStyle.Render(lipgloss.JoinVertical(lipgloss.Left, title, message)))
 		} else {
 			title := doneTitleStyle.Render(UI_FAILED_TITLE)
-			message := doneMsgStyle.Render(fmt.Sprintf("An error occurred during commit: %v", m.err))
+			message := doneMsgStyle.Render(strings.TrimSpace(m.err.Error()))
 			return layOutStyle.Render(failedStyle.Render(lipgloss.JoinVertical(lipgloss.Left, title, message)))
 		}
 	}

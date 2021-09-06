@@ -11,15 +11,6 @@ import (
 	"strings"
 )
 
-type CommitMessage struct {
-	Type    string
-	Scope   string
-	Subject string
-	Body    string
-	Footer  string
-	Sob     string
-}
-
 func createBranch(name string) error {
 	err := repoCheck()
 	if err != nil {
@@ -74,41 +65,31 @@ func commitMessageCheck(f string) error {
 	return nil
 }
 
-func commit() error {
+func runCommit() error {
 	err := repoCheck()
 	if err != nil {
 		return fmt.Errorf("the current directory is not a git repository")
 	}
 
 	m := model{
-		selector: newSelectorModel(),
-		inputs:   newInputsModel(),
-		spinner:  newSpinnerModel(),
+		views: []tea.Model{
+			newSelectorModel(),
+			newInputsModel(),
+			newSpinnerModel(),
+			newResultModel(),
+		},
 	}
 
 	return tea.NewProgram(&m).Start()
 }
 
-func execCommit(m *model) error {
+func execCommit(msg commitMsg) error {
 	if err := hasStagedFiles(); err != nil {
 		return err
 	}
 
-	sob, err := createSOB()
-	if err != nil {
-		return fmt.Errorf("failed to create SOB: %v", err)
-	}
-
-	msg := CommitMessage{
-		Type:    m.cType,
-		Scope:   m.cScope,
-		Subject: m.cSubject,
-		Body:    m.cBody,
-		Footer:  m.cFooter,
-		Sob:     sob,
-	}
 	if msg.Body == "" {
-		msg.Body = m.cSubject
+		msg.Body = msg.Subject
 	}
 
 	f, err := ioutil.TempFile("", "git-commit")
@@ -120,7 +101,7 @@ func execCommit(m *model) error {
 		_ = os.Remove(f.Name())
 	}()
 
-	_, err = fmt.Fprintf(f, "%s(%s): %s\n\n%s\n\n%s\n\n%s\n", msg.Type, msg.Scope, msg.Subject, msg.Body, msg.Footer, msg.Sob)
+	_, err = fmt.Fprintf(f, "%s(%s): %s\n\n%s\n\n%s\n\n%s\n", msg.Type, msg.Scope, msg.Subject, msg.Body, msg.Footer, msg.SOB)
 	if err != nil {
 		return err
 	}
@@ -134,12 +115,12 @@ func execCommit(m *model) error {
 	return nil
 }
 
-func createSOB() (string, error) {
+func createSOB() string {
 	name, email, err := gitAuthor()
 	if err != nil {
-		return "", err
+		panic(err)
 	}
-	return fmt.Sprintf("Signed-off-by: %s %s", name, email), nil
+	return fmt.Sprintf("Signed-off-by: %s %s", name, email)
 }
 
 func gitAuthor() (string, string, error) {

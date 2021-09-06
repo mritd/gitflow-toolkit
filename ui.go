@@ -13,7 +13,6 @@ const (
 )
 
 func init() {
-	runewidth.EastAsianWidth = false
 	runewidth.DefaultCondition.EastAsianWidth = false
 }
 
@@ -37,7 +36,19 @@ type model struct {
 }
 
 func (m model) Init() tea.Cmd {
-	return nil
+	return func() tea.Msg {
+		err := repoCheck()
+		if err != nil {
+			return done{err: err}
+		}
+
+		err = hasStagedFiles()
+		if err != nil {
+			return done{err: err}
+		}
+
+		return nil
+	}
 }
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -45,8 +56,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case done: // If the view returns a done message, it means that the stage has been processed
 		// Copy error
 		m.err = msg.(done).err
-		// Call the next view
-		m.viewIndex++
+		if m.err == nil {
+			// Call the next view
+			m.viewIndex++
+		} else {
+			m.viewIndex = RESULT
+		}
 
 		// some special views need to determine the state of the data to update
 		switch m.viewIndex {

@@ -92,7 +92,7 @@ func execCommit(msg commitMsg) error {
 		msg.Body = msg.Subject
 	}
 
-	f, err := ioutil.TempFile("", "git-commit")
+	f, err := ioutil.TempFile("", "gitflow-commit")
 	if err != nil {
 		return err
 	}

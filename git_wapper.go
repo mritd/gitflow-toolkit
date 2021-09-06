@@ -23,7 +23,10 @@ func hasStagedFiles() error {
 	var buf bytes.Buffer
 	err := gitCommand(&buf, []string{"diff", "--cached", "--name-only"})
 	if err != nil {
-		return errors.New(buf.String())
+		return err
+	}
+	if strings.TrimSpace(buf.String()) == "" {
+		return errors.New("There is no file to commit, please execute the `git add` command to add the commit file.")
 	}
 	return nil
 }

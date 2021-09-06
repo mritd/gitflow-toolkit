@@ -23,15 +23,15 @@ var mainApp = &cli.App{
 }
 
 var subApps = []*cli.App{
-	newBranchApp(FEAT),
-	newBranchApp(FIX),
-	newBranchApp(DOCS),
-	newBranchApp(STYLE),
-	newBranchApp(REFACTOR),
-	newBranchApp(TEST),
-	newBranchApp(CHORE),
-	newBranchApp(PERF),
-	newBranchApp(HOTFIX),
+	newBranchApp(feat),
+	newBranchApp(fix),
+	newBranchApp(docs),
+	newBranchApp(style),
+	newBranchApp(refactor),
+	newBranchApp(test),
+	newBranchApp(chore),
+	newBranchApp(perf),
+	newBranchApp(hotfix),
 	commitApp(),
 	checkMessageApp(),
 	pushApp(),
@@ -72,7 +72,7 @@ func commitApp() *cli.App {
 			if c.NArg() != 0 {
 				return cli.ShowAppHelp(c)
 			}
-			return commit()
+			return runCommit()
 		},
 	}
 }

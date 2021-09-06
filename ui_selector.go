@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -27,6 +28,11 @@ var (
 				Padding(0, 0, 0, 1)
 
 	selectorPaginationStyle = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
+
+	selectorHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{
+		Light: "#DDDADA",
+		Dark:  "#7A7A7A",
+	})
 )
 
 type selectorItem struct {
@@ -58,8 +64,6 @@ func (d selectorDelegate) Render(w io.Writer, m list.Model, index int, listItem 
 type selectorModel struct {
 	list   list.Model
 	choice string
-
-	done bool
 }
 
 func (m selectorModel) Init() tea.Cmd {
@@ -79,8 +83,7 @@ func (m selectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "enter":
 			m.choice = m.list.SelectedItem().(selectorItem).ct
-			m.done = true
-			return m, nil
+			return m, func() tea.Msg { return done{} }
 
 		default:
 			if !m.list.SettingFilter() && (keypress == "q" || keypress == "esc") {
@@ -106,15 +109,15 @@ func (m selectorModel) View() string {
 
 func newSelectorModel() selectorModel {
 	l := list.NewModel([]list.Item{
-		selectorItem{ct: FEAT, title: FEAT_DESC},
-		selectorItem{ct: FIX, title: FIX_DESC},
-		selectorItem{ct: DOCS, title: DOCS_DESC},
-		selectorItem{ct: STYLE, title: STYLE_DESC},
-		selectorItem{ct: REFACTOR, title: REFACTOR_DESC},
-		selectorItem{ct: TEST, title: TEST_DESC},
-		selectorItem{ct: CHORE, title: CHORE_DESC},
-		selectorItem{ct: PERF, title: PERF_DESC},
-		selectorItem{ct: HOTFIX, title: HOTFIX_DESC},
+		selectorItem{ct: feat, title: featDesc},
+		selectorItem{ct: fix, title: fixDesc},
+		selectorItem{ct: docs, title: docsDesc},
+		selectorItem{ct: style, title: styleDesc},
+		selectorItem{ct: refactor, title: refactorDesc},
+		selectorItem{ct: test, title: testDesc},
+		selectorItem{ct: chore, title: choreDesc},
+		selectorItem{ct: perf, title: perfDesc},
+		selectorItem{ct: hotfix, title: hotfixDesc},
 	}, selectorDelegate{}, 20, 12)
 
 	l.Title = "Select Commit Type"
@@ -122,6 +125,11 @@ func newSelectorModel() selectorModel {
 	l.SetFilteringEnabled(false)
 	l.Styles.Title = selectorTitleStyle
 	l.Styles.PaginationStyle = selectorPaginationStyle
+	h := help.NewModel()
+	h.Styles.ShortDesc = selectorHelpStyle
+	h.Styles.ShortSeparator = selectorHelpStyle
+	h.Styles.ShortKey = selectorHelpStyle
+	l.Help = h
 
 	return selectorModel{list: l}
 }

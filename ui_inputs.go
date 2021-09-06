@@ -58,12 +58,6 @@ var (
 )
 
 type inputsModel struct {
-	scope   string
-	subject string
-	body    string
-	footer  string
-
-	done       bool
 	focusIndex int
 	title      string
 	inputs     []textinput.Model
@@ -85,12 +79,7 @@ func (m inputsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			s := msg.String()
 
 			if s == "enter" && m.focusIndex == len(m.inputs) {
-				m.scope = m.inputs[0].Value()
-				m.subject = m.inputs[1].Value()
-				m.body = m.inputs[2].Value()
-				m.footer = m.inputs[3].Value()
-				m.done = true
-				return m, nil
+				return m, func() tea.Msg { return done{} }
 			}
 
 			// Cycle indexes

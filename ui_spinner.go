@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"time"
 )
 
 var (
@@ -20,6 +21,7 @@ var (
 )
 
 type spinnerModel struct {
+	err     error
 	spinner spinner.Model
 }
 
@@ -43,6 +45,13 @@ func (m spinnerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		default:
 			return m, nil
 		}
+	case commitMsg:
+		var cmd tea.Cmd
+		m.spinner, cmd = m.spinner.Update(spinner.Tick())
+		return m, tea.Batch(cmd, func() tea.Msg {
+			time.Sleep(500 * time.Millisecond)
+			return done{err: execCommit(msg)}
+		})
 	default:
 		var cmd tea.Cmd
 		m.spinner, cmd = m.spinner.Update(msg)

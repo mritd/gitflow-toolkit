@@ -109,7 +109,7 @@ func execCommit(msg commitMsg) error {
 	var errBuf bytes.Buffer
 	err = gitCommand(&errBuf, []string{"commit", "-F", f.Name()})
 	if err != nil {
-		return errors.New(errBuf.String())
+		return errors.New(strings.TrimSpace(errBuf.String()))
 	}
 
 	return nil

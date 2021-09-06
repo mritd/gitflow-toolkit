@@ -19,7 +19,7 @@ var (
 			Foreground(lipgloss.Color("#37B9FF")).
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#37B9FF")).
-			Padding(1, 3, 0, 3)
+			Padding(1, 3, 1, 3)
 
 	failedStyle = successStyle.Copy().
 			Foreground(lipgloss.Color("#FF62DA")).

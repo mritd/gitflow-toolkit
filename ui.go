@@ -3,6 +3,7 @@ package main
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/mattn/go-runewidth"
+	"strings"
 )
 
 const (
@@ -65,6 +66,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// some special views need to determine the state of the data to update
 		switch m.viewIndex {
+		case INPUTS:
+			return m, m.inputs
 		case SPINNER:
 			return m, m.commit
 		case RESULT:
@@ -81,6 +84,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	return m.views[m.viewIndex].View()
+}
+
+func (m model) inputs() tea.Msg {
+	return strings.ToUpper(m.views[SELECTOR].(selectorModel).choice)
 }
 
 func (m model) commit() tea.Msg {

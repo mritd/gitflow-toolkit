@@ -13,12 +13,18 @@ import (
 	"strings"
 )
 
-func createBranch(name string) error {
+func createBranch(name string) (string, error) {
 	err := repoCheck()
 	if err != nil {
-		return fmt.Errorf("the current directory is not a git repository")
+		return "", err
 	}
-	return gitCommand(os.Stdout, "checkout", "-b", name)
+	var buf bytes.Buffer
+	err = gitCommand(&buf, "checkout", "-b", name)
+	if err != nil {
+		return "", errors.New(strings.TrimSpace(buf.String()))
+	}
+
+	return strings.TrimSpace(buf.String()), nil
 }
 
 func hasStagedFiles() error {

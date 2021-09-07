@@ -52,11 +52,11 @@ func newBranchApp(ct string) *cli.App {
 			if c.NArg() != 1 {
 				return cli.ShowAppHelp(c)
 			}
-			err := createBranch(fmt.Sprintf("%s/%s", ct, c.Args().First()))
-			if err != nil {
-				return fmt.Errorf("failed to create branch %s/%s: %s", ct, c.Args().First(), err)
-			}
-			return nil
+
+			m := newResultModel()
+			m.message, m.err = createBranch(fmt.Sprintf("%s/%s", ct, c.Args().First()))
+
+			return tea.NewProgram(&m).Start()
 		},
 	}
 }

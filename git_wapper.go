@@ -43,22 +43,27 @@ func currentBranch() (string, error) {
 	var buf bytes.Buffer
 	err := gitCommand(&buf, "symbolic-ref", "--short", "HEAD")
 	if err != nil {
-		return "", err
+		return "", errors.New(strings.TrimSpace(buf.String()))
 	}
 	return strings.TrimSpace(buf.String()), nil
 }
 
-func push() error {
+func push() (string, error) {
 	err := repoCheck()
 	if err != nil {
-		return fmt.Errorf("the current directory is not a git repository")
+		return "", err
 	}
 
 	branch, err := currentBranch()
 	if err != nil {
-		return err
+		return "", err
 	}
-	return gitCommand(os.Stdout, "push", "origin", branch)
+	var buf bytes.Buffer
+	err = gitCommand(&buf, "push", "origin", branch)
+	if err != nil {
+		return "", errors.New(strings.TrimSpace(buf.String()))
+	}
+	return strings.TrimSpace(buf.String()), nil
 }
 
 func commitMessageCheck(f string) error {

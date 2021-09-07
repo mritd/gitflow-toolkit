@@ -120,7 +120,11 @@ func pushApp() *cli.App {
 			if c.NArg() != 0 {
 				return cli.ShowAppHelp(c)
 			}
-			return push()
+
+			m := newResultModel()
+			m.message, m.err = push()
+
+			return tea.NewProgram(&m).Start()
 		},
 	}
 }

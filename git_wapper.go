@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
+	"io"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 )
 
@@ -16,12 +18,12 @@ func createBranch(name string) error {
 	if err != nil {
 		return fmt.Errorf("the current directory is not a git repository")
 	}
-	return gitCommand(os.Stdout, []string{"checkout", "-b", name})
+	return gitCommand(os.Stdout, "checkout", "-b", name)
 }
 
 func hasStagedFiles() error {
 	var buf bytes.Buffer
-	err := gitCommand(&buf, []string{"diff", "--cached", "--name-only"})
+	err := gitCommand(&buf, "diff", "--cached", "--name-only")
 	if err != nil {
 		return err
 	}
@@ -33,7 +35,7 @@ func hasStagedFiles() error {
 
 func currentBranch() (string, error) {
 	var buf bytes.Buffer
-	err := gitCommand(&buf, []string{"symbolic-ref", "--short", "HEAD"})
+	err := gitCommand(&buf, "symbolic-ref", "--short", "HEAD")
 	if err != nil {
 		return "", err
 	}
@@ -50,7 +52,7 @@ func push() error {
 	if err != nil {
 		return err
 	}
-	return gitCommand(os.Stdout, []string{"push", "origin", branch})
+	return gitCommand(os.Stdout, "push", "origin", branch)
 }
 
 func commitMessageCheck(f string) error {
@@ -68,25 +70,7 @@ func commitMessageCheck(f string) error {
 	return nil
 }
 
-func runCommit() error {
-	err := repoCheck()
-	if err != nil {
-		return fmt.Errorf("the current directory is not a git repository")
-	}
-
-	m := model{
-		views: []tea.Model{
-			newSelectorModel(),
-			newInputsModel(),
-			newSpinnerModel(),
-			newResultModel(),
-		},
-	}
-
-	return tea.NewProgram(&m).Start()
-}
-
-func execCommit(msg commitMsg) error {
+func commit(msg commitMsg) error {
 	if err := hasStagedFiles(); err != nil {
 		return err
 	}
@@ -110,7 +94,7 @@ func execCommit(msg commitMsg) error {
 	}
 
 	var errBuf bytes.Buffer
-	err = gitCommand(&errBuf, []string{"commit", "-F", f.Name()})
+	err = gitCommand(&errBuf, "commit", "-F", f.Name())
 	if err != nil {
 		return errors.New(strings.TrimSpace(errBuf.String()))
 	}
@@ -118,12 +102,12 @@ func execCommit(msg commitMsg) error {
 	return nil
 }
 
-func createSOB() string {
+func createSOB() (string, error) {
 	name, email, err := gitAuthor()
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	return fmt.Sprintf("Signed-off-by: %s %s", name, email)
+	return fmt.Sprintf("Signed-off-by: %s %s", name, email), nil
 }
 
 func gitAuthor() (string, string, error) {
@@ -131,7 +115,7 @@ func gitAuthor() (string, string, error) {
 	email := "Undefined"
 
 	var buf bytes.Buffer
-	err := gitCommand(&buf, []string{"var", "GIT_AUTHOR_IDENT"})
+	err := gitCommand(&buf, "var", "GIT_AUTHOR_IDENT")
 	if err != nil {
 		return "", "", err
 	}
@@ -147,5 +131,30 @@ func gitAuthor() (string, string, error) {
 }
 
 func repoCheck() error {
-	return gitCommand(ioutil.Discard, []string{"rev-parse", "--show-toplevel"})
+	var buf bytes.Buffer
+	err := gitCommand(&buf, "rev-parse", "--show-toplevel")
+	if err != nil {
+		return errors.New(strings.TrimSpace(buf.String()))
+	}
+	return nil
+}
+
+func gitCommand(out io.Writer, cmds ...string) error {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("git.exe", cmds...)
+	case "linux", "darwin":
+		cmd = exec.Command("git", cmds...)
+	default:
+		return fmt.Errorf("unsupported platform")
+	}
+
+	cmd.Stdin = os.Stdin
+	if out != nil {
+		cmd.Stdout = out
+		cmd.Stderr = out
+	}
+
+	return cmd.Run()
 }

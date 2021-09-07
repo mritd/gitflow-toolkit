@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -50,7 +49,7 @@ func install(dir string) error {
 			},
 			func() (string, error) {
 				// ignore unset failed error
-				_ = gitCommand(ioutil.Discard, "config", "--global", "--unset", "core.hooksPath")
+				_, _ = git("config", "--global", "--unset", "core.hooksPath")
 				return "✔ Unset commit hooks...", nil
 			},
 			func() (string, error) {
@@ -109,10 +108,10 @@ func install(dir string) error {
 			//	return "✔ Set commit hooks...", nil
 			//},
 			func() (string, error) {
-				err := gitCommand(ioutil.Discard, "test")
-				if err != nil {
-					return "", fmt.Errorf("💔 install failed: %s", err)
-				}
+				//_, err := git("test")
+				//if err != nil {
+				//	return "", fmt.Errorf("💔 install failed: %s", err)
+				//}
 				return "✔ Install success...", nil
 			},
 		},
@@ -163,11 +162,11 @@ func uninstall(dir string) error {
 			},
 			func() (string, error) {
 				// ignore unset failed error
-				_ = gitCommand(ioutil.Discard, "config", "--global", "--unset", "core.hooksPath")
+				_, _ = git("config", "--global", "--unset", "core.hooksPath")
 				return "✔ Unset commit hooks...", nil
 			},
 			func() (string, error) {
-				err := gitCommand(ioutil.Discard, "test")
+				_, err := git("test")
 				if err == nil {
 					return "", fmt.Errorf("💔 uninstall failed: %s", err)
 				}

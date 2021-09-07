@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -18,34 +16,23 @@ func createBranch(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var buf bytes.Buffer
-	err = gitCommand(&buf, "checkout", "-b", name)
-	if err != nil {
-		return "", errors.New(strings.TrimSpace(buf.String()))
-	}
 
-	return strings.TrimSpace(buf.String()), nil
+	return git("checkout", "-b", name)
 }
 
 func hasStagedFiles() error {
-	var buf bytes.Buffer
-	err := gitCommand(&buf, "diff", "--cached", "--name-only")
+	msg, err := git("diff", "--cached", "--name-only")
 	if err != nil {
 		return err
 	}
-	if strings.TrimSpace(buf.String()) == "" {
+	if msg == "" {
 		return errors.New("There is no file to commit, please execute the `git add` command to add the commit file.")
 	}
 	return nil
 }
 
 func currentBranch() (string, error) {
-	var buf bytes.Buffer
-	err := gitCommand(&buf, "symbolic-ref", "--short", "HEAD")
-	if err != nil {
-		return "", errors.New(strings.TrimSpace(buf.String()))
-	}
-	return strings.TrimSpace(buf.String()), nil
+	return git("symbolic-ref", "--short", "HEAD")
 }
 
 func push() (string, error) {
@@ -58,12 +45,12 @@ func push() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var buf bytes.Buffer
-	err = gitCommand(&buf, "push", "origin", branch)
-	if err != nil {
-		return "", errors.New(strings.TrimSpace(buf.String()))
+
+	msg, err := git("push", "origin", branch)
+	if err == nil {
+		msg = fmt.Sprintf("Push to origin/%s success.\n\n%s", branch, msg)
 	}
-	return strings.TrimSpace(buf.String()), nil
+	return msg, err
 }
 
 func commitMessageCheck(f string) error {
@@ -104,10 +91,9 @@ func commit(msg commitMsg) error {
 		return err
 	}
 
-	var errBuf bytes.Buffer
-	err = gitCommand(&errBuf, "commit", "-F", f.Name())
+	_, err = git("commit", "-F", f.Name())
 	if err != nil {
-		return errors.New(strings.TrimSpace(errBuf.String()))
+		return err
 	}
 
 	return nil
@@ -125,13 +111,12 @@ func gitAuthor() (string, string, error) {
 	name := "Undefined"
 	email := "Undefined"
 
-	var buf bytes.Buffer
-	err := gitCommand(&buf, "var", "GIT_AUTHOR_IDENT")
+	msg, err := git("var", "GIT_AUTHOR_IDENT")
 	if err != nil {
 		return "", "", err
 	}
 
-	authorInfo := strings.Fields(buf.String())
+	authorInfo := strings.Fields(msg)
 	if len(authorInfo) > 1 && authorInfo[0] != "" {
 		name = authorInfo[0]
 	}
@@ -142,30 +127,25 @@ func gitAuthor() (string, string, error) {
 }
 
 func repoCheck() error {
-	var buf bytes.Buffer
-	err := gitCommand(&buf, "rev-parse", "--show-toplevel")
-	if err != nil {
-		return errors.New(strings.TrimSpace(buf.String()))
-	}
-	return nil
+	_, err := git("rev-parse", "--show-toplevel")
+	return err
 }
 
-func gitCommand(out io.Writer, cmds ...string) error {
+func git(cmds ...string) (string, error) {
 	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "windows":
+	if runtime.GOOS == "windows" {
 		cmd = exec.Command("git.exe", cmds...)
-	case "linux", "darwin":
+	} else {
 		cmd = exec.Command("git", cmds...)
-	default:
-		return fmt.Errorf("unsupported platform")
 	}
 
-	cmd.Stdin = os.Stdin
-	if out != nil {
-		cmd.Stdout = out
-		cmd.Stderr = out
+	bs, err := cmd.CombinedOutput()
+	if err != nil {
+		if bs != nil {
+			return "", errors.New(strings.TrimSpace(string(bs)))
+		}
+		return "", err
 	}
 
-	return cmd.Run()
+	return strings.TrimSpace(string(bs)), nil
 }

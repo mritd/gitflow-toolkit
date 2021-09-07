@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	tea "github.com/charmbracelet/bubbletea"
+	"time"
 
 	"github.com/urfave/cli/v2"
 )
@@ -11,7 +13,7 @@ var mainApp = &cli.App{
 	Usage:                "Git Flow ToolKit",
 	Version:              fmt.Sprintf("%s %s %s", version, buildDate, commitID),
 	Authors:              []*cli.Author{{Name: "mritd", Email: "mritd@linux.com"}},
-	Copyright:            "Copyright (c) 2020 mritd, All rights reserved.",
+	Copyright:            "Copyright (c) " + time.Now().Format("2006") + " mritd, All rights reserved.",
 	EnableBashCompletion: true,
 	Action: func(c *cli.Context) error {
 		return cli.ShowAppHelp(c)
@@ -44,7 +46,7 @@ func newBranchApp(ct string) *cli.App {
 		UsageText:            fmt.Sprintf("git %s BRANCH", ct),
 		Version:              fmt.Sprintf("%s %s %s", version, buildDate, commitID),
 		Authors:              []*cli.Author{{Name: "mritd", Email: "mritd@linux.com"}},
-		Copyright:            "Copyright (c) 2020 mritd, All rights reserved.",
+		Copyright:            "Copyright (c) " + time.Now().Format("2006") + " mritd, All rights reserved.",
 		EnableBashCompletion: true,
 		Action: func(c *cli.Context) error {
 			if c.NArg() != 1 {
@@ -66,13 +68,23 @@ func commitApp() *cli.App {
 		UsageText:            "git ci",
 		Version:              fmt.Sprintf("%s %s %s", version, buildDate, commitID),
 		Authors:              []*cli.Author{{Name: "mritd", Email: "mritd@linux.com"}},
-		Copyright:            "Copyright (c) 2020 mritd, All rights reserved.",
+		Copyright:            "Copyright (c) " + time.Now().Format("2006") + " mritd, All rights reserved.",
 		EnableBashCompletion: true,
 		Action: func(c *cli.Context) error {
 			if c.NArg() != 0 {
 				return cli.ShowAppHelp(c)
 			}
-			return runCommit()
+
+			m := model{
+				views: []tea.Model{
+					newSelectorModel(),
+					newInputsModel(),
+					newSpinnerModel(),
+					newResultModel(),
+				},
+			}
+
+			return tea.NewProgram(&m).Start()
 		},
 	}
 }
@@ -84,7 +96,7 @@ func checkMessageApp() *cli.App {
 		UsageText:            "commit-msg FILE",
 		Version:              fmt.Sprintf("%s %s %s", version, buildDate, commitID),
 		Authors:              []*cli.Author{{Name: "mritd", Email: "mritd@linux.com"}},
-		Copyright:            "Copyright (c) 2020 mritd, All rights reserved.",
+		Copyright:            "Copyright (c) " + time.Now().Format("2006") + " mritd, All rights reserved.",
 		EnableBashCompletion: true,
 		Action: func(c *cli.Context) error {
 			if c.NArg() != 1 {
@@ -102,7 +114,7 @@ func pushApp() *cli.App {
 		UsageText:            "git ps",
 		Version:              fmt.Sprintf("%s %s %s", version, buildDate, commitID),
 		Authors:              []*cli.Author{{Name: "mritd", Email: "mritd@linux.com"}},
-		Copyright:            "Copyright (c) 2020 mritd, All rights reserved.",
+		Copyright:            "Copyright (c) " + time.Now().Format("2006") + " mritd, All rights reserved.",
 		EnableBashCompletion: true,
 		Action: func(c *cli.Context) error {
 			if c.NArg() != 0 {

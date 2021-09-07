@@ -50,7 +50,7 @@ func (m spinnerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.spinner, cmd = m.spinner.Update(spinner.Tick())
 		return m, tea.Batch(cmd, func() tea.Msg {
 			time.Sleep(500 * time.Millisecond)
-			return done{err: execCommit(msg)}
+			return done{err: commit(msg)}
 		})
 	default:
 		var cmd tea.Cmd

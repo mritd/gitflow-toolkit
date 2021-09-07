@@ -112,6 +112,9 @@ func (m inputsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return m, tea.Batch(cmds...)
 		}
+	case string:
+		m.title = "✔ Commit Type: " + msg
+		return m, nil
 	}
 
 	// Handle character input and blinking
@@ -148,7 +151,7 @@ func (m inputsModel) View() string {
 	}
 	_, _ = fmt.Fprint(&b, inputsButtonBlockStyle.Render(button))
 
-	title := inputsTitleBarStyle.Render(inputsTitleStyle.Render("Input Other Messages"))
+	title := inputsTitleBarStyle.Render(inputsTitleStyle.Render(m.title))
 	inputs := inputsBlockStyle.Render(b.String())
 
 	return lipgloss.JoinVertical(lipgloss.Left, title, inputs)

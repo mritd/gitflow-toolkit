@@ -62,7 +62,7 @@ func push() error {
 }
 
 func commitMessageCheck(f string) error {
-	reg := regexp.MustCompile(commitMessagePattern)
+	reg := regexp.MustCompile(commitMessageCheckPattern)
 	bs, err := ioutil.ReadFile(f)
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func commitMessageCheck(f string) error {
 
 	msgs := reg.FindStringSubmatch(string(bs))
 	if len(msgs) != 4 {
-		return fmt.Errorf(commitMessageCheckFailedTpl)
+		return fmt.Errorf(commitMessageCheckFailedMsg)
 	}
 
 	return nil

@@ -24,15 +24,15 @@ const (
 	hotfixDesc   string = "HOTFIX (Bug fix urgently)"
 )
 
-const commitMessagePattern = `^(feat|fix|docs|style|refactor|test|chore|perf|hotfix)\((\S.*)\):\s(\S.*)|^Merge.*`
+const commitMessageCheckPattern = `^(feat|fix|docs|style|refactor|test|chore|perf|hotfix)\((\S.*)\):\s(\S.*)|^Merge.*`
 
-const commitMessageCheckFailedTpl = `
-######################################################
-##                                                  ##
-##    💔 The commit message is not standardized.    ##
-##    💔 It must match the regular expression:      ##
-##                                                  ##
-##    ^(feat|fix|docs|style|refactor|test|chore|    ##
-##     perf|hotfix)\((\S.*)\):\s(\S.*)|^Merge.*     ##
-##                                                  ##
-######################################################`
+const commitMessageCheckFailedMsg = `
+╭──────────────────────────────────────────────────╮
+│                                                  │
+│    ✗ The commit message is not standardized.     │
+│    ✗ It must match the regular expression:       │
+│                                                  │
+│    ^(feat|fix|docs|style|refactor|test|chore|    │
+│     perf|hotfix)\((\S.*)\):\s(\S.*)|^Merge.*     │
+│                                                  │
+╰──────────────────────────────────────────────────╯`

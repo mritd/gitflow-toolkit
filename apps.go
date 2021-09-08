@@ -79,7 +79,7 @@ func commitApp() *cli.App {
 				views: []tea.Model{
 					newSelectorModel(),
 					newInputsModel(),
-					newSpinnerModel(),
+					newCommitModel(),
 					newResultModel(),
 				},
 			}

@@ -1,42 +1,43 @@
 package main
 
 import (
+	"time"
+
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"time"
 )
 
 var (
-	spinnerStyle = lipgloss.NewStyle().
+	commitStyle = lipgloss.NewStyle().
 			Padding(1, 1, 1, 2)
 
-	spinnerBorderStyle = lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder()).
-				BorderForeground(lipgloss.Color("#25A065")).
-				Padding(1, 2, 1, 2)
+	commitTextStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#25A065"))
 
-	spinnerTextStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#25A065"))
+	commitBorderStyle = commitTextStyle.Copy().
+				Border(lipgloss.RoundedBorder()).
+				BorderBottomBackground(lipgloss.Color("#25A065")).
+				Padding(1, 2, 1, 2)
 )
 
-type spinnerModel struct {
+type commitModel struct {
 	err     error
 	spinner spinner.Model
 }
 
-func newSpinnerModel() spinnerModel {
+func newCommitModel() commitModel {
 	s := spinner.NewModel()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
-	return spinnerModel{spinner: s}
+	return commitModel{spinner: s}
 }
 
-func (m spinnerModel) Init() tea.Cmd {
+func (m commitModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m spinnerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m commitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -59,7 +60,7 @@ func (m spinnerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m spinnerModel) View() string {
-	spinnerView := m.spinner.View() + spinnerTextStyle.Render("Committing... Please wait...")
-	return spinnerStyle.Render(spinnerBorderStyle.Render(spinnerView))
+func (m commitModel) View() string {
+	spinnerView := m.spinner.View() + commitTextStyle.Render("Committing... Please wait...")
+	return commitStyle.Render(commitBorderStyle.Render(spinnerView))
 }

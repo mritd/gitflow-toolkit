@@ -119,7 +119,7 @@ func (m model) result() tea.Msg {
 //		views: []tea.Model{
 //			newSelectorModel(),
 //			newInputsModel(),
-//			newSpinnerModel(),
+//			newCommitModel(),
 //			newResultModel(),
 //		},
 //	}

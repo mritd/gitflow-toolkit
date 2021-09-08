@@ -17,7 +17,7 @@ var (
 
 	commitBorderStyle = commitTextStyle.Copy().
 				Border(lipgloss.RoundedBorder()).
-				BorderBottomBackground(lipgloss.Color("#25A065")).
+				BorderForeground(lipgloss.Color("#25A065")).
 				Padding(1, 2, 1, 2)
 )
 

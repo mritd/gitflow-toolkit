@@ -29,7 +29,7 @@ type commitModel struct {
 func newCommitModel() commitModel {
 	s := spinner.NewModel()
 	s.Spinner = spinner.Dot
-	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#EE6FF8"))
 	return commitModel{spinner: s}
 }
 

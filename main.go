@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/mattn/go-runewidth"
 )
 
 var (
@@ -34,4 +36,9 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+// See also: https://github.com/charmbracelet/lipgloss/issues/40#issuecomment-891167509
+func init() {
+	runewidth.DefaultCondition.EastAsianWidth = false
 }

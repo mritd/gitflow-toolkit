@@ -1,9 +1,9 @@
 package main
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/mattn/go-runewidth"
 	"strings"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 const (
@@ -12,10 +12,6 @@ const (
 	SPINNER
 	RESULT
 )
-
-func init() {
-	runewidth.DefaultCondition.EastAsianWidth = false
-}
 
 type done struct {
 	err error

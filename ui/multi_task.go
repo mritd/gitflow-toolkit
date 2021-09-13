@@ -8,6 +8,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+var NothingFunc = func() error { return nil }
+
 var (
 	MultiTaskLayoutStyle = lipgloss.NewStyle().
 				Padding(0, 0, 1, 2)
@@ -29,7 +31,7 @@ var (
 					Foreground(lipgloss.Color("#37B9FF"))
 
 	MultiTaskSpinner = spinner.Model{
-		Style: lipgloss.NewStyle().Foreground(lipgloss.Color("#f8ca61")),
+		Style: lipgloss.NewStyle().Foreground(lipgloss.Color("#F8CA61")),
 		Spinner: spinner.Spinner{
 			Frames: []string{
 				"[     ]",
@@ -140,54 +142,14 @@ func (m MultiTaskModel) View() string {
 	for i, task := range m.Tasks {
 		if task.err == nil {
 			if i < m.index {
-				view = lipgloss.JoinVertical(lipgloss.Left, view, MultiTaskMsgSuccessStyle.Render("[  ✔  ] "+task.Title))
+				view = lipgloss.JoinVertical(lipgloss.Left, view, m.MsgSuccessStyle.Render("[  ✔  ] "+task.Title))
 			} else {
-				view = lipgloss.JoinVertical(lipgloss.Left, view, m.Spinner.View()+" "+MultiTaskMsgWaitingStyle.Render(task.Title))
+				view = lipgloss.JoinVertical(lipgloss.Left, view, m.Spinner.View()+" "+m.MsgWaitingStyle.Render(task.Title))
 			}
 		} else {
-			view = lipgloss.JoinVertical(lipgloss.Left, view, MultiTaskMsgFailedStyle.Render("[  ✗  ] "+task.err.Error()))
+			view = lipgloss.JoinVertical(lipgloss.Left, view, m.MsgFailedStyle.Render("[  ✗  ] "+task.err.Error()))
 		}
 
 	}
-	return MultiTaskLayoutStyle.Render(MultiTaskBorderStyle.Render(view))
+	return m.LayoutStyle.Render(m.BorderStyle.Render(view))
 }
-
-//func main() {
-//	m := MultiTaskModel{
-//		Tasks: []Task{
-//			{
-//				Title: "Clean install dir...",
-//				Func:     func() error { return nil },
-//			},
-//			{
-//				Title: "Clean symlinks...",
-//				Func:     func() error { return nil },
-//			},
-//			{
-//				Title: "Unset commit hooks...",
-//				Func:     func() error { return nil },
-//			},
-//			{
-//				Title: "Create toolkit home...",
-//				Func:     func() error { return nil },
-//			},
-//			{
-//				Title: "Install executable file...",
-//				Func:     func() error { return nil },
-//			},
-//			{
-//				Title: "Create symlink...",
-//				Func:     func() error { return errors.New("This is a test message.") },
-//			},
-//			{
-//				Title: "Install success...",
-//				Func:     func() error { return nil },
-//			},
-//		},
-//		Spinner: MultiTaskSpinner,
-//	}
-//	if err := tea.NewProgram(&m).Start(); err != nil {
-//		fmt.Printf("could not start program: %s\n", err)
-//		os.Exit(1)
-//	}
-//}

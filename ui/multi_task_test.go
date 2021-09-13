@@ -15,7 +15,7 @@ func init() {
 	runewidth.DefaultCondition.EastAsianWidth = false
 }
 
-func TestMultiTaskModel(t *testing.T) {
+func TestMultiTask(t *testing.T) {
 	m := NewMultiTaskModelWithTasks([]Task{
 		{
 			Title: "Clean install dir...",

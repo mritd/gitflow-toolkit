@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"io"
+
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"io"
 )
 
 var (

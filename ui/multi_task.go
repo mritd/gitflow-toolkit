@@ -22,7 +22,7 @@ var (
 
 	MultiTaskMsgSuccessStyle = lipgloss.NewStyle().
 					Bold(true).
-					Foreground(lipgloss.Color("#25A065"))
+					Foreground(lipgloss.Color("#2AFFA3"))
 
 	MultiTaskMsgFailedStyle = MultiTaskMsgSuccessStyle.Copy().
 				Foreground(lipgloss.Color("#EE6FF8"))

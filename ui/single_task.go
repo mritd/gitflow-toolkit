@@ -3,8 +3,6 @@ package ui
 import (
 	"time"
 
-	"github.com/charmbracelet/bubbles/progress"
-
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -12,29 +10,23 @@ import (
 
 var (
 	SingleTaskLayoutStyle = lipgloss.NewStyle().
-				Padding(1, 0, 1, 2)
+				Padding(0, 0, 1, 2)
 
-	SingleTaskBorderStyle = lipgloss.NewStyle().
-				Border(lipgloss.RoundedBorder()).
-				BorderForeground(lipgloss.Color("#37B9FF")).
-				Width(55).
-				Padding(0, 1, 1, 2)
+	SingleTaskMsgLayout = lipgloss.NewStyle().
+				Padding(1, 0, 1, 0)
 
 	SingleTaskSuccessStyle = lipgloss.NewStyle().
 				Bold(true).
-				Background(lipgloss.Color("#25A065")).
-				Padding(1, 0, 0, 0)
+				Foreground(lipgloss.Color("#2AFFA3"))
 
 	SingleTaskFailedStyle = SingleTaskSuccessStyle.Copy().
 				Background(lipgloss.Color("#EE6FF8"))
 
-	SingleTaskWaitingStyle = lipgloss.NewStyle().
-				Bold(true).
-				Foreground(lipgloss.Color("#37B9FF")).
-				Padding(0, 0, 0, 0)
+	SingleTaskWaitingStyle = SingleTaskSuccessStyle.Copy().
+				Foreground(lipgloss.Color("#37B9FF"))
 
 	SingleTaskSpinner = spinner.Model{
-		Style: lipgloss.NewStyle().Foreground(lipgloss.Color("#EE6FF8")).Padding(1, 0, 0, 0),
+		Style: lipgloss.NewStyle().Foreground(lipgloss.Color("#EE6FF8")),
 		Spinner: spinner.Spinner{
 			Frames: []string{
 				"[∙∙∙]",
@@ -48,11 +40,8 @@ var (
 )
 
 type SingleTaskModel struct {
-	Task  Task
-	Width int
-
-	Spinner  spinner.Model
-	Progress progress.Model
+	Task    Task
+	Spinner spinner.Model
 
 	TaskDelay    time.Duration
 	LayoutStyle  lipgloss.Style
@@ -71,7 +60,6 @@ func NewSingleTaskModel(task Task) SingleTaskModel {
 		Spinner:      SingleTaskSpinner,
 		TaskDelay:    time.Second,
 		LayoutStyle:  SingleTaskLayoutStyle,
-		BorderStyle:  SingleTaskBorderStyle,
 		SuccessStyle: SingleTaskSuccessStyle,
 		FailedStyle:  SingleTaskFailedStyle,
 		RunningStyle: SingleTaskWaitingStyle,
@@ -112,5 +100,5 @@ func (m SingleTaskModel) View() string {
 		view = m.Spinner.View() + " " + m.RunningStyle.Render(m.Task.Title)
 	}
 
-	return m.LayoutStyle.Render(m.BorderStyle.Render(view))
+	return m.LayoutStyle.Render(m.BorderStyle.Render(SingleTaskMsgLayout.Render(view)))
 }

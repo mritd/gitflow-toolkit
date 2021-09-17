@@ -20,19 +20,31 @@ func createBranch(name string) (string, error) {
 	return git("checkout", "-b", name)
 }
 
-func hasStagedFiles() error {
-	msg, err := git("diff", "--cached", "--name-only")
+func commit(msg commitMsg) error {
+	if err := hasStagedFiles(); err != nil {
+		return err
+	}
+
+	f, err := ioutil.TempFile("", "gitflow-commit")
 	if err != nil {
 		return err
 	}
-	if msg == "" {
-		return errors.New("There is no file to commit, please execute the `git add` command to add the commit file.")
-	}
-	return nil
-}
+	defer func() {
+		_ = f.Close()
+		_ = os.Remove(f.Name())
+	}()
 
-func currentBranch() (string, error) {
-	return git("symbolic-ref", "--short", "HEAD")
+	_, err = fmt.Fprintf(f, "%s(%s): %s\n\n%s\n\n%s\n\n%s\n", msg.Type, msg.Scope, msg.Subject, msg.Body, msg.Footer, msg.SOB)
+	if err != nil {
+		return err
+	}
+
+	_, err = git("commit", "-F", f.Name())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func push() (string, error) {
@@ -53,6 +65,21 @@ func push() (string, error) {
 	return msg, err
 }
 
+func hasStagedFiles() error {
+	msg, err := git("diff", "--cached", "--name-only")
+	if err != nil {
+		return err
+	}
+	if msg == "" {
+		return errors.New("There is no file to commit, please execute the `git add` command to add the commit file.")
+	}
+	return nil
+}
+
+func currentBranch() (string, error) {
+	return git("symbolic-ref", "--short", "HEAD")
+}
+
 func commitMessageCheck(f string) error {
 	reg := regexp.MustCompile(commitMessageCheckPattern)
 	bs, err := ioutil.ReadFile(f)
@@ -63,37 +90,6 @@ func commitMessageCheck(f string) error {
 	msgs := reg.FindStringSubmatch(string(bs))
 	if len(msgs) != 4 {
 		return fmt.Errorf(commitMessageCheckFailedMsg)
-	}
-
-	return nil
-}
-
-func commit(msg commitMsg) error {
-	if err := hasStagedFiles(); err != nil {
-		return err
-	}
-
-	if msg.Body == "" {
-		msg.Body = msg.Subject
-	}
-
-	f, err := ioutil.TempFile("", "gitflow-commit")
-	if err != nil {
-		return err
-	}
-	defer func() {
-		_ = f.Close()
-		_ = os.Remove(f.Name())
-	}()
-
-	_, err = fmt.Fprintf(f, "%s(%s): %s\n\n%s\n\n%s\n\n%s\n", msg.Type, msg.Scope, msg.Subject, msg.Body, msg.Footer, msg.SOB)
-	if err != nil {
-		return err
-	}
-
-	_, err = git("commit", "-F", f.Name())
-	if err != nil {
-		return err
 	}
 
 	return nil

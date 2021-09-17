@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
 	"time"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/urfave/cli/v2"
 )
 
@@ -53,8 +53,7 @@ func newBranchApp(ct string) *cli.App {
 				return cli.ShowAppHelp(c)
 			}
 
-			m := newResultModel()
-			m.message, m.err = createBranch(fmt.Sprintf("%s/%s", ct, c.Args().First()))
+			m := newBranchModel(fmt.Sprintf("%s/%s", ct, c.Args().First()))
 
 			return tea.NewProgram(&m).Start()
 		},
@@ -75,12 +74,12 @@ func commitApp() *cli.App {
 				return cli.ShowAppHelp(c)
 			}
 
-			m := model{
+			m := commitModel{
 				views: []tea.Model{
 					newSelectorModel(),
 					newInputsModel(),
-					newCommitModel(),
-					newResultModel(),
+					newCommittingModel(),
+					newErrorModel(),
 				},
 			}
 
@@ -121,8 +120,7 @@ func pushApp() *cli.App {
 				return cli.ShowAppHelp(c)
 			}
 
-			m := newResultModel()
-			m.message, m.err = push()
+			m := newPushModel()
 
 			return tea.NewProgram(&m).Start()
 		},

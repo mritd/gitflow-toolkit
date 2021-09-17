@@ -84,7 +84,7 @@ func (m selectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "enter":
 			m.choice = m.list.SelectedItem().(selectorItem).ct
-			return m, func() tea.Msg { return done{} }
+			return m, func() tea.Msg { return done{nextView: INPUTS} }
 
 		default:
 			if !m.list.SettingFilter() && (keypress == "q" || keypress == "esc") {

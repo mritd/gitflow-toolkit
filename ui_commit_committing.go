@@ -98,7 +98,7 @@ func (m committingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.spinner, cmd = m.spinner.Update(spinner.Tick())
 		m.msg = msg
 		return m, tea.Batch(cmd, func() tea.Msg {
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(time.Second)
 			return commit(msg)
 		})
 	case error:

@@ -74,7 +74,7 @@ func newCommittingModel() committingModel {
 			"( ●   ) Committing...",
 			"(●    ) Committing...",
 		},
-		FPS: time.Second / 10,
+		FPS: time.Second / 15,
 	}
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#19F896")).Bold(true)
 	return committingModel{spinner: s}
@@ -98,7 +98,7 @@ func (m committingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.spinner, cmd = m.spinner.Update(spinner.Tick())
 		m.msg = msg
 		return m, tea.Batch(cmd, func() tea.Msg {
-			time.Sleep(1500 * time.Millisecond)
+			time.Sleep(500 * time.Millisecond)
 			return commit(msg)
 		})
 	case error:

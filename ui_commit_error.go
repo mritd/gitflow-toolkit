@@ -11,7 +11,7 @@ var (
 
 	errorStyle = lipgloss.NewStyle().
 			Bold(true).
-			MaxWidth(64).
+			Width(64).
 			Foreground(lipgloss.Color("#FF62DA")).
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#FF62DA")).

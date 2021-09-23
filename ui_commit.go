@@ -89,10 +89,10 @@ func (m commitModel) commit() tea.Msg {
 
 	msg := commitMsg{
 		Type:    m.views[SELECTOR].(selectorModel).choice,
-		Scope:   m.views[INPUTS].(inputsModel).inputs[0].Value(),
-		Subject: m.views[INPUTS].(inputsModel).inputs[1].Value(),
-		Body:    m.views[INPUTS].(inputsModel).inputs[2].Value(),
-		Footer:  m.views[INPUTS].(inputsModel).inputs[3].Value(),
+		Scope:   m.views[INPUTS].(inputsModel).inputs[0].input.Value(),
+		Subject: m.views[INPUTS].(inputsModel).inputs[1].input.Value(),
+		Body:    m.views[INPUTS].(inputsModel).inputs[2].input.Value(),
+		Footer:  m.views[INPUTS].(inputsModel).inputs[3].input.Value(),
 		SOB:     sob,
 	}
 

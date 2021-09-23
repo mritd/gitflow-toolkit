@@ -15,8 +15,10 @@ install:
 	go install -trimpath -ldflags	"-X 'main.version=${BUILD_VERSION}' \
                						-X 'main.buildDate=${BUILD_DATE}' \
                						-X 'main.commitID=${COMMIT_SHA1}'"
+	gitflow-toolkit install
 debug:
 	go install -trimpath -gcflags "all=-N -l"
+	gitflow-toolkit install
 
 clean:
 	rm -rf dist

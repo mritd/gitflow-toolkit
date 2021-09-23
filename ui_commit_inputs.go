@@ -145,6 +145,13 @@ func (m inputsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.inputs[i].input.TextStyle = inputsTextNormalStyle
 			}
 
+			if m.focusIndex < len(m.inputs) && m.inputs[m.focusIndex].checker != nil {
+				m.err = m.inputs[m.focusIndex].checker(m.inputs[m.focusIndex].input.Value())
+				cmds = append(cmds, spinner.Tick)
+			} else {
+				m.err = nil
+			}
+
 			return m, tea.Batch(cmds...)
 		}
 	case string:
@@ -169,11 +176,6 @@ func (m *inputsModel) updateInputs(msg tea.Msg) tea.Cmd {
 	// update all of them here without any further logic.
 	for i := range m.inputs {
 		m.inputs[i].input, cmds[i] = m.inputs[i].input.Update(msg)
-	}
-
-	if m.focusIndex < len(m.inputs) && m.inputs[m.focusIndex].checker != nil {
-		m.err = m.inputs[m.focusIndex].checker(m.inputs[m.focusIndex].input.Value())
-		cmds[len(m.inputs)] = spinner.Tick
 	}
 
 	return tea.Batch(cmds...)

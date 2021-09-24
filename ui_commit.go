@@ -110,18 +110,3 @@ func (m commitModel) commit() tea.Msg {
 func (m commitModel) showErr() tea.Msg {
 	return m.err
 }
-
-//func main() {
-//	m := commitModel{
-//		views: []tea.Model{
-//			newSelectorModel(),
-//			newInputsModel(),
-//			newCommitModel(),
-//			newErrorModel(),
-//		},
-//	}
-//	if err := tea.NewProgram(&m).Start(); err != nil {
-//		fmt.Printf("could not start program: %s\n", err)
-//		os.Exit(1)
-//	}
-//}

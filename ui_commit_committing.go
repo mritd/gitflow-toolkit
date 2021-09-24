@@ -94,13 +94,11 @@ func (m committingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	case commitMsg:
-		var cmd tea.Cmd
-		m.spinner, cmd = m.spinner.Update(spinner.Tick())
 		m.msg = msg
-		return m, tea.Batch(cmd, func() tea.Msg {
+		return m, func() tea.Msg {
 			time.Sleep(time.Second)
 			return commit(msg)
-		})
+		}
 	case error:
 		m.done = true
 		m.err = msg

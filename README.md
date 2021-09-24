@@ -8,6 +8,7 @@
 
 | | | 
 |:-------------------------:|:-------------------------:|
+|<img width="2500" src="https://user-images.githubusercontent.com/13043245/134647305-a1df0023-972b-48c3-a6bf-668e96094df9.gif"> Install|<img width="2500" src="https://user-images.githubusercontent.com/13043245/134646600-976f01b4-6000-41e7-8389-0d0e761e15c9.gif"> Uninstall|
 |<img width="2500" src="https://user-images.githubusercontent.com/13043245/134485491-993ef0cb-7438-4c42-9a2e-16db05503a0b.gif"> Commit Success|<img width="2500" src="https://user-images.githubusercontent.com/13043245/134485537-6375d280-10d2-4475-a834-7d0ad72248aa.gif"> Commit Failed|
 |<img width="2500" src="https://user-images.githubusercontent.com/13043245/134485533-3a01d3be-0912-45cb-9e63-d343a7bad847.gif"> Push Success|<img width="2500" src="https://user-images.githubusercontent.com/13043245/134485503-f7de0493-6d2d-403d-aa4d-79a62a83c048.gif"> Push Failed|
 |<img width="2500" src="https://user-images.githubusercontent.com/13043245/134485549-5ee7853d-1cc7-4a0f-b083-03514045f8eb.gif"> Create Branch||

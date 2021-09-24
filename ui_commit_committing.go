@@ -121,7 +121,7 @@ func (m committingModel) View() string {
 	msg := m.spinner.View()
 	if m.done {
 		if m.err != nil {
-			msg = committingFailedStyle.Render("( ●●● ) Commit Failed: " + m.err.Error())
+			msg = committingFailedStyle.Render("( ●●● ) Commit Failed: \n" + m.err.Error())
 		} else {
 			msg = committingSuccessStyle.Render("◉◉◉◉ Always code as if the guy who ends up maintaining your \n◉◉◉◉ code will be a violent psychopath who knows where you live...")
 		}

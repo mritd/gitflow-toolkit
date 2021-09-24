@@ -15,7 +15,7 @@
 
 ## Installation
 
-Just download the latest version from the Release page and execute the install command:
+Just download the latest version from the Release page and execute the `install` command:
 
 ```sh
 export VERSION='v2.1.0'
@@ -35,7 +35,7 @@ After the installation is complete, you can delete the bin file.
 If the go language development environment is installed locally, you can install it through the `go get` command:
 
 ```sh
-go get -u github.com/mritd/gitflow-toolkit/v2
+go install github.com/mritd/gitflow-toolkit/v2@latest
 ```
 
 ## Comands

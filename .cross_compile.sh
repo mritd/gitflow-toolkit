@@ -6,6 +6,10 @@ DIST_PREFIX="gitflow-toolkit"
 TARGET_DIR="dist"
 PLATFORMS="darwin/amd64 darwin/arm64  linux/386 linux/amd64 linux/arm linux/arm64"
 
+BUILD_VERSION=$(cat version)
+BUILD_DATE=$(date "+%F %T")
+COMMIT_SHA1=$(git rev-parse HEAD)
+
 rm -rf ${TARGET_DIR}
 mkdir ${TARGET_DIR}
 

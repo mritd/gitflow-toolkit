@@ -88,7 +88,7 @@ type inputsModel struct {
 }
 
 func (m inputsModel) Init() tea.Cmd {
-	return textinput.Blink
+	return tea.Batch(textinput.Blink, spinner.Tick)
 }
 
 func (m inputsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -145,13 +145,6 @@ func (m inputsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.inputs[i].input.TextStyle = inputsTextNormalStyle
 			}
 
-			if m.focusIndex < len(m.inputs) && m.inputs[m.focusIndex].checker != nil {
-				m.err = m.inputs[m.focusIndex].checker(m.inputs[m.focusIndex].input.Value())
-				cmds = append(cmds, spinner.Tick)
-			} else {
-				m.err = nil
-			}
-
 			return m, tea.Batch(cmds...)
 		}
 	case string:
@@ -196,11 +189,18 @@ func (m inputsModel) View() string {
 		button = inputsButtonStyle.Render("➜ Submit")
 	}
 
-	if m.err != nil {
-		b.WriteString(inputsButtonBlockStyle.Render(button + inputsErrLayout.Render(m.errSpinner.View()+" "+inputsErrStyle.Render(m.err.Error()))))
-	} else {
-		b.WriteString(inputsButtonBlockStyle.Render(button))
+	// check input value
+	for _, iwc := range m.inputs {
+		if iwc.checker != nil {
+			m.err = iwc.checker(iwc.input.Value())
+			if m.err != nil {
+				button += inputsErrLayout.Render(m.errSpinner.View() + " " + inputsErrStyle.Render(m.err.Error()))
+				break
+			}
+		}
 	}
+
+	b.WriteString(inputsButtonBlockStyle.Render(button))
 
 	title := inputsTitleBarStyle.Render(inputsTitleStyle.Render(m.title))
 	inputs := inputsBlockStyle.Render(b.String())

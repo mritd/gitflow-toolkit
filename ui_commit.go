@@ -3,6 +3,8 @@ package main
 import (
 	"strings"
 
+	"github.com/charmbracelet/bubbles/spinner"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -58,9 +60,9 @@ func (m *commitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// some special views need to determine the state of the data to update
 		switch m.viewIndex {
 		case INPUTS:
-			return m, m.inputs
+			return m, tea.Batch(spinner.Tick, m.inputs)
 		case COMMIT:
-			return m, m.commit
+			return m, tea.Batch(spinner.Tick, m.commit)
 		case ERROR:
 			return m, m.showErr
 		default:

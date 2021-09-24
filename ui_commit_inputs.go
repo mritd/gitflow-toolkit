@@ -13,52 +13,50 @@ import (
 )
 
 var (
-	inputsTitleBarStyle = lipgloss.NewStyle().
+	inputsTitleLayout = lipgloss.NewStyle().
 				Padding(1, 0, 1, 2)
 
 	inputsTitleStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#FFFDF5")).
 				Background(lipgloss.Color("#7653FF")).
 				Bold(true).
-				Padding(0, 1)
+				Padding(0, 1, 0, 1)
 
-	inputsBlockStyle = lipgloss.NewStyle().
+	inputsBlockLayout = lipgloss.NewStyle().
 				Padding(0, 0, 1, 0)
-
-	inputsTextStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.AdaptiveColor{Light: "#1A1A1A", Dark: "#FFFDF5"}).
-			Bold(true)
-
-	inputsTextNormalStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.AdaptiveColor{Light: "#313131", Dark: "#DDDDDD"})
 
 	inputsCursorStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#25A065"))
 
-	inputsPromptNormalStyle = lipgloss.NewStyle().
-				Padding(0, 0, 0, 2)
-
-	inputsPromptStyle = lipgloss.NewStyle().
+	inputsPromptFocusStyle = lipgloss.NewStyle().
 				Border(lipgloss.NormalBorder(), false, false, false, true).
 				BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
 				Foreground(lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: "#EE6FF8"}).
 				Bold(true).
 				Padding(0, 0, 0, 1)
 
-	inputsButtonBlockStyle = lipgloss.NewStyle().
+	inputsPromptNormalStyle = lipgloss.NewStyle().
+				Padding(0, 0, 0, 2)
+
+	inputsTextFocusStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.AdaptiveColor{Light: "#1A1A1A", Dark: "#FFFDF5"}).
+				Bold(true)
+
+	inputsTextNormalStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.AdaptiveColor{Light: "#313131", Dark: "#DDDDDD"})
+
+	inputsButtonLayout = lipgloss.NewStyle().
 				Padding(2, 0, 1, 2)
 
-	inputsButtonStyle = lipgloss.NewStyle().
+	inputsButtonFocusStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#FFFDF5")).
 				Background(lipgloss.Color("#25A065")).
 				Padding(0, 1, 0, 1).
 				Bold(true)
 
-	inputsButtonNormalStyle = lipgloss.NewStyle().
+	inputsButtonNormalStyle = inputsButtonFocusStyle.Copy().
 				Foreground(lipgloss.AdaptiveColor{Light: "#626262", Dark: "#DDDDDD"}).
-				Background(lipgloss.AdaptiveColor{Light: "#DDDDDD", Dark: "#626262"}).
-				Padding(0, 1, 0, 1).
-				Bold(true)
+				Background(lipgloss.AdaptiveColor{Light: "#DDDDDD", Dark: "#626262"})
 
 	inputsErrLayout = lipgloss.NewStyle().
 			Padding(0, 0, 0, 1)
@@ -135,8 +133,8 @@ func (m inputsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if i == m.focusIndex {
 					// Set focused state
 					cmds[i] = m.inputs[i].input.Focus()
-					m.inputs[i].input.PromptStyle = inputsPromptStyle
-					m.inputs[i].input.TextStyle = inputsTextStyle
+					m.inputs[i].input.PromptStyle = inputsPromptFocusStyle
+					m.inputs[i].input.TextStyle = inputsTextFocusStyle
 					continue
 				}
 				// Remove focused state
@@ -186,7 +184,7 @@ func (m inputsModel) View() string {
 
 	button := inputsButtonNormalStyle.Render("➜ Submit")
 	if m.focusIndex == len(m.inputs) {
-		button = inputsButtonStyle.Render("➜ Submit")
+		button = inputsButtonFocusStyle.Render("➜ Submit")
 	}
 
 	// check input value
@@ -200,10 +198,10 @@ func (m inputsModel) View() string {
 		}
 	}
 
-	b.WriteString(inputsButtonBlockStyle.Render(button))
+	b.WriteString(inputsButtonLayout.Render(button))
 
-	title := inputsTitleBarStyle.Render(inputsTitleStyle.Render(m.title))
-	inputs := inputsBlockStyle.Render(b.String())
+	title := inputsTitleLayout.Render(inputsTitleStyle.Render(m.title))
+	inputs := inputsBlockLayout.Render(b.String())
 
 	return lipgloss.JoinVertical(lipgloss.Left, title, inputs)
 }
@@ -224,8 +222,8 @@ func newInputsModel() inputsModel {
 		case 0:
 			iwc.input.Prompt = "1. SCOPE "
 			iwc.input.Placeholder = "Specifying place of the commit change."
-			iwc.input.PromptStyle = inputsPromptStyle
-			iwc.input.TextStyle = inputsTextStyle
+			iwc.input.PromptStyle = inputsPromptFocusStyle
+			iwc.input.TextStyle = inputsTextFocusStyle
 			iwc.input.Focus()
 			iwc.checker = func(s string) error {
 				if strings.TrimSpace(s) == "" {

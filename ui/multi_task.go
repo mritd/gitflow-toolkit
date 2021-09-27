@@ -16,22 +16,22 @@ var (
 
 	MultiTaskBorderStyle = lipgloss.NewStyle().
 				Border(lipgloss.RoundedBorder()).
-				BorderForeground(lipgloss.Color("#37B9FF")).
+				BorderForeground(lipgloss.AdaptiveColor{Light: "#2B53AF", Dark: "#37B9FF"}).
 				Width(55).
 				Padding(0, 1, 1, 2)
 
 	MultiTaskMsgSuccessStyle = lipgloss.NewStyle().
 					Bold(true).
-					Foreground(lipgloss.Color("#2AFFA3"))
+					Foreground(lipgloss.AdaptiveColor{Light: "#25A065", Dark: "#2AFFA3"})
 
 	MultiTaskMsgFailedStyle = MultiTaskMsgSuccessStyle.Copy().
-				Foreground(lipgloss.Color("#EE6FF8"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#E11C9C", Dark: "#EE6FF8"})
 
 	MultiTaskMsgWaitingStyle = MultiTaskMsgSuccessStyle.Copy().
-					Foreground(lipgloss.Color("#37B9FF"))
+					Foreground(lipgloss.AdaptiveColor{Light: "#2B53AF", Dark: "#37B9FF"})
 
 	MultiTaskSpinner = spinner.Model{
-		Style: lipgloss.NewStyle().Foreground(lipgloss.Color("#F8CA61")),
+		Style: lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#FF9A0D", Dark: "#F8CA61"}),
 		Spinner: spinner.Spinner{
 			Frames: []string{
 				"[     ]",

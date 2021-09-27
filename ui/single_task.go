@@ -17,16 +17,16 @@ var (
 
 	SingleTaskSuccessStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#2AFFA3"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#1C9518", Dark: "#2AFFA3"})
 
 	SingleTaskFailedStyle = SingleTaskSuccessStyle.Copy().
-				Background(lipgloss.Color("#EE6FF8"))
+				Background(lipgloss.AdaptiveColor{Light: "#E11C9C", Dark: "#EE6FF8"})
 
 	SingleTaskWaitingStyle = SingleTaskSuccessStyle.Copy().
-				Foreground(lipgloss.Color("#37B9FF"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#2B53AF", Dark: "#37B9FF"})
 
 	SingleTaskSpinner = spinner.Model{
-		Style: lipgloss.NewStyle().Foreground(lipgloss.Color("#EE6FF8")),
+		Style: lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#E11C9C", Dark: "#EE6FF8"}),
 		Spinner: spinner.Spinner{
 			Frames: []string{
 				"[∙∙∙]",

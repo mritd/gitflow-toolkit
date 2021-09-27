@@ -14,34 +14,34 @@ var (
 
 	committingTypeStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#FFFDF5")).
-				Background(lipgloss.Color("#7653FF"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#FFFDF5", Dark: "#FFFDF5"}).
+				Background(lipgloss.AdaptiveColor{Light: "#5B44FF", Dark: "#7653FF"})
 
 	committingScopeStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#FFFDF5")).
-				Background(lipgloss.Color("#2AD67F"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#FFFDF5", Dark: "#FFFDF5"}).
+				Background(lipgloss.AdaptiveColor{Light: "#1FD314", Dark: "#2AD67F"})
 
 	committingSubjectStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#FFFDF5")).
-				Background(lipgloss.Color("#EE6FF8"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#FFFDF5", Dark: "#FFFDF5"}).
+				Background(lipgloss.AdaptiveColor{Light: "#E11C9C", Dark: "#EE6FF8"})
 
 	committingBodyStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#2AD67F"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#25A065", Dark: "#2AD67F"})
 
 	committingFooterStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#2AD67F"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#25A065", Dark: "#2AD67F"})
 
 	committingSuccessStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#19F896"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#25A065", Dark: "#2AD67F"})
 
 	committingFailedStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#D63B3A"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#D63B3A", Dark: "#D63B3A"})
 )
 
 type committingModel struct {
@@ -76,7 +76,7 @@ func newCommittingModel() committingModel {
 		},
 		FPS: time.Second / 15,
 	}
-	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#19F896")).Bold(true)
+	s.Style = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#25A065", Dark: "#19F896"}).Bold(true)
 	return committingModel{spinner: s}
 }
 

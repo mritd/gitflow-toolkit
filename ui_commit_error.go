@@ -12,9 +12,9 @@ var (
 	errorStyle = lipgloss.NewStyle().
 			Bold(true).
 			Width(64).
-			Foreground(lipgloss.Color("#FF62DA")).
+			Foreground(lipgloss.AdaptiveColor{Light: "#E11C9C", Dark: "#FF62DA"}).
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#FF62DA")).
+			BorderForeground(lipgloss.AdaptiveColor{Light: "#E11C9C", Dark: "#FF62DA"}).
 			Padding(1, 3, 1, 3)
 )
 

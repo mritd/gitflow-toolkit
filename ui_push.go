@@ -14,20 +14,20 @@ var (
 
 	pushSuccessTextStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#57FFBA"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#25BD7E", Dark: "#57FFBA"})
 
 	pushSuccessMsgStyle = lipgloss.NewStyle().
 				Bold(true).
 				Width(75).
-				Foreground(lipgloss.Color("#2FD0FF"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#2BAAD5", Dark: "#2FD0FF"})
 
 	pushFailedTextStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#D63B3A"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#5B44FF", Dark: "#7653FF"})
 
 	pushFailedErrStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#FF6037"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#FF2117", Dark: "#FF6037"})
 )
 
 type pushModel struct {
@@ -68,7 +68,7 @@ func newPushModel() pushModel {
 		},
 		FPS: time.Second / 15,
 	}
-	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#19F896")).Bold(true)
+	s.Style = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#25A065", Dark: "#19F896"}).Bold(true)
 	return pushModel{
 		spinner: s,
 	}

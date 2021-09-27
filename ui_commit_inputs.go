@@ -17,8 +17,8 @@ var (
 				Padding(1, 0, 1, 2)
 
 	inputsTitleStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#FFFDF5")).
-				Background(lipgloss.Color("#7653FF")).
+				Foreground(lipgloss.AdaptiveColor{Light: "#333333", Dark: "#DDDDDD"}).
+				Background(lipgloss.AdaptiveColor{Light: "#7653FF", Dark: "#7653FF"}).
 				Bold(true).
 				Padding(0, 1, 0, 1)
 
@@ -26,12 +26,12 @@ var (
 				Padding(0, 0, 1, 0)
 
 	inputsCursorStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#25A065"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#25A065", Dark: "#25A065"})
 
 	inputsPromptFocusStyle = lipgloss.NewStyle().
 				Border(lipgloss.NormalBorder(), false, false, false, true).
-				BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
-				Foreground(lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: "#EE6FF8"}).
+				BorderForeground(lipgloss.AdaptiveColor{Light: "#9F72FF", Dark: "#AD58B4"}).
+				Foreground(lipgloss.AdaptiveColor{Light: "#9A4AFF", Dark: "#EE6FF8"}).
 				Bold(true).
 				Padding(0, 0, 0, 1)
 
@@ -43,14 +43,14 @@ var (
 				Bold(true)
 
 	inputsTextNormalStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.AdaptiveColor{Light: "#313131", Dark: "#DDDDDD"})
+				Foreground(lipgloss.AdaptiveColor{Light: "#1A1A1A", Dark: "#FFFDF5"})
 
 	inputsButtonLayout = lipgloss.NewStyle().
 				Padding(2, 0, 1, 2)
 
 	inputsButtonFocusStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#FFFDF5")).
-				Background(lipgloss.Color("#25A065")).
+				Foreground(lipgloss.AdaptiveColor{Light: "#FFFDF5", Dark: "#FFFDF5"}).
+				Background(lipgloss.AdaptiveColor{Light: "#25A065", Dark: "#25A065"}).
 				Padding(0, 1, 0, 1).
 				Bold(true)
 

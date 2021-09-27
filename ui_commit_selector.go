@@ -12,8 +12,8 @@ import (
 
 var (
 	selectorTitleStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#FFFDF5")).
-				Background(lipgloss.Color("#25A065")).
+				Foreground(lipgloss.AdaptiveColor{Light: "#2E2E2E", Dark: "#DDDDDD"}).
+				Background(lipgloss.AdaptiveColor{Light: "#19A04B", Dark: "#25A065"}).
 				Bold(true).
 				Padding(0, 1)
 
@@ -23,17 +23,14 @@ var (
 
 	selectorSelectedStyle = lipgloss.NewStyle().
 				Border(lipgloss.NormalBorder(), false, false, false, true).
-				BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
-				Foreground(lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: "#EE6FF8"}).
+				BorderForeground(lipgloss.AdaptiveColor{Light: "#9F72FF", Dark: "#AD58B4"}).
+				Foreground(lipgloss.AdaptiveColor{Light: "#9A4AFF", Dark: "#EE6FF8"}).
 				Bold(true).
 				Padding(0, 0, 0, 1)
 
 	selectorPaginationStyle = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
 
-	selectorHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{
-		Light: "#DDDADA",
-		Dark:  "#7A7A7A",
-	})
+	selectorHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#6F6C6C", Dark: "#7A7A7A"})
 )
 
 type selectorItem struct {

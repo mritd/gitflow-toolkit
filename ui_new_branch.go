@@ -13,21 +13,21 @@ var (
 
 	newBranchSuccessTextStyle = lipgloss.NewStyle().
 					Bold(true).
-					Foreground(lipgloss.Color("#2AD67F"))
+					Foreground(lipgloss.AdaptiveColor{Light: "#25A065", Dark: "#2AD67F"})
 
 	newBranchSuccessNameStyle = lipgloss.NewStyle().
 					Bold(true).
-					Foreground(lipgloss.Color("#FFFDF5")).
-					Background(lipgloss.Color("#7653FF"))
+					Foreground(lipgloss.AdaptiveColor{Light: "#1A1A1A", Dark: "#FFFDF5"}).
+					Background(lipgloss.AdaptiveColor{Light: "#5B44FF", Dark: "#7653FF"})
 
 	newBranchFailedTextStyle = lipgloss.NewStyle().
 					Bold(true).
-					Foreground(lipgloss.Color("#D63B3A"))
+					Foreground(lipgloss.AdaptiveColor{Light: "#D63B3A", Dark: "#D63B3A"})
 
 	newBranchFailedErrStyle = lipgloss.NewStyle().
 				Bold(true).
-				Foreground(lipgloss.Color("#FFFDF5")).
-				Background(lipgloss.Color("#D63B3A"))
+				Foreground(lipgloss.AdaptiveColor{Light: "#1A1A1A", Dark: "#FFFDF5"}).
+				Background(lipgloss.AdaptiveColor{Light: "#D63B3A", Dark: "#D63B3A"})
 )
 
 type branchModel struct {

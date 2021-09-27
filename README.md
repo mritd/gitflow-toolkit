@@ -3,8 +3,7 @@
 > GitFlow Toolkit is a gitflow commit tool written by go, used to standardize the format of git commit message and quickly create gitflow branches,
 > It should be noted that GitFlow Toolkit currently only supports the generation of the commit message style of the [Angular community specification](https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#heading=h.greljkmo14y0).
 
-### The overall UI has been rewritten since v2.1.0. The current v2.1.0 version is still under development, but it is basically available.
-
+### Starting from the v2.1.1 version, the white theme terminal will be supported, and the white theme color scheme is being adjusted.
 
 | | | 
 |:-------------------------:|:-------------------------:|

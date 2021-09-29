@@ -3,12 +3,11 @@ module github.com/mritd/gitflow-toolkit/v2
 go 1.17
 
 require (
-	github.com/charmbracelet/bubbles v0.8.1-0.20210823213054-d987ef84f266
-	github.com/charmbracelet/bubbletea v0.14.1
+	github.com/charmbracelet/bubbles v0.9.0
+	github.com/charmbracelet/bubbletea v0.16.0
 	github.com/charmbracelet/lipgloss v0.4.0
 	github.com/mattn/go-runewidth v0.0.13
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mritd/bubbles v0.0.0-20210113152436-12363c089d42
 	github.com/urfave/cli/v2 v2.3.0
 )
 

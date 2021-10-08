@@ -44,7 +44,7 @@ func commit(msg commitMsg) error {
 		return err
 	}
 
-	return nil
+	return luckyCommit()
 }
 
 func push() (string, error) {
@@ -144,4 +144,28 @@ func git(cmds ...string) (string, error) {
 	}
 
 	return strings.TrimSpace(string(bs)), nil
+}
+
+func luckyCommit() error {
+	luckyPrefix := os.Getenv(luckyCommitEnv)
+	if luckyPrefix == "" {
+		return nil
+	}
+
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("lucky_commit.exe", luckyPrefix)
+	} else {
+		cmd = exec.Command("lucky_commit", luckyPrefix)
+	}
+
+	bs, err := cmd.CombinedOutput()
+	if err != nil {
+		if bs != nil {
+			return errors.New(strings.TrimSpace(string(bs)))
+		}
+		return err
+	}
+
+	return nil
 }

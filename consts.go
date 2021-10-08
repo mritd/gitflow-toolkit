@@ -36,3 +36,5 @@ const commitMessageCheckFailedMsg = `
 │     perf|hotfix)\((\S.*)\):\s(\S.*)|^Merge.*     │
 │                                                  │
 ╰──────────────────────────────────────────────────╯`
+
+const luckyCommitEnv = "LUCKY_COMMIT"

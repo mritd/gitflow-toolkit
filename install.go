@@ -13,7 +13,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
-func install(dir string) error {
+func install(dir string, withHook bool) error {
 	home, err := homedir.Dir()
 	if err != nil {
 		return err
@@ -100,6 +100,9 @@ func install(dir string) error {
 		{
 			Title: "Set commit hooks...",
 			Func: func() error {
+				if !withHook {
+					return ui.WarnErr{Message: "Hook is not installed!"}
+				}
 				err := os.MkdirAll(toolKitHooks, 0755)
 				if err != nil {
 					return fmt.Errorf("💔 failed to create hooks dir: %s: %s", toolKitHooks, err)

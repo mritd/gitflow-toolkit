@@ -30,6 +30,9 @@ var (
 	MultiTaskMsgWaitingStyle = MultiTaskMsgSuccessStyle.Copy().
 					Foreground(lipgloss.AdaptiveColor{Light: "#2B53AF", Dark: "#37B9FF"})
 
+	MultiTaskMsgWarningStyle = MultiTaskMsgSuccessStyle.Copy().
+					Foreground(lipgloss.AdaptiveColor{Light: "#FF9A0D", Dark: "#F8CA61"})
+
 	MultiTaskSpinner = spinner.Model{
 		Style: lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#FF9A0D", Dark: "#F8CA61"}),
 		Spinner: spinner.Spinner{
@@ -67,6 +70,14 @@ type Task struct {
 	err error
 }
 
+type WarnErr struct {
+	Message string
+}
+
+func (e WarnErr) Error() string {
+	return e.Message
+}
+
 type MultiTaskModel struct {
 	Tasks   []Task
 	Spinner spinner.Model
@@ -77,6 +88,7 @@ type MultiTaskModel struct {
 	MsgSuccessStyle lipgloss.Style
 	MsgFailedStyle  lipgloss.Style
 	MsgWaitingStyle lipgloss.Style
+	MsgWarningStyle lipgloss.Style
 
 	index int
 }
@@ -95,6 +107,7 @@ func NewMultiTaskModelWithTasks(tasks []Task) MultiTaskModel {
 		MsgSuccessStyle: MultiTaskMsgSuccessStyle,
 		MsgFailedStyle:  MultiTaskMsgFailedStyle,
 		MsgWaitingStyle: MultiTaskMsgWaitingStyle,
+		MsgWarningStyle: MultiTaskMsgWarningStyle,
 	}
 }
 
@@ -119,7 +132,9 @@ func (m MultiTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case TaskDoneMsg:
 		if m.Tasks[m.index].err != nil {
-			return m, tea.Quit
+			if _, ok := m.Tasks[m.index].err.(WarnErr); !ok {
+				return m, tea.Quit
+			}
 		}
 
 		m.index++
@@ -147,7 +162,11 @@ func (m MultiTaskModel) View() string {
 				view = lipgloss.JoinVertical(lipgloss.Left, view, m.Spinner.View()+" "+m.MsgWaitingStyle.Render(task.Title))
 			}
 		} else {
-			view = lipgloss.JoinVertical(lipgloss.Left, view, m.MsgFailedStyle.Render("[  ✗  ] "+task.err.Error()))
+			if _, ok := task.err.(WarnErr); ok {
+				view = lipgloss.JoinVertical(lipgloss.Left, view, m.MsgWarningStyle.Render("[  ≡  ] "+task.err.Error()))
+			} else {
+				view = lipgloss.JoinVertical(lipgloss.Left, view, m.MsgFailedStyle.Render("[  ✗  ] "+task.err.Error()))
+			}
 		}
 
 	}

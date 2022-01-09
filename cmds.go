@@ -11,7 +11,7 @@ func installCmd() *cli.Command {
 			if c.NArg() != 0 {
 				return cli.ShowAppHelp(c)
 			}
-			return install(c.String("dir"))
+			return install(c.String("dir"), c.Bool("hook"))
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -19,6 +19,11 @@ func installCmd() *cli.Command {
 				Aliases: []string{"d"},
 				Usage:   "Install dir",
 				Value:   "/usr/local/bin",
+			},
+			&cli.BoolFlag{
+				Name:  "hook",
+				Usage: "Install Commit Message hook",
+				Value: false,
 			},
 		},
 	}

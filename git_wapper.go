@@ -17,7 +17,7 @@ func createBranch(name string) (string, error) {
 		return "", err
 	}
 
-	return git("checkout", "-b", name)
+	return git("switch", "-c", name)
 }
 
 func commit(msg commitMsg) error {

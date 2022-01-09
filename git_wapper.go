@@ -135,6 +135,11 @@ func git(cmds ...string) (string, error) {
 		cmd = exec.Command("git", cmds...)
 	}
 
+	luckyPrefix := os.Getenv(strictHostKey)
+	if luckyPrefix != "true" {
+		cmd.Env = append(os.Environ(), "GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no")
+	}
+
 	bs, err := cmd.CombinedOutput()
 	if err != nil {
 		if bs != nil {

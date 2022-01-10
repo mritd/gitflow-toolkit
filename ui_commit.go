@@ -100,6 +100,19 @@ func (m commitModel) commit() tea.Msg {
 		SOB:     sob,
 	}
 
+	//if msg.Scope == editorKey {
+	//	msg.Scope = m.views[INPUTS].(inputsModel).editorInputs[0]
+	//}
+	//if msg.Subject == editorKey {
+	//	msg.Subject = m.views[INPUTS].(inputsModel).editorInputs[1]
+	//}
+	//if msg.Body == editorKey {
+	//	msg.Body = m.views[INPUTS].(inputsModel).editorInputs[2]
+	//}
+	//if msg.Footer == editorKey {
+	//	msg.Footer = m.views[INPUTS].(inputsModel).editorInputs[3]
+	//}
+
 	if msg.Body == "" {
 		msg.Body = msg.Subject
 	}

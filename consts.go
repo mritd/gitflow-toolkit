@@ -37,5 +37,7 @@ const commitMessageCheckFailedMsg = `
 │                                                  │
 ╰──────────────────────────────────────────────────╯`
 
+const editorKey = "//edit"
+
 const luckyCommitEnv = "MMH_LUCKY_COMMIT"
 const strictHostKey = "MMH_STRICT_HOST_KEY"

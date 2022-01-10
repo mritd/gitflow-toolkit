@@ -95,23 +95,10 @@ func (m commitModel) commit() tea.Msg {
 		Type:    m.views[SELECTOR].(selectorModel).choice,
 		Scope:   m.views[INPUTS].(inputsModel).inputs[0].input.Value(),
 		Subject: m.views[INPUTS].(inputsModel).inputs[1].input.Value(),
-		Body:    m.views[INPUTS].(inputsModel).inputs[2].input.Value(),
+		Body:    strings.Replace(m.views[INPUTS].(inputsModel).inputs[2].input.Value(), newLineKey, "\n", -1),
 		Footer:  m.views[INPUTS].(inputsModel).inputs[3].input.Value(),
 		SOB:     sob,
 	}
-
-	//if msg.Scope == editorKey {
-	//	msg.Scope = m.views[INPUTS].(inputsModel).editorInputs[0]
-	//}
-	//if msg.Subject == editorKey {
-	//	msg.Subject = m.views[INPUTS].(inputsModel).editorInputs[1]
-	//}
-	//if msg.Body == editorKey {
-	//	msg.Body = m.views[INPUTS].(inputsModel).editorInputs[2]
-	//}
-	//if msg.Footer == editorKey {
-	//	msg.Footer = m.views[INPUTS].(inputsModel).editorInputs[3]
-	//}
 
 	if msg.Body == "" {
 		msg.Body = msg.Subject

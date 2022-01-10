@@ -72,46 +72,6 @@ var (
 	spinnerMetaFrame3 = lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Render("❯")
 )
 
-//
-//func openEditor() string {
-//	f, err := ioutil.TempFile("", "gitflow-toolkit")
-//	if err != nil {
-//		panic(err)
-//	}
-//	defer func() {
-//		_ = f.Close()
-//		_ = os.Remove(f.Name())
-//	}()
-//
-//	// write utf8 bom
-//	_, err = f.Write([]byte{0xEF, 0xBB, 0xBF})
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	editor := "vim"
-//	if runtime.GOOS == "windows" {
-//		editor = "notepad"
-//	}
-//	if v := os.Getenv("VISUAL"); v != "" {
-//		editor = v
-//	} else if e := os.Getenv("EDITOR"); e != "" {
-//		editor = e
-//	}
-//
-//	cmd := exec.Command(editor, f.Name())
-//	cmd.Stdin = os.Stdin
-//	cmd.Stdout = os.Stdout
-//	cmd.Stderr = os.Stderr
-//	_ = cmd.Run()
-//	raw, err := ioutil.ReadFile(f.Name())
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	return strings.TrimSpace(string(bytes.TrimPrefix(raw, []byte{0xEF, 0xBB, 0xBF})))
-//}
-
 type inputWithCheck struct {
 	input   textinput.Model
 	checker func(s string) error
@@ -121,7 +81,6 @@ type inputsModel struct {
 	focusIndex int
 	title      string
 	inputs     []inputWithCheck
-	//editorInputs []string
 	err        error
 	errSpinner spinner.Model
 	editMode   bool
@@ -154,12 +113,6 @@ func (m inputsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				return m, func() tea.Msg { return done{nextView: COMMIT} }
 			}
-			//if m.inputs[m.focusIndex].input.Value() == editorKey {
-			//	m.editMode = true
-			//	m.editorInputs[m.focusIndex] = openEditor()
-			//	m.editMode = false
-			//	return m, tea.HideCursor
-			//}
 			fallthrough
 		case "tab", "down":
 			m.focusIndex++
@@ -256,7 +209,6 @@ func (m inputsModel) View() string {
 func newInputsModel() inputsModel {
 	m := inputsModel{
 		inputs: make([]inputWithCheck, 4),
-		//editorInputs: make([]string, 4),
 	}
 
 	for i := range m.inputs {

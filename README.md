@@ -17,7 +17,7 @@
 Just download the latest version from the Release page and execute the `install` command:
 
 ```sh
-export VERSION='v2.1.4'
+export VERSION='v2.1.5'
 
 # download bin file
 wget https://github.com/mritd/gitflow-toolkit/releases/download/${VERSION}/gitflow-toolkit_darwin_amd64

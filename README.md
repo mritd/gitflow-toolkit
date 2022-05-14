@@ -20,7 +20,7 @@ Just download the latest version from the Release page and execute the `install`
 export VERSION='v2.1.5'
 
 # download bin file
-wget https://github.com/mritd/gitflow-toolkit/releases/download/${VERSION}/gitflow-toolkit_darwin_amd64
+wget https://github.com/mritd/gitflow-toolkit/releases/download/${VERSION}/gitflow-toolkit-darwin-arm64
 
 # add permissions
 chmod +x gitflow-toolkit_darwin_amd64

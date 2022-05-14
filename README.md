@@ -23,10 +23,10 @@ export VERSION='v2.1.5'
 wget https://github.com/mritd/gitflow-toolkit/releases/download/${VERSION}/gitflow-toolkit-darwin-arm64
 
 # add permissions
-chmod +x gitflow-toolkit_darwin_amd64
+chmod +x gitflow-toolkit-darwin-arm64
 
 # install
-sudo ./gitflow-toolkit_darwin_amd64 install
+sudo ./gitflow-toolkit-darwin-arm64 install
 ```
 
 After the installation is complete, you can delete the bin file.

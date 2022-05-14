@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	version   string
-	buildDate string
-	commitID  string
+	version     string
+	buildDate   string
+	buildCommit string
 )
 
 func main() {

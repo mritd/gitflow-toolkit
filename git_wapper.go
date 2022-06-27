@@ -100,25 +100,20 @@ func createSOB() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("Signed-off-by: %s %s", name, email), nil
+	return fmt.Sprintf("Signed-off-by: %s <%s>", name, email), nil
 }
 
 func gitAuthor() (string, string, error) {
-	name := "Undefined"
-	email := "Undefined"
+	name := ""
+	email := ""
 
-	msg, err := git("var", "GIT_AUTHOR_IDENT")
-	if err != nil {
-		return "", "", err
+	if cfg, err := git("config", "user.name"); err == nil {
+		name = cfg
+	}
+	if cfg, err := git("config", "user.email"); err == nil {
+		email = cfg
 	}
 
-	authorInfo := strings.Fields(msg)
-	if len(authorInfo) > 1 && authorInfo[0] != "" {
-		name = authorInfo[0]
-	}
-	if len(authorInfo) > 2 && authorInfo[1] != "" {
-		email = authorInfo[1]
-	}
 	return name, email, nil
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
@@ -106,17 +107,22 @@ func (m selectorModel) View() string {
 }
 
 func newSelectorModel() selectorModel {
-	l := list.NewModel([]list.Item{
-		selectorItem{ct: feat, title: featDesc},
-		selectorItem{ct: fix, title: fixDesc},
-		selectorItem{ct: docs, title: docsDesc},
-		selectorItem{ct: style, title: styleDesc},
-		selectorItem{ct: refactor, title: refactorDesc},
-		selectorItem{ct: test, title: testDesc},
-		selectorItem{ct: chore, title: choreDesc},
-		selectorItem{ct: perf, title: perfDesc},
-		selectorItem{ct: hotfix, title: hotfixDesc},
-	}, selectorDelegate{}, 20, 12)
+	prioritized := prioritizeCommitType([]selectorItem{
+		{ct: feat, title: featDesc},
+		{ct: fix, title: fixDesc},
+		{ct: docs, title: docsDesc},
+		{ct: style, title: styleDesc},
+		{ct: refactor, title: refactorDesc},
+		{ct: test, title: testDesc},
+		{ct: chore, title: choreDesc},
+		{ct: perf, title: perfDesc},
+		{ct: hotfix, title: hotfixDesc},
+	})
+	listItems := []list.Item{}
+	for _, commitType := range prioritized {
+		listItems = append(listItems, commitType)
+	}
+	l := list.NewModel(listItems, selectorDelegate{}, 20, 12)
 
 	l.Title = "Select Commit Type"
 	l.SetShowStatusBar(false)
@@ -130,4 +136,20 @@ func newSelectorModel() selectorModel {
 	l.Help = h
 
 	return selectorModel{list: l}
+}
+
+func prioritizeCommitType(items []selectorItem) []selectorItem {
+	branch, err := currentBranch()
+	if err != nil {
+		return items
+	}
+
+	currentBranchType := strings.Split(branch, "/")[0]
+	for ind, branchType := range items {
+		if currentBranchType == branchType.ct {
+			return append(append([]selectorItem{branchType}, items[:ind]...), items[ind+1:]...)
+		}
+	}
+
+	return items
 }

@@ -39,7 +39,11 @@ func commit(msg commitMsg) error {
 		return err
 	}
 
-	_, err = git("commit", "-F", f.Name())
+	gpgSignedCommit := ""
+	if hasGPGSignedCommit() {
+		gpgSignedCommit = "-S"
+	}
+	_, err = git("commit", gpgSignedCommit, "-F", f.Name())
 	if err != nil {
 		return err
 	}
@@ -63,6 +67,15 @@ func push() (string, error) {
 		msg = fmt.Sprintf("Push to origin/%s success.\n\n%s", branch, msg)
 	}
 	return msg, err
+}
+
+func hasGPGSignedCommit() bool {
+	msg, err := git("config", "--get", "commit.gpgsign")
+	if err != nil {
+		fmt.Println("Cannot verify if GPG sign commit because", err)
+		return false
+	}
+	return msg == "true"
 }
 
 func hasStagedFiles() error {

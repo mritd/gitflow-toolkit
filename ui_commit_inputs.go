@@ -225,12 +225,6 @@ func newInputsModel() inputsModel {
 			iwc.input.PromptStyle = inputsPromptFocusStyle
 			iwc.input.TextStyle = inputsTextFocusStyle
 			iwc.input.Focus()
-			iwc.checker = func(s string) error {
-				if strings.TrimSpace(s) == "" {
-					return errors.New("Scope cannot be empty")
-				}
-				return nil
-			}
 		case 1:
 			iwc.input.Prompt = "2. SUBJECT "
 			iwc.input.PromptStyle = inputsPromptNormalStyle

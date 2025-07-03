@@ -34,7 +34,11 @@ func commit(msg commitMsg) error {
 		_ = os.Remove(f.Name())
 	}()
 
-	_, err = fmt.Fprintf(f, "%s(%s): %s\n\n%s\n\n%s\n\n%s\n", msg.Type, msg.Scope, msg.Subject, msg.Body, msg.Footer, msg.SOB)
+	var scope string
+	if msg.Scope != "" {
+		scope = "(" + msg.Scope + ")"
+	}
+	_, err = fmt.Fprintf(f, "%s%s: %s\n\n%s\n\n%s\n\n%s\n", msg.Type, scope, msg.Subject, msg.Body, msg.Footer, msg.SOB)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
@@ -114,7 +115,11 @@ func (m committingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m committingModel) View() string {
-	header := committingTypeStyle.Render(m.msg.Type) + committingScopeStyle.Render("("+m.msg.Scope+")") + committingSubjectStyle.Render(": "+m.msg.Subject) + "\n"
+	var scope string
+	if strings.TrimSpace(m.msg.Scope) != "" {
+		scope = committingScopeStyle.Render("("+m.msg.Scope+")")
+	}
+	header := committingTypeStyle.Render(m.msg.Type) + scope + committingSubjectStyle.Render(": "+m.msg.Subject) + "\n"
 	body := committingBodyStyle.Render(m.msg.Body)
 	footer := committingFooterStyle.Render(m.msg.Footer+"\n"+m.msg.SOB) + "\n"
 

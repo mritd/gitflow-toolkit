@@ -1,44 +1,60 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/mattn/go-runewidth"
+
+	"github.com/mritd/gitflow-toolkit/v2/cmd"
+	"github.com/mritd/gitflow-toolkit/v2/internal/config"
 )
 
 var (
-	version     string
-	buildDate   string
-	buildCommit string
+	version   = "dev"
+	buildDate = "unknown"
+	commit    = "unknown"
 )
 
 func main() {
-	app := mainApp
+	// Detect invocation name for git subcommand support
+	binName := detectBinaryName()
 
-	bin, err := exec.LookPath(os.Args[0])
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	// Handle git subcommand invocations (e.g., git-ci -> ci)
+	if strings.HasPrefix(binName, config.GitCommandPrefix) {
+		subCmd := strings.TrimPrefix(binName, config.GitCommandPrefix)
+		os.Args = append([]string{os.Args[0], subCmd}, os.Args[1:]...)
 	}
 
-	binName := filepath.Base(bin)
-	for _, sa := range subApps {
-		if binName == sa.Name {
-			app = sa
-		}
+	// Handle commit-msg hook invocation
+	if binName == config.CommitMsgHook {
+		os.Args = append([]string{os.Args[0], "hook", config.CommitMsgHook}, os.Args[1:]...)
 	}
 
-	err = app.Run(os.Args)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	// Set version
+	cmd.SetVersion(buildVersionString())
+
+	// Execute
+	cmd.Execute()
 }
 
-// See also: https://github.com/charmbracelet/lipgloss/issues/40#issuecomment-891167509
+// detectBinaryName returns the base name of the executed binary.
+func detectBinaryName() string {
+	bin, err := exec.LookPath(os.Args[0])
+	if err != nil {
+		return filepath.Base(os.Args[0])
+	}
+	return filepath.Base(bin)
+}
+
+// buildVersionString builds the version string.
+func buildVersionString() string {
+	return version + " (" + commit + ") " + buildDate
+}
+
+// See: https://github.com/charmbracelet/lipgloss/issues/40#issuecomment-891167509
 func init() {
 	runewidth.DefaultCondition.EastAsianWidth = false
 }

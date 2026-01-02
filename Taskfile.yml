@@ -1,100 +1,112 @@
 version: '3'
 
+vars:
+  VERSION:
+    sh: git symbolic-ref -q --short HEAD || git describe --tags --exact-match 2>/dev/null || echo "dev"
+  BUILD_COMMIT:
+    sh: git rev-parse --short HEAD 2>/dev/null || echo "unknown"
+  BUILD_DATE:
+    sh: date "+%F %T"
+
 tasks:
   clean:
+    desc: Clean build artifacts
     cmds:
       - rm -rf dist
+
   build:
-    label: build-{{.TASK}}
-    vars:
-      VERSION:
-        sh: git symbolic-ref -q --short HEAD || git describe --tags --exact-match
-      BUILD_COMMIT:
-        sh: git rev-parse HEAD
-      BUILD_DATE:
-        sh: date "+%F %T"
+    desc: Build for current platform
     cmds:
       - |
-        GOOS={{.GOOS}} GOARCH={{.GOARCH}} GOARM={{.GOARM}} GOMIPS={{.GOMIPS}} \
+        go build -trimpath -o dist/gitflow-toolkit -ldflags \
+        "-w -s -X 'main.version={{.VERSION}}' -X 'main.commit={{.BUILD_COMMIT}}' -X 'main.buildDate={{.BUILD_DATE}}'"
+
+  build-cross:
+    label: build-{{.TASK}}
+    internal: true
+    cmds:
+      - |
+        GOOS={{.GOOS}} GOARCH={{.GOARCH}} GOARM={{.GOARM}} GOAMD64={{.GOAMD64}} \
         go build -trimpath -o dist/gitflow-toolkit-{{.TASK}} -ldflags \
-        "-w -s -X main.version={{.VERSION}} -X main.buildCommit={{.BUILD_COMMIT}} -X 'main.buildDate=${BUILD_DATE}'"
+        "-w -s -X 'main.version={{.VERSION}}' -X 'main.commit={{.BUILD_COMMIT}}' -X 'main.buildDate={{.BUILD_DATE}}'"
+
+  test:
+    desc: Run unit tests
+    cmds:
+      - go test -v -race ./...
+
+  test-cover:
+    desc: Run tests with coverage
+    cmds:
+      - go test -v -race -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "Coverage report generated at coverage.html"
+
+  test-docker:
+    desc: Run integration tests in Docker
+    cmds:
+      - docker build -t gitflow-toolkit-test -f test/Dockerfile .
+      - docker run --rm gitflow-toolkit-test /bin/bash /app/test/install_test.sh
+
+  lint:
+    desc: Run linter
+    cmds:
+      - golangci-lint run ./...
+
+  fmt:
+    desc: Format code
+    cmds:
+      - gofmt -w -s .
+      - goimports -w .
+
+  # Cross-compilation targets
   linux-386:
     cmds:
-      - task: build
-        vars: {
-          TASK: "{{.TASK}}",
-          GOOS: linux,
-          GOARCH: 386
-        }
+      - task: build-cross
+        vars: { TASK: "{{.TASK}}", GOOS: linux, GOARCH: 386 }
+
   linux-amd64:
     cmds:
-      - task: build
-        vars: {
-          TASK: "{{.TASK}}",
-          GOOS: linux,
-          GOARCH: amd64
-        }
+      - task: build-cross
+        vars: { TASK: "{{.TASK}}", GOOS: linux, GOARCH: amd64 }
+
   linux-amd64-v3:
     cmds:
-      - task: build
-        vars: {
-          TASK: "{{.TASK}}",
-          GOOS: linux,
-          GOARCH: amd64,
-          GOAMD64: v3
-        }
+      - task: build-cross
+        vars: { TASK: "{{.TASK}}", GOOS: linux, GOARCH: amd64, GOAMD64: v3 }
+
   linux-armv5:
     cmds:
-      - task: build
-        vars: {
-          TASK: "{{.TASK}}",
-          GOOS: linux,
-          GOARCH: arm,
-          GOARM: 5
-        }
+      - task: build-cross
+        vars: { TASK: "{{.TASK}}", GOOS: linux, GOARCH: arm, GOARM: 5 }
+
   linux-armv6:
     cmds:
-      - task: build
-        vars: {
-          TASK: "{{.TASK}}",
-          GOOS: linux,
-          GOARCH: arm,
-          GOARM: 6
-        }
+      - task: build-cross
+        vars: { TASK: "{{.TASK}}", GOOS: linux, GOARCH: arm, GOARM: 6 }
+
   linux-armv7:
     cmds:
-      - task: build
-        vars: {
-          TASK: "{{.TASK}}",
-          GOOS: linux,
-          GOARCH: arm,
-          GOARM: 7
-        }
+      - task: build-cross
+        vars: { TASK: "{{.TASK}}", GOOS: linux, GOARCH: arm, GOARM: 7 }
+
   linux-arm64:
     cmds:
-      - task: build
-        vars: {
-          TASK: "{{.TASK}}",
-          GOOS: linux,
-          GOARCH: arm64
-        }
+      - task: build-cross
+        vars: { TASK: "{{.TASK}}", GOOS: linux, GOARCH: arm64 }
+
   darwin-amd64:
     cmds:
-      - task: build
-        vars: {
-          TASK: "{{.TASK}}",
-          GOOS: darwin,
-          GOARCH: amd64
-        }
+      - task: build-cross
+        vars: { TASK: "{{.TASK}}", GOOS: darwin, GOARCH: amd64 }
+
   darwin-arm64:
     cmds:
-      - task: build
-        vars: {
-          TASK: "{{.TASK}}",
-          GOOS: darwin,
-          GOARCH: arm64
-        }
-  default:
+      - task: build-cross
+        vars: { TASK: "{{.TASK}}", GOOS: darwin, GOARCH: arm64 }
+
+  release:
+    desc: Build all release binaries
     cmds:
       - task: clean
       - task: linux-386
@@ -106,3 +118,8 @@ tasks:
       - task: linux-arm64
       - task: darwin-amd64
       - task: darwin-arm64
+
+  default:
+    desc: Build for current platform
+    cmds:
+      - task: build

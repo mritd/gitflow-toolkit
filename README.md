@@ -1,59 +1,81 @@
-# GitFlow ToolKit
+# GitFlow Toolkit
 
-> GitFlow Toolkit is a gitflow commit tool written by go, used to standardize the format of git commit message and quickly create gitflow branches,
-> It should be noted that GitFlow Toolkit currently only supports the generation of the commit message style of the [Angular community specification](https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#heading=h.greljkmo14y0).
+GitFlow Toolkit is a CLI tool written in Go for standardizing git commit messages following the [Angular commit message specification](https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#heading=h.greljkmo14y0). It provides an interactive TUI for creating commits, branches, and managing git operations.
 
-### Starting from the v2.1.1 version, the white theme terminal will be supported, and the white theme color scheme is being adjusted.
+## Features
 
-|                                                                                                                                               |                                                                                                                                              | 
-|:---------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------:|
-| Install | Uninstall |
-| <img width="500" src="https://user-images.githubusercontent.com/13043245/134647305-a1df0023-972b-48c3-a6bf-668e96094df9.gif"> | <img width="500" src="https://user-images.githubusercontent.com/13043245/134646600-976f01b4-6000-41e7-8389-0d0e761e15c9.gif"> |
-| Commit Success | Commit Failed |
-| <img width="500" src="https://user-images.githubusercontent.com/13043245/134485491-993ef0cb-7438-4c42-9a2e-16db05503a0b.gif"> | <img width="500" src="https://user-images.githubusercontent.com/13043245/134485537-6375d280-10d2-4475-a834-7d0ad72248aa.gif"> |
-| Push Success | Push Failed |
-| <img width="500" src="https://user-images.githubusercontent.com/13043245/134485533-3a01d3be-0912-45cb-9e63-d343a7bad847.gif"> |  <img width="500" src="https://user-images.githubusercontent.com/13043245/134485503-f7de0493-6d2d-403d-aa4d-79a62a83c048.gif"> |
-| Create Branch | |
-| <img width="500" src="https://user-images.githubusercontent.com/13043245/134485549-5ee7853d-1cc7-4a0f-b083-03514045f8eb.gif">  | |
+- Interactive commit message creation with type, scope, subject, body, and footer
+- Automatic `Signed-off-by` generation
+- Git subcommand integration (`git ci`, `git ps`, `git feat`, etc.)
+- Commit message validation via git hooks
+- Adaptive terminal width support for light and dark themes
 
 ## Installation
 
-Just download the latest version from the Release page and execute the `install` command:
+Download the latest binary from the [Release page](https://github.com/mritd/gitflow-toolkit/releases) and run the install command:
 
-```sh
-export VERSION='v2.1.5'
-
-# download bin file
-wget https://github.com/mritd/gitflow-toolkit/releases/download/${VERSION}/gitflow-toolkit-darwin-arm64
-
-# add permissions
+```bash
+# Download (replace with your platform: linux-amd64, darwin-arm64, etc.)
+wget https://github.com/mritd/gitflow-toolkit/releases/download/v2.2.0/gitflow-toolkit-darwin-arm64
 chmod +x gitflow-toolkit-darwin-arm64
 
-# install
+# Install (creates symlinks for git subcommands)
 sudo ./gitflow-toolkit-darwin-arm64 install
+
+# Optional: Install with commit-msg hook for validation
+sudo ./gitflow-toolkit-darwin-arm64 install --hook
 ```
 
-After the installation is complete, you can delete the bin file.
+Or install via Go:
 
-If the go language development environment is installed locally, you can install it through the `go get` command:
-
-```sh
+```bash
 go install github.com/mritd/gitflow-toolkit/v2@latest
 ```
 
-## Comands
+## Commands
 
-| cmd                 | desc                                                      |
-|---------------------|-----------------------------------------------------------|
-| `git ci`            | Enter commit message interactively                        |
-| `git ps`            | Push the current branch to the remote                     |
-| `git feat NAME`     | Switch a new branch from the current branch (`feat/NAME`) |
-| `git fix NAME`      | `git switch -c fix/NAME`                                  |
-| `git hotfix NAME`   | `git switch -c hotfix/NAME`                               |
-| `git docs NAME`     | `git switch -c docs/NAME`                                 |
-| `git style NAME`    | `git switch -c style/NAME`                                |
-| `git refactor NAME` | `git switch -c refactor/NAME`                             |
-| `git chore NAME`    | `git switch -c chore/NAME`                                |
-| `git perf NAME`     | `git switch -c perf/NAME`                                 |
-| `git style NAME`    | `git switch -c style/NAME`                                |
+| Command             | Description                                    |
+|---------------------|------------------------------------------------|
+| `git ci`            | Interactive commit message creation            |
+| `git ps`            | Push current branch to remote                  |
+| `git feat NAME`     | Create branch `feat/NAME`                      |
+| `git fix NAME`      | Create branch `fix/NAME`                       |
+| `git hotfix NAME`   | Create branch `hotfix/NAME`                    |
+| `git docs NAME`     | Create branch `docs/NAME`                      |
+| `git style NAME`    | Create branch `style/NAME`                     |
+| `git refactor NAME` | Create branch `refactor/NAME`                  |
+| `git chore NAME`    | Create branch `chore/NAME`                     |
+| `git perf NAME`     | Create branch `perf/NAME`                      |
+| `git test NAME`     | Create branch `test/NAME`                      |
 
+## Commit Message Format
+
+The tool enforces the Angular commit message format:
+
+```
+type(scope): subject
+
+body
+
+footer
+
+Signed-off-by: Name <email>
+```
+
+Supported types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `hotfix`
+
+## Configuration
+
+| Environment Variable        | Description                              | Default |
+|-----------------------------|------------------------------------------|---------|
+| `GIT_SSH_STRICT_HOST_KEY`   | Enable strict SSH host key checking      | `false` |
+
+## Uninstall
+
+```bash
+sudo gitflow-toolkit uninstall
+```
+
+## License
+
+MIT

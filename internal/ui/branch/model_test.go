@@ -137,8 +137,8 @@ func TestModel_View_Success(t *testing.T) {
 		t.Error("View should contain branch name")
 	}
 
-	if !strings.Contains(view, "successfully") {
-		t.Error("View should contain 'successfully'")
+	if !strings.Contains(view, "Branch created") {
+		t.Error("View should contain 'Branch created'")
 	}
 
 	if !strings.Contains(view, "Switched to branch") {
@@ -157,8 +157,8 @@ func TestModel_View_Failed(t *testing.T) {
 		t.Error("View should contain error symbol")
 	}
 
-	if !strings.Contains(view, "Failed") {
-		t.Error("View should contain 'Failed'")
+	if !strings.Contains(view, "failed") {
+		t.Error("View should contain 'failed'")
 	}
 
 	if !strings.Contains(view, "already exists") {

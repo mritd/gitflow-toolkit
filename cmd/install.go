@@ -69,14 +69,14 @@ func isInteractive() bool {
 func runInstall(cmd *cobra.Command, args []string) error {
 	paths, err := install.NewPaths(installDir)
 	if err != nil {
-		return err
+		return renderError(cmd, "Installation failed", err)
 	}
 
 	tasks := install.InstallTasks(paths, installHook)
 
 	// If not interactive (e.g., in Docker/CI), run tasks directly
 	if !isInteractive() {
-		return runTasksNonInteractive("Installing gitflow-toolkit", tasks)
+		return runTasksNonInteractive(cmd, "Installing gitflow-toolkit", tasks)
 	}
 
 	// Interactive mode with TUI
@@ -84,16 +84,16 @@ func runInstall(cmd *cobra.Command, args []string) error {
 	p := tea.NewProgram(model)
 	finalModel, err := p.Run()
 	if err != nil {
-		return fmt.Errorf("installation failed: %w", err)
+		return renderError(cmd, "Installation failed", err)
 	}
 
 	m, ok := finalModel.(common.MultiTaskModel)
 	if !ok {
-		return fmt.Errorf("unexpected model type")
+		return renderError(cmd, "Installation failed", fmt.Errorf("unexpected model type"))
 	}
 
 	if m.HasError() {
-		return fmt.Errorf("installation failed")
+		return renderError(cmd, "Installation failed", fmt.Errorf("some tasks failed"))
 	}
 
 	return nil
@@ -102,14 +102,14 @@ func runInstall(cmd *cobra.Command, args []string) error {
 func runUninstall(cmd *cobra.Command, args []string) error {
 	paths, err := install.NewPaths(installDir)
 	if err != nil {
-		return err
+		return renderError(cmd, "Uninstallation failed", err)
 	}
 
 	tasks := install.UninstallTasks(paths)
 
 	// If not interactive, run tasks directly
 	if !isInteractive() {
-		return runTasksNonInteractive("Uninstalling gitflow-toolkit", tasks)
+		return runTasksNonInteractive(cmd, "Uninstalling gitflow-toolkit", tasks)
 	}
 
 	// Interactive mode with TUI
@@ -117,23 +117,23 @@ func runUninstall(cmd *cobra.Command, args []string) error {
 	p := tea.NewProgram(model)
 	finalModel, err := p.Run()
 	if err != nil {
-		return fmt.Errorf("uninstallation failed: %w", err)
+		return renderError(cmd, "Uninstallation failed", err)
 	}
 
 	m, ok := finalModel.(common.MultiTaskModel)
 	if !ok {
-		return fmt.Errorf("unexpected model type")
+		return renderError(cmd, "Uninstallation failed", fmt.Errorf("unexpected model type"))
 	}
 
 	if m.HasError() {
-		return fmt.Errorf("uninstallation failed")
+		return renderError(cmd, "Uninstallation failed", fmt.Errorf("some tasks failed"))
 	}
 
 	return nil
 }
 
 // runTasksNonInteractive runs tasks without TUI (for CI/Docker).
-func runTasksNonInteractive(title string, tasks []common.Task) error {
+func runTasksNonInteractive(cmd *cobra.Command, title string, tasks []common.Task) error {
 	fmt.Println(common.StyleTitle.Render(title))
 	fmt.Println()
 
@@ -156,9 +156,13 @@ func runTasksNonInteractive(title string, tasks []common.Task) error {
 
 	fmt.Println()
 	if hasError {
-		fmt.Println(common.StyleError.Render("Some tasks failed."))
+		r := common.Error("Task execution failed", "Some tasks failed.")
+		fmt.Print(common.RenderResult(r))
+		cmd.SilenceUsage = true
+		cmd.SilenceErrors = true
 		return fmt.Errorf("some tasks failed")
 	}
-	fmt.Println(common.StyleSuccess.Render("All tasks completed successfully."))
+	r := common.Success("All tasks completed", "All tasks completed successfully.")
+	fmt.Print(common.RenderResult(r))
 	return nil
 }

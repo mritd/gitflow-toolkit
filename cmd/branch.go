@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -32,26 +33,29 @@ Example:
   # Creates and switches to branch: %s/my-feature`, commitType, commitType, commitType, commitType),
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runBranch(commitType, args[0])
+			return runBranch(cmd, commitType, args[0])
 		},
 	}
 }
 
-func runBranch(commitType, name string) error {
+func runBranch(cmd *cobra.Command, commitType, name string) error {
 	model := branch.NewModel(commitType, name)
 	p := tea.NewProgram(model)
 
 	finalModel, err := p.Run()
 	if err != nil {
-		return fmt.Errorf("error running branch UI: %w", err)
+		return renderError(cmd, "Branch creation failed", fmt.Errorf("error running branch UI: %w", err))
 	}
 
 	m, ok := finalModel.(branch.Model)
 	if !ok {
-		return fmt.Errorf("unexpected model type")
+		return renderError(cmd, "Branch creation failed", errors.New("unexpected model type"))
 	}
 
+	// Error already rendered by branch UI View()
 	if m.Error() != nil {
+		cmd.SilenceUsage = true
+		cmd.SilenceErrors = true
 		return m.Error()
 	}
 

@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mritd/gitflow-toolkit/v2/internal/ui/common"
 )
 
 var version = "dev"
@@ -42,9 +44,17 @@ Available commit types:
 // Execute adds all child commands to the root command and sets flags appropriately.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+// renderError renders an error using the Result component and silences cobra's default output.
+func renderError(cmd *cobra.Command, title string, err error) error {
+	r := common.Error(title, err.Error())
+	fmt.Print(common.RenderResult(r))
+	cmd.SilenceUsage = true
+	cmd.SilenceErrors = true
+	return err
 }
 
 func init() {

@@ -40,21 +40,20 @@ func init() {
 func runCommit(cmd *cobra.Command, args []string) error {
 	// Check if there are staged files
 	if err := git.HasStagedFiles(); err != nil {
-		return err
+		return renderError(cmd, "No staged files", err)
 	}
 
 	// Run the interactive commit flow
 	result := commit.Run()
 
 	if result.Cancelled {
-		fmt.Println(common.StyleMuted.Render("Commit cancelled."))
+		r := common.Warning("Commit cancelled", "Operation was cancelled by user.")
+		fmt.Print(common.RenderResult(r))
 		return nil
 	}
 
 	if result.Err != nil {
-		r := common.Error("Commit failed", result.Err.Error())
-		fmt.Print(common.RenderResult(r))
-		return result.Err
+		return renderError(cmd, "Commit failed", result.Err)
 	}
 
 	msg := result.Message

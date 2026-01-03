@@ -135,16 +135,16 @@ func (m selectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m selectorModel) View() string {
-	if m.choice != "" {
+	if m.choice != "" || m.quitting {
 		return ""
 	}
-	return "\n" + m.list.View()
+	return "\n" + m.list.View() + "\n"
 }
 
 // runSelector shows a selector for commit type using bubbles/list.
 func runSelector() (string, error) {
 	m := newSelectorModel()
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m)
 
 	finalModel, err := p.Run()
 	if err != nil {

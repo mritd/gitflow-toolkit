@@ -304,6 +304,10 @@ func (m *inputsModel) updateInputs(msg tea.Msg) tea.Cmd {
 }
 
 func (m inputsModel) View() string {
+	if m.quitting || m.submitted || m.wantEditor {
+		return ""
+	}
+
 	var b strings.Builder
 
 	// Calculate available height for inputs
@@ -414,7 +418,7 @@ func runInputs(commitType string) (inputsResult, error) {
 	m := newInputsModel(commitType)
 
 	for {
-		p := tea.NewProgram(m, tea.WithAltScreen())
+		p := tea.NewProgram(m)
 		finalModel, err := p.Run()
 		if err != nil {
 			return inputsResult{}, err

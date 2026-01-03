@@ -86,7 +86,7 @@ func Run() Result {
 // confirmCommit shows a preview and asks for confirmation using a TUI.
 func confirmCommit(msg git.CommitMessage) (bool, error) {
 	m := newConfirmModel(msg)
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m)
 
 	finalModel, err := p.Run()
 	if err != nil {
@@ -146,33 +146,38 @@ func (m confirmModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m confirmModel) View() string {
-	var sb strings.Builder
+	if m.confirmed || m.cancelled {
+		return ""
+	}
 
-	// Title bar (same style as selector)
+	// Use same layout structure as inputs.go
+	titleLayout := lipgloss.NewStyle().Padding(1, 0, 1, 2)
 	titleStyle := lipgloss.NewStyle().
 		Foreground(common.ColorTitleFg).
 		Background(common.ColorTitleBg).
 		Bold(true).
 		Padding(0, 1)
 
-	sb.WriteString("\n")
-	sb.WriteString(titleStyle.Render("Commit Preview"))
-	sb.WriteString("\n\n")
+	contentLayout := lipgloss.NewStyle().PaddingLeft(2)
+	helpStyle := lipgloss.NewStyle().
+		Foreground(common.ColorMuted).
+		PaddingLeft(2).
+		PaddingTop(1)
+
+	var content strings.Builder
 
 	// Commit message preview
-	sb.WriteString(renderPreview(m.msg))
-	sb.WriteString("\n\n")
+	content.WriteString(renderPreview(m.msg))
+	content.WriteString("\n\n")
 
 	// Buttons
-	sb.WriteString(renderButtons(m.selected))
-	sb.WriteString("\n\n")
+	content.WriteString(renderButtons(m.selected))
 
-	// Help
-	helpStyle := lipgloss.NewStyle().Foreground(common.ColorMuted)
-	sb.WriteString(helpStyle.Render("y/enter confirm • n/esc cancel • ←/→ select"))
-	sb.WriteString("\n")
+	title := titleLayout.Render(titleStyle.Render("Commit Preview"))
+	body := contentLayout.Render(content.String())
+	help := helpStyle.Render("y/enter confirm • n/esc cancel • ←/→ select")
 
-	return sb.String()
+	return lipgloss.JoinVertical(lipgloss.Left, title, body, help) + "\n"
 }
 
 // renderPreview renders the commit message preview.

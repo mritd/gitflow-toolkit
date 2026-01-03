@@ -56,8 +56,8 @@ func TestMultiTaskModel_Init(t *testing.T) {
 		t.Errorf("len(tasks) = %d, want 2", len(model.tasks))
 	}
 
-	if model.currentTask != -1 {
-		t.Errorf("currentTask = %d, want -1", model.currentTask)
+	if model.currentTask != 0 {
+		t.Errorf("currentTask = %d, want 0", model.currentTask)
 	}
 
 	if model.done {

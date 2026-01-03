@@ -2,7 +2,7 @@
 package commit
 
 import (
-	"strings"
+	"errors"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -26,7 +26,7 @@ func Run() Result {
 	// Step 1: Select commit type
 	commitType, err := runSelector()
 	if err != nil {
-		if err == errUserAborted {
+		if errors.Is(err, errUserAborted) {
 			result.Cancelled = true
 			return result
 		}
@@ -37,7 +37,7 @@ func Run() Result {
 	// Step 2: Input all fields (scope, subject, body, footer)
 	inputs, err := runInputs(commitType)
 	if err != nil {
-		if err == errUserAborted {
+		if errors.Is(err, errUserAborted) {
 			result.Cancelled = true
 			return result
 		}
@@ -48,12 +48,18 @@ func Run() Result {
 	// Create SOB
 	sob := git.CreateSOB()
 
+	// If body is empty, use subject as body
+	body := inputs.body
+	if body == "" {
+		body = inputs.subject
+	}
+
 	// Build commit message
 	result.Message = git.CommitMessage{
 		Type:    commitType,
 		Scope:   inputs.scope,
 		Subject: inputs.subject,
-		Body:    inputs.body,
+		Body:    body,
 		Footer:  inputs.footer,
 		SOB:     sob,
 	}
@@ -61,7 +67,7 @@ func Run() Result {
 	// Step 3: Confirm and commit
 	confirmed, err := confirmCommit(result.Message)
 	if err != nil {
-		if err == errUserAborted {
+		if errors.Is(err, errUserAborted) {
 			result.Cancelled = true
 			return result
 		}
@@ -158,64 +164,43 @@ func (m confirmModel) View() string {
 		Bold(true).
 		Padding(0, 1)
 
+	// Content with left border (same as Result)
 	contentLayout := lipgloss.NewStyle().PaddingLeft(2)
+	contentStyle := lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder(), false, false, false, true).
+		BorderForeground(common.ColorSuccess).
+		PaddingLeft(1)
+
+	// Buttons without border
+	buttonLayout := lipgloss.NewStyle().PaddingLeft(2).PaddingTop(1)
+
 	helpStyle := lipgloss.NewStyle().
 		Foreground(common.ColorMuted).
 		PaddingLeft(2).
 		PaddingTop(1)
 
-	var content strings.Builder
-
-	// Commit message preview
-	content.WriteString(renderPreview(m.msg))
-	content.WriteString("\n\n")
+	// Commit message preview with border
+	preview := contentLayout.Render(contentStyle.Render(renderPreview(m.msg)))
 
 	// Buttons
-	content.WriteString(renderButtons(m.selected))
+	buttons := buttonLayout.Render(renderButtons(m.selected))
 
 	title := titleLayout.Render(titleStyle.Render("Commit Preview"))
-	body := contentLayout.Render(content.String())
 	help := helpStyle.Render("y/enter confirm • n/esc cancel • ←/→ select")
 
-	return lipgloss.JoinVertical(lipgloss.Left, title, body, help) + "\n"
+	return lipgloss.JoinVertical(lipgloss.Left, title, preview, buttons, help) + "\n"
 }
 
-// renderPreview renders the commit message preview.
+// renderPreview renders the commit message preview using the same colors as result.
 func renderPreview(msg git.CommitMessage) string {
-	var sb strings.Builder
-
-	// Header line: type(scope): subject
-	typeStyle := lipgloss.NewStyle().Foreground(common.ColorPrimary).Bold(true)
-	scopeStyle := lipgloss.NewStyle().Foreground(common.ColorPrimary)
-	subjectStyle := lipgloss.NewStyle().Bold(true)
-
-	sb.WriteString(typeStyle.Render(msg.Type))
-	sb.WriteString(scopeStyle.Render("(" + msg.Scope + ")"))
-	sb.WriteString(": ")
-	sb.WriteString(subjectStyle.Render(msg.Subject))
-
-	// Body
-	if msg.Body != "" {
-		sb.WriteString("\n\n")
-		bodyStyle := lipgloss.NewStyle().Foreground(common.ColorText)
-		sb.WriteString(bodyStyle.Render(msg.Body))
-	}
-
-	// Footer
-	if msg.Footer != "" {
-		sb.WriteString("\n\n")
-		footerStyle := lipgloss.NewStyle().Foreground(common.ColorMuted)
-		sb.WriteString(footerStyle.Render(msg.Footer))
-	}
-
-	// Signed-off-by
-	if msg.SOB != "" {
-		sb.WriteString("\n\n")
-		sobStyle := lipgloss.NewStyle().Foreground(common.ColorDimmed)
-		sb.WriteString(sobStyle.Render(msg.SOB))
-	}
-
-	return sb.String()
+	return common.FormatCommitMessage(common.CommitMessageContent{
+		Type:    msg.Type,
+		Scope:   msg.Scope,
+		Subject: msg.Subject,
+		Body:    msg.Body,
+		Footer:  msg.Footer,
+		SOB:     msg.SOB,
+	})
 }
 
 // renderButtons renders the confirm/cancel buttons.

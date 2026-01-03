@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -38,8 +39,8 @@ func (e WarnErr) Error() string {
 
 // IsWarnErr checks if an error is a warning.
 func IsWarnErr(err error) bool {
-	_, ok := err.(WarnErr)
-	return ok
+	var warnErr WarnErr
+	return errors.As(err, &warnErr)
 }
 
 // taskDoneMsg is sent when a task completes.
@@ -65,11 +66,16 @@ func NewMultiTaskModel(title string, tasks []Task) MultiTaskModel {
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(ColorPrimary)
 
+	states := make([]TaskState, len(tasks))
+	if len(tasks) > 0 {
+		states[0] = TaskRunning
+	}
+
 	return MultiTaskModel{
 		tasks:       tasks,
-		states:      make([]TaskState, len(tasks)),
+		states:      states,
 		errors:      make([]error, len(tasks)),
-		currentTask: -1,
+		currentTask: 0,
 		spinner:     s,
 		title:       title,
 	}
@@ -77,9 +83,17 @@ func NewMultiTaskModel(title string, tasks []Task) MultiTaskModel {
 
 // Init initializes the model.
 func (m MultiTaskModel) Init() tea.Cmd {
+	if len(m.tasks) == 0 {
+		return m.spinner.Tick
+	}
+
+	task := m.tasks[0]
 	return tea.Batch(
 		m.spinner.Tick,
-		m.runNextTask(),
+		func() tea.Msg {
+			err := task.Run()
+			return taskDoneMsg{index: 0, err: err}
+		},
 	)
 }
 
@@ -115,28 +129,23 @@ func (m MultiTaskModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 
-		return m, m.runNextTask()
+		// Run next task
+		m.currentTask++
+		if m.currentTask >= len(m.tasks) {
+			m.done = true
+			return m, tea.Quit
+		}
+
+		m.states[m.currentTask] = TaskRunning
+		task := m.tasks[m.currentTask]
+		index := m.currentTask
+		return m, func() tea.Msg {
+			err := task.Run()
+			return taskDoneMsg{index: index, err: err}
+		}
 	}
 
 	return m, nil
-}
-
-// runNextTask returns a command to run the next task.
-func (m *MultiTaskModel) runNextTask() tea.Cmd {
-	m.currentTask++
-	if m.currentTask >= len(m.tasks) {
-		m.done = true
-		return tea.Quit
-	}
-
-	m.states[m.currentTask] = TaskRunning
-	task := m.tasks[m.currentTask]
-	index := m.currentTask
-
-	return func() tea.Msg {
-		err := task.Run()
-		return taskDoneMsg{index: index, err: err}
-	}
 }
 
 // View renders the model.

@@ -72,27 +72,3 @@ func TestCommitMessageString(t *testing.T) {
 		})
 	}
 }
-
-func TestValidateCommitMessageContent(t *testing.T) {
-	tests := []struct {
-		name    string
-		content string
-		wantErr bool
-	}{
-		{"valid feat", "feat(scope): add feature", false},
-		{"valid fix", "fix(api): fix bug", false},
-		{"valid merge", "Merge branch 'main' into feature", false},
-		{"invalid no type", "(scope): message", true},
-		{"invalid no scope", "feat: message", true},
-		{"invalid random", "random message", true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := ValidateCommitMessageContent(tt.content)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ValidateCommitMessageContent() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}

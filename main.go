@@ -28,11 +28,6 @@ func main() {
 		os.Args = append([]string{os.Args[0], subCmd}, os.Args[1:]...)
 	}
 
-	// Handle commit-msg hook invocation
-	if binName == config.CommitMsgHook {
-		os.Args = append([]string{os.Args[0], "hook", config.CommitMsgHook}, os.Args[1:]...)
-	}
-
 	// Set version
 	cmd.SetVersion(buildVersionString())
 

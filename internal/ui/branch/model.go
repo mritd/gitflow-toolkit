@@ -9,8 +9,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/mritd/gitflow-toolkit/v2/internal/git"
-	"github.com/mritd/gitflow-toolkit/v2/internal/ui/common"
+	"github.com/mritd/gitflow-toolkit/v3/internal/git"
+	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
 
 // State represents the current state.

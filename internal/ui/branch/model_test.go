@@ -7,7 +7,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/mritd/gitflow-toolkit/v2/internal/ui/common"
+	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
 
 func TestNewModel(t *testing.T) {

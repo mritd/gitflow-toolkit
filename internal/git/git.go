@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/mritd/gitflow-toolkit/v2/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/internal/config"
 )
 
 // Common errors.

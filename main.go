@@ -8,8 +8,8 @@ import (
 
 	"github.com/mattn/go-runewidth"
 
-	"github.com/mritd/gitflow-toolkit/v2/cmd"
-	"github.com/mritd/gitflow-toolkit/v2/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/cmd"
+	"github.com/mritd/gitflow-toolkit/v3/internal/config"
 )
 
 var (

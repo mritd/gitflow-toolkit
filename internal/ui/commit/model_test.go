@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mritd/gitflow-toolkit/v2/internal/git"
-	"github.com/mritd/gitflow-toolkit/v2/internal/ui/common"
+	"github.com/mritd/gitflow-toolkit/v3/internal/git"
+	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
 
 func TestRenderPreview(t *testing.T) {

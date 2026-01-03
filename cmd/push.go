@@ -7,8 +7,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
-	"github.com/mritd/gitflow-toolkit/v2/internal/config"
-	"github.com/mritd/gitflow-toolkit/v2/internal/ui/push"
+	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/internal/ui/push"
 )
 
 // pushCmd represents the push command.

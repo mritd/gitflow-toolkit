@@ -154,7 +154,7 @@ func (m MultiTaskModel) View() string {
 
 	if m.title != "" {
 		sb.WriteString(StyleTitle.Render(m.title))
-		sb.WriteString("\n\n")
+		sb.WriteString("\n")
 	}
 
 	for i, task := range m.tasks {

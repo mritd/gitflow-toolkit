@@ -66,6 +66,7 @@ func runCommit(cmd *cobra.Command, args []string) error {
 		SOB:     msg.SOB,
 	})
 	r := common.Success("Commit created", content)
+	r.Note = "Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live."
 	fmt.Print(common.RenderResult(r))
 	return nil
 }

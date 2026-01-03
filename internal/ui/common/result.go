@@ -24,6 +24,7 @@ type Result struct {
 	Type    ResultType
 	Title   string
 	Content string // Pre-formatted content with ANSI colors
+	Note    string // Optional note displayed at the bottom (e.g., quote)
 }
 
 func getTerminalWidth() int {
@@ -74,7 +75,34 @@ func RenderResult(r Result) string {
 	title := titleLayout.Render(titleStyle.Render(symbol + " " + r.Title))
 	content := contentLayout.Render(contentStyle.Render(r.Content))
 
-	return lipgloss.JoinVertical(lipgloss.Left, title, content) + "\n\n"
+	// Build result with optional note
+	var sb strings.Builder
+	sb.WriteString(lipgloss.JoinVertical(lipgloss.Left, title, content))
+	sb.WriteString("\n")
+
+	// Add note if present (with bullet prefix and bold green style)
+	if r.Note != "" {
+		termWidth := getTerminalWidth()
+		contentWidth := GetContentWidth(termWidth)
+		// Account for padding (2) and prefix (5 = "◉◉◉◉ ")
+		noteWidth := contentWidth - 2 - 5
+
+		noteStyle := lipgloss.NewStyle().
+			Foreground(ColorSuccess).
+			Bold(true).
+			PaddingLeft(2)
+
+		// Wrap the note text
+		wrappedLines := wrapLine(r.Note, noteWidth)
+		sb.WriteString("\n")
+		for _, line := range wrappedLines {
+			sb.WriteString(noteStyle.Render("◉◉◉◉ " + line))
+			sb.WriteString("\n")
+		}
+	}
+
+	sb.WriteString("\n")
+	return sb.String()
 }
 
 func formatContent(content string, maxWidth int) string {

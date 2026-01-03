@@ -9,14 +9,22 @@ import (
 var (
 	ColorPrimary = lipgloss.AdaptiveColor{Light: "#9A4AFF", Dark: "#EE6FF8"}
 	ColorBorder  = lipgloss.AdaptiveColor{Light: "#9F72FF", Dark: "#AD58B4"}
-	ColorTitleBg = lipgloss.AdaptiveColor{Light: "#19A04B", Dark: "#19A04B"}
+	ColorTitleBg = lipgloss.AdaptiveColor{Light: "#16A34A", Dark: "#22C55E"} // Unified green
 	ColorTitleFg = lipgloss.AdaptiveColor{Light: "#FFFFFF", Dark: "#FFFFFF"}
-	ColorSuccess = lipgloss.AdaptiveColor{Light: "#19A04B", Dark: "#25A065"}
+	ColorSuccess = lipgloss.AdaptiveColor{Light: "#16A34A", Dark: "#22C55E"} // Same as TitleBg
 	ColorWarning = lipgloss.AdaptiveColor{Light: "#D97706", Dark: "#FBBF24"}
 	ColorError   = lipgloss.AdaptiveColor{Light: "#DC2626", Dark: "#F87171"}
 	ColorText    = lipgloss.AdaptiveColor{Light: "#1A1A1A", Dark: "#DDDDDD"}
 	ColorMuted   = lipgloss.AdaptiveColor{Light: "#6F6C6C", Dark: "#7A7A7A"}
 	ColorDimmed  = lipgloss.AdaptiveColor{Light: "#9CA3AF", Dark: "#6B7280"}
+
+	// Commit message colors
+	ColorCommitType    = lipgloss.AdaptiveColor{Light: "#CA8A04", Dark: "#FACC15"} // Yellow for type
+	ColorCommitScope   = lipgloss.AdaptiveColor{Light: "#C026D3", Dark: "#E879F9"} // Magenta for scope
+	ColorCommitSubject = lipgloss.AdaptiveColor{Light: "#FFFFFF", Dark: "#FFFFFF"} // White for subject
+	ColorCommitBody    = lipgloss.AdaptiveColor{Light: "#16A34A", Dark: "#4ADE80"} // Green for body
+	ColorCommitFooter  = lipgloss.AdaptiveColor{Light: "#2563EB", Dark: "#60A5FA"} // Blue for footer
+	ColorCommitSOB     = lipgloss.AdaptiveColor{Light: "#6B7280", Dark: "#9CA3AF"} // Gray for signed-off-by
 )
 
 // Reusable lipgloss styles.

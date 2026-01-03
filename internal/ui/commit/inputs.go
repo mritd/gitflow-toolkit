@@ -184,7 +184,7 @@ func newInputsModel(commitType string) inputsModel {
 		ti.Prompt = p.prompt
 		ti.Placeholder = p.placeholder
 		ti.CharLimit = 256
-		ti.CursorStyle = inputsCursorStyle
+		ti.Cursor.Style = inputsCursorStyle
 		ti.PlaceholderStyle = lipgloss.NewStyle().Foreground(common.ColorMuted)
 
 		if i == 0 {
@@ -279,7 +279,7 @@ func (m inputsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, m.updateInputs(msg)
 }
 
-func (m *inputsModel) updateFocus() tea.Cmd {
+func (m inputsModel) updateFocus() tea.Cmd {
 	cmds := make([]tea.Cmd, len(m.inputs))
 	for i := range m.inputs {
 		if i == m.focusIndex {
@@ -295,7 +295,7 @@ func (m *inputsModel) updateFocus() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m *inputsModel) updateInputs(msg tea.Msg) tea.Cmd {
+func (m inputsModel) updateInputs(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, len(m.inputs))
 	for i := range m.inputs {
 		m.inputs[i].input, cmds[i] = m.inputs[i].input.Update(msg)

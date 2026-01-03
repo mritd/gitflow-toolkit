@@ -23,7 +23,7 @@ const (
 type Result struct {
 	Type    ResultType
 	Title   string
-	Content string
+	Content string // Pre-formatted content with ANSI colors
 }
 
 func getTerminalWidth() int {
@@ -38,9 +38,6 @@ func getTerminalWidth() int {
 // The output automatically adjusts to terminal width (capped at MaxContentWidth),
 // and preserves URLs and file paths on single lines without wrapping.
 func RenderResult(r Result) string {
-	termWidth := getTerminalWidth()
-	contentWidth := GetContentWidth(termWidth)
-
 	// Select colors based on result type
 	var bgColor, fgColor lipgloss.AdaptiveColor
 	var symbol string
@@ -59,7 +56,8 @@ func RenderResult(r Result) string {
 		symbol = SymbolWarning
 	}
 
-	// Title bar style (like TUI title)
+	// Layout matching other UIs: Padding(1, 0, 1, 2)
+	titleLayout := lipgloss.NewStyle().Padding(1, 0, 1, 2)
 	titleStyle := lipgloss.NewStyle().
 		Foreground(fgColor).
 		Background(bgColor).
@@ -67,24 +65,16 @@ func RenderResult(r Result) string {
 		Padding(0, 1)
 
 	// Content style with left border indicator
+	contentLayout := lipgloss.NewStyle().PaddingLeft(2)
 	contentStyle := lipgloss.NewStyle().
 		Border(lipgloss.NormalBorder(), false, false, false, true).
 		BorderForeground(bgColor).
 		PaddingLeft(1)
 
-	var sb strings.Builder
+	title := titleLayout.Render(titleStyle.Render(symbol + " " + r.Title))
+	content := contentLayout.Render(contentStyle.Render(r.Content))
 
-	// Title bar
-	sb.WriteString("\n")
-	sb.WriteString(titleStyle.Render(symbol + " " + r.Title))
-	sb.WriteString("\n\n")
-
-	// Format and render content
-	formattedContent := formatContent(r.Content, contentWidth-4)
-	sb.WriteString(contentStyle.Render(formattedContent))
-	sb.WriteString("\n")
-
-	return sb.String()
+	return lipgloss.JoinVertical(lipgloss.Left, title, content) + "\n\n"
 }
 
 func formatContent(content string, maxWidth int) string {
@@ -180,4 +170,55 @@ func Error(title, content string) Result {
 // Warning returns a new warning Result with the given title and content.
 func Warning(title, content string) Result {
 	return Result{Type: ResultWarning, Title: title, Content: content}
+}
+
+// CommitMessageContent holds the parts of a commit message for styled rendering.
+type CommitMessageContent struct {
+	Type    string
+	Scope   string
+	Subject string
+	Body    string
+	Footer  string
+	SOB     string
+}
+
+// FormatCommitMessage formats a commit message with colored parts.
+// Header: yellow(type) + magenta(scope) + white(subject)
+// Body: green
+// Footer: blue
+// SOB: gray
+func FormatCommitMessage(msg CommitMessageContent) string {
+	var sb strings.Builder
+
+	// Header: type(scope): subject - each part with distinct color
+	typeStyle := lipgloss.NewStyle().Foreground(ColorCommitType)
+	scopeStyle := lipgloss.NewStyle().Foreground(ColorCommitScope)
+	subjectStyle := lipgloss.NewStyle().Foreground(ColorCommitSubject)
+
+	sb.WriteString(typeStyle.Render(msg.Type))
+	sb.WriteString(scopeStyle.Render("(" + msg.Scope + ")"))
+	sb.WriteString(subjectStyle.Render(": " + msg.Subject))
+
+	// Body
+	if msg.Body != "" {
+		sb.WriteString("\n\n")
+		bodyStyle := lipgloss.NewStyle().Foreground(ColorCommitBody)
+		sb.WriteString(bodyStyle.Render(msg.Body))
+	}
+
+	// Footer
+	if msg.Footer != "" {
+		sb.WriteString("\n\n")
+		footerStyle := lipgloss.NewStyle().Foreground(ColorCommitFooter)
+		sb.WriteString(footerStyle.Render(msg.Footer))
+	}
+
+	// Signed-off-by
+	if msg.SOB != "" {
+		sb.WriteString("\n\n")
+		sobStyle := lipgloss.NewStyle().Foreground(ColorCommitSOB)
+		sb.WriteString(sobStyle.Render(msg.SOB))
+	}
+
+	return sb.String()
 }

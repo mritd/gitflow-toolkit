@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -58,7 +57,16 @@ func runCommit(cmd *cobra.Command, args []string) error {
 		return result.Err
 	}
 
-	r := common.Success("Commit created", strings.TrimSpace(result.Message.String()))
+	msg := result.Message
+	content := common.FormatCommitMessage(common.CommitMessageContent{
+		Type:    msg.Type,
+		Scope:   msg.Scope,
+		Subject: msg.Subject,
+		Body:    msg.Body,
+		Footer:  msg.Footer,
+		SOB:     msg.SOB,
+	})
+	r := common.Success("Commit created", content)
 	fmt.Print(common.RenderResult(r))
 	return nil
 }

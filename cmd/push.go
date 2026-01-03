@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -32,15 +33,18 @@ func runPush(cmd *cobra.Command, args []string) error {
 
 	finalModel, err := p.Run()
 	if err != nil {
-		return fmt.Errorf("error running push UI: %w", err)
+		return renderError(cmd, "Push failed", fmt.Errorf("error running push UI: %w", err))
 	}
 
 	m, ok := finalModel.(push.Model)
 	if !ok {
-		return fmt.Errorf("unexpected model type")
+		return renderError(cmd, "Push failed", errors.New("unexpected model type"))
 	}
 
+	// Error already rendered by push UI View()
 	if m.Error() != nil {
+		cmd.SilenceUsage = true
+		cmd.SilenceErrors = true
 		return m.Error()
 	}
 

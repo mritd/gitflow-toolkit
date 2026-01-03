@@ -3,7 +3,6 @@ package branch
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
@@ -106,39 +105,30 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View renders the model.
 func (m Model) View() string {
-	var sb strings.Builder
-
 	branchStyle := common.StyleCommitType
 
 	switch m.state {
 	case StateCreating:
-		sb.WriteString(m.spinner.View())
-		sb.WriteString(" Creating branch ")
-		sb.WriteString(branchStyle.Render(m.fullName))
-		sb.WriteString("...")
+		return m.spinner.View() + " Creating branch " + branchStyle.Render(m.fullName) + "...\n"
 
 	case StateSuccess:
-		sb.WriteString(common.StyleSuccess.Render(common.SymbolSuccess))
-		sb.WriteString(" Branch ")
-		sb.WriteString(branchStyle.Render(m.fullName))
-		sb.WriteString(" created successfully!")
+		content := fmt.Sprintf("Branch %s created and checked out.", m.fullName)
 		if m.result != "" {
-			sb.WriteString("\n")
-			sb.WriteString(common.StyleMuted.Render(m.result))
+			content = m.result
 		}
+		r := common.Success("Branch created", content)
+		return common.RenderResult(r)
 
 	case StateFailed:
-		sb.WriteString(common.StyleError.Render(common.SymbolError))
-		sb.WriteString(" Failed to create branch ")
-		sb.WriteString(branchStyle.Render(m.fullName))
+		content := "Unknown error"
 		if m.err != nil {
-			sb.WriteString("\n")
-			sb.WriteString(common.StyleMuted.Render(m.err.Error()))
+			content = m.err.Error()
 		}
+		r := common.Error("Branch creation failed", content)
+		return common.RenderResult(r)
 	}
 
-	sb.WriteString("\n")
-	return sb.String()
+	return ""
 }
 
 // Error returns any error that occurred.

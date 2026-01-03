@@ -2,7 +2,6 @@
 package push
 
 import (
-	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
@@ -99,32 +98,28 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View renders the model.
 func (m Model) View() string {
-	var sb strings.Builder
-
 	switch m.state {
 	case StatePushing:
-		sb.WriteString(m.spinner.View())
-		sb.WriteString(" Pushing to origin...")
+		return m.spinner.View() + " Pushing to origin...\n"
 
 	case StateSuccess:
-		sb.WriteString(common.StyleSuccess.Render(common.SymbolSuccess))
-		sb.WriteString(" Push completed!")
+		content := "Push completed successfully."
 		if m.result != "" {
-			sb.WriteString("\n\n")
-			sb.WriteString(common.StyleMuted.Render(m.result))
+			content = m.result
 		}
+		r := common.Success("Push completed", content)
+		return common.RenderResult(r)
 
 	case StateFailed:
-		sb.WriteString(common.StyleError.Render(common.SymbolError))
-		sb.WriteString(" Push failed")
+		content := "Unknown error"
 		if m.err != nil {
-			sb.WriteString("\n\n")
-			sb.WriteString(common.StyleMuted.Render(m.err.Error()))
+			content = m.err.Error()
 		}
+		r := common.Error("Push failed", content)
+		return common.RenderResult(r)
 	}
 
-	sb.WriteString("\n")
-	return sb.String()
+	return ""
 }
 
 // Error returns any error that occurred.

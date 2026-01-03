@@ -37,6 +37,8 @@ func runCommitMsgHook(cmd *cobra.Command, args []string) error {
 	msgFile := args[0]
 
 	if err := git.ValidateCommitMessage(msgFile); err != nil {
+		cmd.SilenceUsage = true
+		cmd.SilenceErrors = true
 		if errors.Is(err, git.ErrInvalidCommitMessage) {
 			content := fmt.Sprintf("The commit message must match the pattern:\n\n%s", config.CommitMessagePattern)
 			r := common.Error("Invalid commit message", content)

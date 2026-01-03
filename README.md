@@ -7,7 +7,6 @@ GitFlow Toolkit is a CLI tool written in Go for standardizing git commit message
 - Interactive commit message creation with type, scope, subject, body, and footer
 - Automatic `Signed-off-by` generation
 - Git subcommand integration (`git ci`, `git ps`, `git feat`, etc.)
-- Commit message validation via git hooks
 - Adaptive terminal UI with light and dark theme support
 
 ## Requirements
@@ -26,9 +25,6 @@ chmod +x gitflow-toolkit-darwin-arm64
 
 # Install (creates symlinks for git subcommands)
 sudo ./gitflow-toolkit-darwin-arm64 install
-
-# Optional: Install with commit-msg hook for validation
-sudo ./gitflow-toolkit-darwin-arm64 install --hook
 ```
 
 Or install via Go:
@@ -101,6 +97,12 @@ Signed-off-by: Name <email>
 ```
 
 **Supported types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `hotfix`
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `GITFLOW_SSH_STRICT_HOST_KEY` | Set to `true` to enable SSH strict host key checking | `false` |
 
 ## Uninstall
 

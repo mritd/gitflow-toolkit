@@ -48,12 +48,11 @@ func CommitTypeNames() []string {
 	return names
 }
 
-// CommitMessagePattern is the regex pattern for validating commit messages.
-const CommitMessagePattern = `^(feat|fix|docs|style|refactor|test|chore|perf|hotfix)\((\S.*)\):\s(\S.*)|^Merge.*`
-
 // Environment variable names.
 const (
-	StrictHostKeyEnv = "GIT_SSH_STRICT_HOST_KEY"
+	// StrictHostKeyEnv controls SSH strict host key checking.
+	// Set to "true" to enable strict host key checking (default: disabled).
+	StrictHostKeyEnv = "GITFLOW_SSH_STRICT_HOST_KEY"
 )
 
 // Binary and path constants.
@@ -63,15 +62,6 @@ const (
 
 	// GitCommandPrefix is the prefix for git subcommands.
 	GitCommandPrefix = "git-"
-
-	// ToolkitHomeDir is the name of the toolkit home directory.
-	ToolkitHomeDir = ".gitflow-toolkit"
-
-	// HooksDir is the name of the hooks directory.
-	HooksDir = "hooks"
-
-	// CommitMsgHook is the name of the commit-msg hook.
-	CommitMsgHook = "commit-msg"
 
 	// DefaultInstallDir is the default installation directory.
 	DefaultInstallDir = "/usr/local/bin"

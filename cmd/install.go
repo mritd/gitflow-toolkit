@@ -13,10 +13,7 @@ import (
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/install"
 )
 
-var (
-	installDir  string
-	installHook bool
-)
+var installDir string
 
 // installCmd represents the install command.
 var installCmd = &cobra.Command{
@@ -27,7 +24,6 @@ var installCmd = &cobra.Command{
 This will:
   1. Copy the binary to the install directory
   2. Create symlinks for all commands (git-ci, git-ps, git-feat, etc.)
-  3. Optionally configure global git hooks
 
 After installation, you can use commands like:
   git ci      - Interactive commit
@@ -46,15 +42,12 @@ var uninstallCmd = &cobra.Command{
 
 This will:
   1. Remove all git command symlinks
-  2. Remove the binary
-  3. Remove configuration and hooks`,
+  2. Remove the binary`,
 	RunE: runUninstall,
 }
 
 func init() {
 	installCmd.Flags().StringVarP(&installDir, "dir", "d", config.DefaultInstallDir, "Installation directory")
-	installCmd.Flags().BoolVar(&installHook, "hook", false, "Install global commit-msg hook")
-
 	uninstallCmd.Flags().StringVarP(&installDir, "dir", "d", config.DefaultInstallDir, "Installation directory")
 
 	rootCmd.AddCommand(installCmd)
@@ -67,12 +60,18 @@ func isInteractive() bool {
 }
 
 func runInstall(cmd *cobra.Command, args []string) error {
+	// Check if we have write permission to the install directory
+	if install.NeedsSudo(installDir) {
+		return renderError(cmd, "Permission denied",
+			fmt.Errorf("cannot write to %s, please run with sudo", installDir))
+	}
+
 	paths, err := install.NewPaths(installDir)
 	if err != nil {
 		return renderError(cmd, "Installation failed", err)
 	}
 
-	tasks := install.InstallTasks(paths, installHook)
+	tasks := install.InstallTasks(paths)
 
 	// If not interactive (e.g., in Docker/CI), run tasks directly
 	if !isInteractive() {
@@ -100,6 +99,12 @@ func runInstall(cmd *cobra.Command, args []string) error {
 }
 
 func runUninstall(cmd *cobra.Command, args []string) error {
+	// Check if we have write permission to the install directory
+	if install.NeedsSudo(installDir) {
+		return renderError(cmd, "Permission denied",
+			fmt.Errorf("cannot write to %s, please run with sudo", installDir))
+	}
+
 	paths, err := install.NewPaths(installDir)
 	if err != nil {
 		return renderError(cmd, "Uninstallation failed", err)

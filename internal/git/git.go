@@ -29,9 +29,8 @@ func Run(args ...string) (string, error) {
 		cmd = exec.Command("git", args...)
 	}
 
-	// Disable strict host key checking unless explicitly enabled
-	strictHostKey := os.Getenv(config.StrictHostKeyEnv)
-	if strictHostKey != "true" {
+	// Disable strict host key checking unless explicitly enabled via environment variable
+	if os.Getenv(config.StrictHostKeyEnv) != "true" {
 		cmd.Env = append(os.Environ(), "GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no")
 	}
 

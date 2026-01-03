@@ -13,14 +13,17 @@ import (
 
 // Result represents the result of the commit flow.
 type Result struct {
-	Cancelled bool
-	Err       error
-	Message   git.CommitMessage
+	Cancelled    bool
+	Err          error
+	Message      git.CommitMessage
+	LuckySkipped bool   // true if lucky commit was skipped (Ctrl+C)
+	LuckyFailed  error  // error if lucky commit failed
+	Hash         string // final commit hash (may be lucky hash)
 }
 
 // Run runs the interactive commit flow.
-// Returns the result of the commit operation.
-func Run() Result {
+// The luckyPrefix parameter is the validated lucky commit prefix (empty if not enabled).
+func Run(luckyPrefix string) Result {
 	var result Result
 
 	// Step 1: Select commit type
@@ -84,6 +87,24 @@ func Run() Result {
 	if err := git.Commit(result.Message); err != nil {
 		result.Err = err
 		return result
+	}
+
+	// Run lucky commit if prefix is set
+	if luckyPrefix != "" {
+		cmd := git.LuckyCommitCmd(luckyPrefix)
+		luckyResult := common.RunLuckyCommit(luckyPrefix, cmd, git.GetHeadHash)
+
+		if luckyResult.Cancelled {
+			result.LuckySkipped = true
+		} else if luckyResult.Err != nil {
+			result.LuckyFailed = luckyResult.Err
+		}
+		result.Hash = luckyResult.Hash
+	}
+
+	// Get hash if not already set
+	if result.Hash == "" {
+		result.Hash, _ = git.GetHeadHash()
 	}
 
 	return result

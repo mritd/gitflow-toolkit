@@ -6,7 +6,7 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/mritd/gitflow-toolkit/v2/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/internal/config"
 )
 
 // ErrInvalidCommitMessage is returned when a commit message doesn't match the pattern.

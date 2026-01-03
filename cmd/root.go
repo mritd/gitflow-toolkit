@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mritd/gitflow-toolkit/v2/internal/ui/common"
+	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
 
 var version = "dev"

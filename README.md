@@ -8,7 +8,12 @@ GitFlow Toolkit is a CLI tool written in Go for standardizing git commit message
 - Automatic `Signed-off-by` generation
 - Git subcommand integration (`git ci`, `git ps`, `git feat`, etc.)
 - Commit message validation via git hooks
-- Adaptive terminal width support for light and dark themes
+- Adaptive terminal UI with light and dark theme support
+
+## Requirements
+
+- Git
+- macOS or Linux (Windows is not fully tested)
 
 ## Installation
 
@@ -16,7 +21,7 @@ Download the latest binary from the [Release page](https://github.com/mritd/gitf
 
 ```bash
 # Download (replace with your platform: linux-amd64, darwin-arm64, etc.)
-wget https://github.com/mritd/gitflow-toolkit/releases/download/v2.2.0/gitflow-toolkit-darwin-arm64
+wget https://github.com/mritd/gitflow-toolkit/releases/download/v3.0.0/gitflow-toolkit-darwin-arm64
 chmod +x gitflow-toolkit-darwin-arm64
 
 # Install (creates symlinks for git subcommands)
@@ -29,7 +34,40 @@ sudo ./gitflow-toolkit-darwin-arm64 install --hook
 Or install via Go:
 
 ```bash
-go install github.com/mritd/gitflow-toolkit/v2@latest
+go install github.com/mritd/gitflow-toolkit/v3@latest
+```
+
+## Usage
+
+After installation, you can use the following git subcommands:
+
+### Commit
+
+```bash
+git ci
+```
+
+This opens an interactive TUI to create a commit message with:
+- Type selection (feat, fix, docs, etc.)
+- Scope input
+- Subject line
+- Optional body (supports external editor with `Ctrl+E`)
+- Optional footer
+
+### Push
+
+```bash
+git ps
+```
+
+Push the current branch to origin with a progress indicator.
+
+### Create Branch
+
+```bash
+git feat my-feature    # Creates feat/my-feature
+git fix bug-123        # Creates fix/bug-123
+git docs readme        # Creates docs/readme
 ```
 
 ## Commands
@@ -62,13 +100,7 @@ footer
 Signed-off-by: Name <email>
 ```
 
-Supported types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `hotfix`
-
-## Configuration
-
-| Environment Variable        | Description                              | Default |
-|-----------------------------|------------------------------------------|---------|
-| `GIT_SSH_STRICT_HOST_KEY`   | Enable strict SSH host key checking      | `false` |
+**Supported types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `hotfix`
 
 ## Uninstall
 

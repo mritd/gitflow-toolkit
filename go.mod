@@ -1,4 +1,4 @@
-module github.com/mritd/gitflow-toolkit/v2
+module github.com/mritd/gitflow-toolkit/v3
 
 go 1.25.5
 

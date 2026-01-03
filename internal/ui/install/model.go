@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/mritd/gitflow-toolkit/v2/internal/config"
-	"github.com/mritd/gitflow-toolkit/v2/internal/ui/common"
+	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
 
 // Paths holds all installation paths.

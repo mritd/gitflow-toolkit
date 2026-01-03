@@ -8,9 +8,9 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	"github.com/mritd/gitflow-toolkit/v2/internal/config"
-	"github.com/mritd/gitflow-toolkit/v2/internal/ui/common"
-	"github.com/mritd/gitflow-toolkit/v2/internal/ui/install"
+	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
+	"github.com/mritd/gitflow-toolkit/v3/internal/ui/install"
 )
 
 var (

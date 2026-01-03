@@ -103,6 +103,26 @@ Signed-off-by: Name <email>
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `GITFLOW_SSH_STRICT_HOST_KEY` | Set to `true` to enable SSH strict host key checking | `false` |
+| `GITFLOW_LUCKY_COMMIT` | Hex prefix for lucky commit hash (max 16 chars) | - |
+
+### Lucky Commit
+
+Generate commit hashes with a specific prefix using [lucky_commit](https://github.com/not-an-aardvark/lucky-commit):
+
+```bash
+# Install lucky_commit first
+cargo install lucky_commit
+
+# Set the desired prefix (hex characters, max 16)
+export GITFLOW_LUCKY_COMMIT=abc
+
+# Commit as usual - hash will start with "abc"
+git ci
+```
+
+- Prefix must be valid hex characters (0-9, a-f)
+- Maximum prefix length is 16 characters
+- Press Ctrl+C during search to skip and keep original commit
 
 ## Uninstall
 

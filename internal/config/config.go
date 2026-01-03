@@ -53,6 +53,19 @@ const (
 	// StrictHostKeyEnv controls SSH strict host key checking.
 	// Set to "true" to enable strict host key checking (default: disabled).
 	StrictHostKeyEnv = "GITFLOW_SSH_STRICT_HOST_KEY"
+
+	// LuckyCommitEnv is the environment variable for lucky commit prefix.
+	// When set, commit hash will be brute-forced to start with this prefix.
+	LuckyCommitEnv = "GITFLOW_LUCKY_COMMIT"
+
+	// LuckyCommitBinary is the name of the lucky_commit executable.
+	LuckyCommitBinary = "lucky_commit"
+
+	// LuckyCommitMaxLen is the maximum length of lucky commit prefix.
+	LuckyCommitMaxLen = 16
+
+	// LuckyCommitURL is the download URL for lucky_commit.
+	LuckyCommitURL = "https://github.com/not-an-aardvark/lucky-commit"
 )
 
 // Binary and path constants.

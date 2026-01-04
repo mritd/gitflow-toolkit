@@ -10,9 +10,12 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
+
+// aiGenerateChoice is the special choice value for AI generation.
+const aiGenerateChoice = "__ai_generate__"
 
 // Styles for the selector
 var (
@@ -33,8 +36,27 @@ var (
 				Bold(true).
 				Padding(0, 0, 0, 1)
 
+	selectorInactiveSelectedStyle = lipgloss.NewStyle().
+					Foreground(common.ColorMuted).
+					Padding(0, 0, 0, 2)
+
 	selectorHelpStyle = lipgloss.NewStyle().
 				Foreground(common.ColorMuted)
+
+	selectorButtonLayout = lipgloss.NewStyle().
+				PaddingLeft(2).
+				PaddingTop(1)
+
+	selectorAIButtonStyle = lipgloss.NewStyle().
+				Foreground(common.ColorMuted).
+				Background(lipgloss.AdaptiveColor{Light: "#E0E0E0", Dark: "#3a3a3a"}).
+				Padding(0, 2)
+
+	selectorAIButtonActiveStyle = lipgloss.NewStyle().
+					Foreground(common.ColorTitleFg).
+					Background(common.ColorPrimary).
+					Bold(true).
+					Padding(0, 2)
 )
 
 // selectorItem represents a commit type item in the list.
@@ -46,7 +68,9 @@ type selectorItem struct {
 func (i selectorItem) FilterValue() string { return i.description }
 
 // selectorDelegate handles rendering of list items.
-type selectorDelegate struct{}
+type selectorDelegate struct {
+	inactive *bool // pointer to track if list is inactive (AI button selected)
+}
 
 func (d selectorDelegate) Height() int                             { return 1 }
 func (d selectorDelegate) Spacing() int                            { return 0 }
@@ -61,8 +85,15 @@ func (d selectorDelegate) Render(w io.Writer, m list.Model, index int, listItem 
 	// Format: "1. FEAT (Introducing new features)"
 	str := fmt.Sprintf("%d. %s (%s)", index+1, strings.ToUpper(i.commitType), i.description)
 
+	isInactive := d.inactive != nil && *d.inactive
+
 	if index == m.Index() {
-		_, _ = fmt.Fprint(w, selectorSelectedStyle.Render(str))
+		if isInactive {
+			// Selected but inactive (AI button is focused)
+			_, _ = fmt.Fprint(w, selectorInactiveSelectedStyle.Render(str))
+		} else {
+			_, _ = fmt.Fprint(w, selectorSelectedStyle.Render(str))
+		}
 	} else {
 		_, _ = fmt.Fprint(w, selectorNormalStyle.Render(str))
 	}
@@ -70,30 +101,37 @@ func (d selectorDelegate) Render(w io.Writer, m list.Model, index int, listItem 
 
 // selectorModel is the bubbletea model for commit type selection.
 type selectorModel struct {
-	list     list.Model
-	choice   string
-	quitting bool
+	list       list.Model
+	delegate   *selectorDelegate
+	choice     string
+	aiSelected bool // true when AI option is focused
+	quitting   bool
+	width      int
 }
 
 func newSelectorModel() selectorModel {
-	items := make([]list.Item, len(config.CommitTypes))
-	for i, ct := range config.CommitTypes {
+	items := make([]list.Item, len(consts.CommitTypes))
+	for i, ct := range consts.CommitTypes {
 		items[i] = selectorItem{
 			commitType:  ct.Name,
 			description: ct.Description,
 		}
 	}
 
+	// Create delegate with pointer to track inactive state
+	aiSelected := false
+	delegate := &selectorDelegate{inactive: &aiSelected}
+
 	// Create list with reasonable defaults
-	l := list.New(items, selectorDelegate{}, 40, 14)
+	l := list.New(items, delegate, 40, 12)
 	l.Title = "Select Commit Type"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
+	l.SetShowHelp(false) // Disable built-in help, we render our own
 	l.Styles.Title = selectorTitleStyle
 	l.Styles.PaginationStyle = lipgloss.NewStyle().PaddingLeft(2)
-	l.Styles.HelpStyle = selectorHelpStyle
 
-	return selectorModel{list: l}
+	return selectorModel{list: l, delegate: delegate, aiSelected: false}
 }
 
 func (m selectorModel) Init() tea.Cmd {
@@ -103,14 +141,15 @@ func (m selectorModel) Init() tea.Cmd {
 func (m selectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
+		m.width = msg.Width
 		m.list.SetWidth(msg.Width)
-		// Adjust height based on terminal size, leave room for title and help
-		h := msg.Height - 4
+		// Adjust height based on terminal size, leave room for title, help, and AI option
+		h := msg.Height - 6
 		if h < 5 {
 			h = 5
 		}
-		if h > len(config.CommitTypes)+2 {
-			h = len(config.CommitTypes) + 2
+		if h > len(consts.CommitTypes)+2 {
+			h = len(consts.CommitTypes) + 2
 		}
 		m.list.SetHeight(h)
 		return m, nil
@@ -122,23 +161,85 @@ func (m selectorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case "enter":
-			if item, ok := m.list.SelectedItem().(selectorItem); ok {
+			if m.aiSelected {
+				m.choice = aiGenerateChoice
+			} else if item, ok := m.list.SelectedItem().(selectorItem); ok {
 				m.choice = item.commitType
 			}
+			return m, tea.Quit
+
+		case "tab":
+			// Toggle between list and AI button
+			m.aiSelected = !m.aiSelected
+			*m.delegate.inactive = m.aiSelected
+			return m, nil
+
+		case "down", "j":
+			if m.aiSelected {
+				return m, nil // Already at AI button, don't move
+			}
+			// If at the last item in the list, move to AI button
+			if m.list.Index() == len(m.list.Items())-1 {
+				m.aiSelected = true
+				*m.delegate.inactive = true
+				return m, nil
+			}
+
+		case "up", "k":
+			// If at AI button, move back to list
+			if m.aiSelected {
+				m.aiSelected = false
+				*m.delegate.inactive = false
+				return m, nil
+			}
+
+		case "a":
+			// Quick select AI option
+			m.choice = aiGenerateChoice
 			return m, tea.Quit
 		}
 	}
 
-	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
-	return m, cmd
+	// Only update list if not on AI option
+	if !m.aiSelected {
+		var cmd tea.Cmd
+		m.list, cmd = m.list.Update(msg)
+		return m, cmd
+	}
+
+	return m, nil
 }
 
 func (m selectorModel) View() string {
 	if m.choice != "" || m.quitting {
 		return ""
 	}
-	return "\n" + m.list.View() + "\n"
+
+	var sb strings.Builder
+	sb.WriteString("\n")
+	sb.WriteString(m.list.View())
+	sb.WriteString("\n")
+
+	// AI Generate button
+	aiText := "Auto Generate"
+	var button string
+	if m.aiSelected {
+		button = selectorAIButtonActiveStyle.Render(aiText)
+	} else {
+		button = selectorAIButtonStyle.Render(aiText)
+	}
+	sb.WriteString(selectorButtonLayout.Render(button))
+	sb.WriteString("\n")
+
+	// Help text
+	helpStyle := lipgloss.NewStyle().
+		Foreground(common.ColorMuted).
+		PaddingLeft(2).
+		PaddingTop(1)
+	sb.WriteString(helpStyle.Render("↑/↓ navigate • tab switch • enter select • a auto generate"))
+	sb.WriteString("\n")
+
+	return sb.String()
 }
 
 // runSelector shows a selector for commit type using bubbles/list.

@@ -29,35 +29,13 @@ var (
 
 // Reusable lipgloss styles.
 var (
-	StyleBold       = lipgloss.NewStyle().Bold(true)
 	StyleSuccess    = lipgloss.NewStyle().Foreground(ColorSuccess)
 	StyleWarning    = lipgloss.NewStyle().Foreground(ColorWarning)
 	StyleError      = lipgloss.NewStyle().Foreground(ColorError)
 	StyleMuted      = lipgloss.NewStyle().Foreground(ColorMuted)
 	StylePrimary    = lipgloss.NewStyle().Foreground(ColorPrimary)
-	StyleDimmed     = lipgloss.NewStyle().Foreground(ColorDimmed)
-	StyleRoundedBox = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(ColorPrimary).
-			Padding(0, 1)
-	StyleErrorBox = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(ColorError).
-			Padding(0, 1)
-	StyleSuccessBox = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(ColorSuccess).
-			Padding(0, 1)
-	StyleTitle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(ColorPrimary).
-			MarginBottom(1)
-	StyleHelp = lipgloss.NewStyle().
-			Foreground(ColorDimmed).
-			MarginTop(1)
-	StyleCommitType = lipgloss.NewStyle().
-			Foreground(ColorPrimary).
-			Bold(true)
+	StyleTitle      = lipgloss.NewStyle().Bold(true).Foreground(ColorPrimary).MarginBottom(1)
+	StyleCommitType = lipgloss.NewStyle().Foreground(ColorPrimary).Bold(true)
 )
 
 // Status indicator symbols.
@@ -67,8 +45,6 @@ const (
 	SymbolWarning = "⚠"
 	SymbolPending = "○"
 	SymbolRunning = "●"
-	SymbolArrow   = "→"
-	SymbolBullet  = "•"
 )
 
 // MaxContentWidth defines the maximum display width for content.

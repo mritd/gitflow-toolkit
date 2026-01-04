@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 )
 
 // CommitMessage represents a structured commit message.
@@ -53,7 +53,7 @@ func Commit(msg CommitMessage) error {
 		return err
 	}
 
-	f, err := os.CreateTemp("", config.TempFilePrefix+"-commit")
+	f, err := os.CreateTemp("", consts.TempFilePrefix+"-commit")
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}

@@ -26,8 +26,8 @@ type Result struct {
 func Run(luckyPrefix string) Result {
 	var result Result
 
-	// Step 1: Select commit type
-	commitType, err := runSelector()
+	// Step 1: Select commit type or AI generate
+	choice, err := runSelector()
 	if err != nil {
 		if errors.Is(err, errUserAborted) {
 			result.Cancelled = true
@@ -36,6 +36,19 @@ func Run(luckyPrefix string) Result {
 		result.Err = err
 		return result
 	}
+
+	// Check if user selected AI generate
+	if choice == aiGenerateChoice {
+		return runAIFlow(luckyPrefix)
+	}
+
+	// Original flow for manual commit type selection
+	return runManualFlow(choice, luckyPrefix)
+}
+
+// runManualFlow runs the manual commit flow with the given commit type.
+func runManualFlow(commitType, luckyPrefix string) Result {
+	var result Result
 
 	// Step 2: Input all fields (scope, subject, body, footer)
 	inputs, err := runInputs(commitType)
@@ -83,8 +96,180 @@ func Run(luckyPrefix string) Result {
 		return result
 	}
 
+	// Perform commit and handle lucky commit
+	return performCommit(result.Message, luckyPrefix)
+}
+
+// runAIFlow runs the AI-powered commit flow.
+func runAIFlow(luckyPrefix string) Result {
+	var currentMessage string
+
+	for {
+		// Run AI generation (only if we don't have a message yet, or user requested retry)
+		if currentMessage == "" {
+			aiResult := runAIGenerate()
+			if aiResult.Cancelled {
+				return Result{Cancelled: true}
+			}
+			if aiResult.Err != nil {
+				return Result{Err: aiResult.Err}
+			}
+			currentMessage = aiResult.Message
+		}
+
+		// Show preview
+		previewResult := runAIPreview(currentMessage)
+
+		switch previewResult.Action {
+		case "commit":
+			// Parse the AI message and commit
+			msg := parseAIMessage(previewResult.Message)
+			return performCommit(msg, luckyPrefix)
+
+		case "edit":
+			// Open editor
+			edited, err := runExternalEditor(previewResult.Message)
+			if err != nil {
+				return Result{Err: err}
+			}
+			currentMessage = edited
+			// Loop continues to show preview with edited message
+
+		case "retry":
+			// Clear message and regenerate
+			currentMessage = ""
+			// Loop continues
+
+		case "cancel":
+			return Result{Cancelled: true}
+		}
+	}
+}
+
+// parseAIMessage parses the AI-generated message into a CommitMessage struct.
+func parseAIMessage(message string) git.CommitMessage {
+	lines := splitLines(message)
+	if len(lines) == 0 {
+		return git.CommitMessage{}
+	}
+
+	// Parse header: type(scope): subject
+	header := lines[0]
+	msgType, scope, subject := parseHeader(header)
+
+	// Rest is body
+	var body string
+	if len(lines) > 1 {
+		// Skip empty line after header if present
+		startIdx := 1
+		if startIdx < len(lines) && lines[startIdx] == "" {
+			startIdx++
+		}
+		if startIdx < len(lines) {
+			bodyLines := lines[startIdx:]
+			body = joinLines(bodyLines)
+		}
+	}
+
+	// Create SOB
+	sob := git.CreateSOB()
+
+	return git.CommitMessage{
+		Type:    msgType,
+		Scope:   scope,
+		Subject: subject,
+		Body:    body,
+		SOB:     sob,
+	}
+}
+
+// parseHeader parses "type(scope): subject" format.
+func parseHeader(header string) (msgType, scope, subject string) {
+	// Default values
+	msgType = "feat"
+	scope = "general"
+	subject = header
+
+	// Try to parse "type(scope): subject"
+	colonIdx := -1
+	for i, c := range header {
+		if c == ':' {
+			colonIdx = i
+			break
+		}
+	}
+
+	if colonIdx > 0 {
+		prefix := header[:colonIdx]
+		subject = trimLeft(header[colonIdx+1:])
+
+		// Parse type and scope from prefix
+		parenStart := -1
+		parenEnd := -1
+		for i, c := range prefix {
+			if c == '(' {
+				parenStart = i
+			} else if c == ')' {
+				parenEnd = i
+			}
+		}
+
+		if parenStart > 0 && parenEnd > parenStart {
+			msgType = prefix[:parenStart]
+			scope = prefix[parenStart+1 : parenEnd]
+		} else {
+			msgType = prefix
+		}
+	}
+
+	return msgType, scope, subject
+}
+
+// splitLines splits a string into lines.
+func splitLines(s string) []string {
+	var lines []string
+	start := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] == '\n' {
+			lines = append(lines, s[start:i])
+			start = i + 1
+		}
+	}
+	if start < len(s) {
+		lines = append(lines, s[start:])
+	}
+	return lines
+}
+
+// joinLines joins lines with newline.
+func joinLines(lines []string) string {
+	if len(lines) == 0 {
+		return ""
+	}
+	result := lines[0]
+	for i := 1; i < len(lines); i++ {
+		result += "\n" + lines[i]
+	}
+	return result
+}
+
+// trimLeft trims leading whitespace.
+func trimLeft(s string) string {
+	for i, c := range s {
+		if c != ' ' && c != '\t' {
+			return s[i:]
+		}
+	}
+	return ""
+}
+
+// performCommit commits the message and handles lucky commit.
+func performCommit(msg git.CommitMessage, luckyPrefix string) Result {
+	var result Result
+	result.Message = msg
+
 	// Perform commit
-	if err := git.Commit(result.Message); err != nil {
+	if err := git.Commit(msg); err != nil {
 		result.Err = err
 		return result
 	}

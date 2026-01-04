@@ -14,7 +14,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
 
@@ -477,7 +477,7 @@ func runExternalEditor(currentContent string) (string, error) {
 	}
 
 	// Create temp file
-	f, err := os.CreateTemp("", config.TempFilePrefix+"-body-*.txt")
+	f, err := os.CreateTemp("", consts.TempFilePrefix+"-body-*.txt")
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp file: %w", err)
 	}

@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 )
 
 func TestNewPaths(t *testing.T) {
@@ -19,8 +19,8 @@ func TestNewPaths(t *testing.T) {
 		t.Errorf("InstallDir = %q, want %q", paths.InstallDir, tmpDir)
 	}
 
-	if paths.Binary != filepath.Join(tmpDir, config.BinaryName) {
-		t.Errorf("Binary = %q, want %q", paths.Binary, filepath.Join(tmpDir, config.BinaryName))
+	if paths.Binary != filepath.Join(tmpDir, consts.BinaryName) {
+		t.Errorf("Binary = %q, want %q", paths.Binary, filepath.Join(tmpDir, consts.BinaryName))
 	}
 }
 
@@ -35,14 +35,14 @@ func TestPaths_SymlinkPaths(t *testing.T) {
 	symlinks := paths.SymlinkPaths()
 
 	// Should have symlinks for all commands
-	expectedCmds := config.SymlinkCommands()
+	expectedCmds := consts.SymlinkCommands()
 	if len(symlinks) != len(expectedCmds) {
 		t.Errorf("SymlinkPaths() returned %d links, want %d", len(symlinks), len(expectedCmds))
 	}
 
 	// Check each symlink path
 	for i, cmd := range expectedCmds {
-		expected := filepath.Join(tmpDir, config.GitCommandPrefix+cmd)
+		expected := filepath.Join(tmpDir, consts.GitCommandPrefix+cmd)
 		if symlinks[i] != expected {
 			t.Errorf("SymlinkPaths()[%d] = %q, want %q", i, symlinks[i], expected)
 		}

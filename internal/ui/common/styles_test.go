@@ -23,8 +23,6 @@ func TestSymbols(t *testing.T) {
 		{"SymbolWarning", SymbolWarning},
 		{"SymbolPending", SymbolPending},
 		{"SymbolRunning", SymbolRunning},
-		{"SymbolArrow", SymbolArrow},
-		{"SymbolBullet", SymbolBullet},
 	}
 
 	for _, s := range symbols {
@@ -41,18 +39,13 @@ func TestStylesNotNil(t *testing.T) {
 		name  string
 		style lipgloss.Style
 	}{
-		{"StyleBold", StyleBold},
 		{"StyleSuccess", StyleSuccess},
 		{"StyleWarning", StyleWarning},
 		{"StyleError", StyleError},
 		{"StyleMuted", StyleMuted},
 		{"StylePrimary", StylePrimary},
-		{"StyleDimmed", StyleDimmed},
-		{"StyleRoundedBox", StyleRoundedBox},
-		{"StyleErrorBox", StyleErrorBox},
-		{"StyleSuccessBox", StyleSuccessBox},
 		{"StyleTitle", StyleTitle},
-		{"StyleHelp", StyleHelp},
+		{"StyleCommitType", StyleCommitType},
 	}
 
 	for _, s := range styles {

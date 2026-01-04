@@ -7,13 +7,13 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
-	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/push"
 )
 
 // pushCmd represents the push command.
 var pushCmd = &cobra.Command{
-	Use:     config.CmdPush,
+	Use:     consts.CmdPush,
 	Aliases: []string{"push"},
 	Short:   "Push current branch to origin",
 	Long: `Push the current branch to the origin remote.

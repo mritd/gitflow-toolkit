@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/internal/git"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/commit"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
@@ -13,7 +13,7 @@ import (
 
 // commitCmd represents the commit command.
 var commitCmd = &cobra.Command{
-	Use:     config.CmdCommit,
+	Use:     consts.CmdCommit,
 	Aliases: []string{"commit"},
 	Short:   "Interactive commit with conventional commit format",
 	Long: `Create a commit following the conventional commit format.

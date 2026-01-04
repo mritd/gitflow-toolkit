@@ -5,34 +5,6 @@ import (
 	"testing"
 )
 
-func TestShouldPreserveLine(t *testing.T) {
-	tests := []struct {
-		name     string
-		line     string
-		expected bool
-	}{
-		{"HTTP URL", "See: https://example.com/path", true},
-		{"HTTPS URL", "Error at https://github.com/user/repo/issues/123", true},
-		{"Absolute path", "/usr/local/bin/gitflow-toolkit", true},
-		{"Windows path", "C:/Users/test/file.txt", true},
-		{"Git ref", "origin/main -> local/main", true},
-		{"Git HEAD", "HEAD is now at abc123", true},
-		{"Git refs path", "refs/heads/master", true},
-		{".git path", "fatal: .git/hooks/commit-msg failed", true},
-		{"Plain text", "This is a simple error message", false},
-		{"Plain text with colon", "Error: something went wrong", false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := shouldPreserveLine(tt.line)
-			if result != tt.expected {
-				t.Errorf("shouldPreserveLine(%q) = %v, want %v", tt.line, result, tt.expected)
-			}
-		})
-	}
-}
-
 func TestWrapLine(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -90,11 +62,11 @@ func TestWrapLine(t *testing.T) {
 
 func TestFormatContent(t *testing.T) {
 	tests := []struct {
-		name        string
-		content     string
-		maxWidth    int
-		shouldWrap  bool
-		preserveURL bool
+		name       string
+		content    string
+		maxWidth   int
+		shouldWrap bool
+		checkURL   string // URL that should be preserved intact
 	}{
 		{
 			name:       "Plain text gets wrapped",
@@ -103,16 +75,18 @@ func TestFormatContent(t *testing.T) {
 			shouldWrap: true,
 		},
 		{
-			name:        "URL is preserved",
-			content:     "See: https://example.com/very/long/path/that/should/not/be/wrapped",
-			maxWidth:    40,
-			preserveURL: true,
+			name:       "URL is preserved intact",
+			content:    "See: https://example.com/very/long/path/that/should/not/be/wrapped for details",
+			maxWidth:   40,
+			shouldWrap: true,
+			checkURL:   "https://example.com/very/long/path/that/should/not/be/wrapped",
 		},
 		{
-			name:        "Mixed content",
-			content:     "Error occurred\nSee: https://example.com/issue/123\nPlease try again",
-			maxWidth:    40,
-			preserveURL: true,
+			name:       "Mixed content with URL",
+			content:    "Error occurred at https://example.com/issue/123 please check",
+			maxWidth:   30,
+			shouldWrap: true,
+			checkURL:   "https://example.com/issue/123",
 		},
 	}
 
@@ -120,16 +94,10 @@ func TestFormatContent(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			result := formatContent(tt.content, tt.maxWidth)
 
-			if tt.preserveURL {
-				// URLs should be preserved intact
-				if strings.Contains(tt.content, "https://") {
-					for _, line := range strings.Split(tt.content, "\n") {
-						if strings.Contains(line, "https://") {
-							if !strings.Contains(result, line) {
-								t.Errorf("URL line should be preserved: %q", line)
-							}
-						}
-					}
+			if tt.checkURL != "" {
+				// URL should be preserved intact (not broken across lines)
+				if !strings.Contains(result, tt.checkURL) {
+					t.Errorf("URL should be preserved intact: %q\nGot: %q", tt.checkURL, result)
 				}
 			}
 
@@ -137,6 +105,71 @@ func TestFormatContent(t *testing.T) {
 				lines := strings.Split(result, "\n")
 				if len(lines) <= 1 && len(tt.content) > tt.maxWidth {
 					t.Errorf("Content should have been wrapped")
+				}
+			}
+		})
+	}
+}
+
+func TestSplitByURLs(t *testing.T) {
+	tests := []struct {
+		name     string
+		line     string
+		expected []textSegment
+	}{
+		{
+			name: "No URL",
+			line: "Hello world",
+			expected: []textSegment{
+				{text: "Hello world", isURL: false},
+			},
+		},
+		{
+			name: "URL only",
+			line: "https://example.com/path",
+			expected: []textSegment{
+				{text: "https://example.com/path", isURL: true},
+			},
+		},
+		{
+			name: "Text before URL",
+			line: "See: https://example.com",
+			expected: []textSegment{
+				{text: "See: ", isURL: false},
+				{text: "https://example.com", isURL: true},
+			},
+		},
+		{
+			name: "URL in middle",
+			line: "Check https://example.com for info",
+			expected: []textSegment{
+				{text: "Check ", isURL: false},
+				{text: "https://example.com", isURL: true},
+				{text: " for info", isURL: false},
+			},
+		},
+		{
+			name: "Multiple URLs",
+			line: "See https://a.com and https://b.com",
+			expected: []textSegment{
+				{text: "See ", isURL: false},
+				{text: "https://a.com", isURL: true},
+				{text: " and ", isURL: false},
+				{text: "https://b.com", isURL: true},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := splitByURLs(tt.line)
+			if len(result) != len(tt.expected) {
+				t.Errorf("splitByURLs(%q) returned %d segments, want %d\nGot: %+v", tt.line, len(result), len(tt.expected), result)
+				return
+			}
+			for i, seg := range result {
+				if seg.text != tt.expected[i].text || seg.isURL != tt.expected[i].isURL {
+					t.Errorf("splitByURLs(%q)[%d] = %+v, want %+v", tt.line, i, seg, tt.expected[i])
 				}
 			}
 		})

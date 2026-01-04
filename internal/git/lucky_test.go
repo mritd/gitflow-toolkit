@@ -4,6 +4,8 @@ import (
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/mritd/gitflow-toolkit/v3/config"
 )
 
 func TestValidateLuckyPrefix(t *testing.T) {
@@ -61,21 +63,15 @@ func TestCheckLuckyCommit(t *testing.T) {
 }
 
 func TestGetLuckyPrefix(t *testing.T) {
-	// Save original env
-	origVal := os.Getenv("GITFLOW_LUCKY_COMMIT")
-	defer func() { _ = os.Setenv("GITFLOW_LUCKY_COMMIT", origVal) }()
+	// NOTE: GetLuckyPrefix reads from gitconfig, which cannot be easily mocked.
+	// Skip if gitconfig has lucky-commit set.
+	if prefix := config.GetString(config.GitConfigLuckyCommit, ""); prefix != "" {
+		t.Skip("Skipping: gitconfig has lucky-commit set")
+	}
 
-	// Test not set
-	_ = os.Unsetenv("GITFLOW_LUCKY_COMMIT")
+	// Test returns empty when gitconfig not set
 	prefix := GetLuckyPrefix()
 	if prefix != "" {
 		t.Errorf("GetLuckyPrefix() = %v, want empty", prefix)
-	}
-
-	// Test set
-	_ = os.Setenv("GITFLOW_LUCKY_COMMIT", "abc123")
-	prefix = GetLuckyPrefix()
-	if prefix != "abc123" {
-		t.Errorf("GetLuckyPrefix() = %v, want abc123", prefix)
 	}
 }

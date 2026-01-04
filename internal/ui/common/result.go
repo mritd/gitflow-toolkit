@@ -72,8 +72,15 @@ func RenderResult(r Result) string {
 		BorderForeground(bgColor).
 		PaddingLeft(1)
 
+	// Format content with line wrapping
+	termWidth := getTerminalWidth()
+	contentWidth := GetContentWidth(termWidth)
+	// Account for padding (2 left) and border (2 = "│ ")
+	maxContentWidth := contentWidth - 4
+	formattedContent := formatContent(r.Content, maxContentWidth)
+
 	title := titleLayout.Render(titleStyle.Render(symbol + " " + r.Title))
-	content := contentLayout.Render(contentStyle.Render(r.Content))
+	content := contentLayout.Render(contentStyle.Render(formattedContent))
 
 	// Build result with optional note
 	var sb strings.Builder
@@ -114,12 +121,9 @@ func formatContent(content string, maxWidth int) string {
 	var result []string
 
 	for _, line := range lines {
-		if shouldPreserveLine(line) {
-			// Don't wrap lines with URLs, file paths, or special patterns
-			result = append(result, line)
-		} else if len(line) > maxWidth {
-			// Wrap long plain text lines
-			result = append(result, wrapLine(line, maxWidth)...)
+		if len(line) > maxWidth {
+			// Smart wrap: preserve URLs, wrap other parts
+			result = append(result, smartWrapLine(line, maxWidth)...)
 		} else {
 			result = append(result, line)
 		}
@@ -128,33 +132,98 @@ func formatContent(content string, maxWidth int) string {
 	return strings.Join(result, "\n")
 }
 
-// shouldPreserveLine checks if the line contains URLs, paths, or git refs
-// that should not be wrapped.
-func shouldPreserveLine(line string) bool {
-	// URLs (http://, https://, etc.)
-	if strings.Contains(line, "://") {
-		return true
-	}
-	// Unix absolute paths
-	if strings.HasPrefix(line, "/") {
-		return true
-	}
-	// Windows absolute paths (C:\, D:/, etc.)
-	if len(line) > 2 && line[1] == ':' && (line[2] == '/' || line[2] == '\\') {
-		return true
-	}
-	// Git ref arrows (e.g., "origin/main -> local/main")
-	if strings.Contains(line, " -> ") {
-		return true
-	}
-	// Git-related paths and refs
-	pathIndicators := []string{".git", "refs/", "origin/", "HEAD"}
-	for _, indicator := range pathIndicators {
-		if strings.Contains(line, indicator) {
-			return true
+// smartWrapLine wraps a line while preserving URLs intact.
+// It splits the line into URL and non-URL segments, wrapping only the non-URL parts.
+func smartWrapLine(line string, maxWidth int) []string {
+	// Find all URLs in the line
+	segments := splitByURLs(line)
+
+	var result []string
+	var currentLine strings.Builder
+
+	for _, seg := range segments {
+		if seg.isURL {
+			// URL segment: don't break it
+			if currentLine.Len() > 0 && currentLine.Len()+len(seg.text) > maxWidth {
+				// Current line is too long, flush it first
+				result = append(result, wrapLine(currentLine.String(), maxWidth)...)
+				currentLine.Reset()
+			}
+			// If URL itself is longer than maxWidth, put it on its own line
+			if currentLine.Len() == 0 {
+				result = append(result, seg.text)
+			} else {
+				currentLine.WriteString(seg.text)
+			}
+		} else {
+			// Non-URL segment: can be wrapped
+			currentLine.WriteString(seg.text)
 		}
 	}
-	return false
+
+	// Flush remaining content
+	if currentLine.Len() > 0 {
+		result = append(result, wrapLine(currentLine.String(), maxWidth)...)
+	}
+
+	return result
+}
+
+type textSegment struct {
+	text  string
+	isURL bool
+}
+
+// splitByURLs splits a line into URL and non-URL segments.
+func splitByURLs(line string) []textSegment {
+	var segments []textSegment
+	remaining := line
+
+	for len(remaining) > 0 {
+		// Find the next URL (http:// or https://)
+		httpIdx := strings.Index(remaining, "http://")
+		httpsIdx := strings.Index(remaining, "https://")
+
+		urlStart := -1
+		if httpIdx >= 0 && (httpsIdx < 0 || httpIdx < httpsIdx) {
+			urlStart = httpIdx
+		} else if httpsIdx >= 0 {
+			urlStart = httpsIdx
+		}
+
+		if urlStart < 0 {
+			// No more URLs, add the rest as non-URL
+			if len(remaining) > 0 {
+				segments = append(segments, textSegment{text: remaining, isURL: false})
+			}
+			break
+		}
+
+		// Add text before URL
+		if urlStart > 0 {
+			segments = append(segments, textSegment{text: remaining[:urlStart], isURL: false})
+		}
+
+		// Find URL end (space, or end of string)
+		urlEnd := urlStart
+		for urlEnd < len(remaining) && !isURLTerminator(remaining[urlEnd]) {
+			urlEnd++
+		}
+
+		// Add URL segment
+		segments = append(segments, textSegment{text: remaining[urlStart:urlEnd], isURL: true})
+		remaining = remaining[urlEnd:]
+	}
+
+	return segments
+}
+
+// isURLTerminator checks if a character terminates a URL.
+func isURLTerminator(c byte) bool {
+	// Common URL terminators: space, quotes, brackets, etc.
+	return c == ' ' || c == '\t' || c == '"' || c == '\'' ||
+		c == '<' || c == '>' || c == '[' || c == ']' ||
+		c == '(' || c == ')' || c == '{' || c == '}'
 }
 
 // wrapLine wraps a long line at word boundaries.

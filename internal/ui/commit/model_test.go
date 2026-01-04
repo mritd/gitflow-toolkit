@@ -141,12 +141,208 @@ func TestCommonStylesUsedInCommit(t *testing.T) {
 		{"StyleTitle", common.StyleTitle.Render("test")},
 		{"StyleMuted", common.StyleMuted.Render("test")},
 		{"StylePrimary", common.StylePrimary.Render("test")},
-		{"StyleDimmed", common.StyleDimmed.Render("test")},
 	}
 
 	for _, s := range styles {
 		if s.style == "" {
 			t.Errorf("%s.Render() returned empty string", s.name)
 		}
+	}
+}
+
+func TestParseAIMessage(t *testing.T) {
+	tests := []struct {
+		name    string
+		message string
+		want    git.CommitMessage
+	}{
+		{
+			name:    "standard format",
+			message: "feat(api): add user endpoint\n\nAdd new user management endpoint.",
+			want: git.CommitMessage{
+				Type:    "feat",
+				Scope:   "api",
+				Subject: "add user endpoint",
+				Body:    "Add new user management endpoint.",
+			},
+		},
+		{
+			name:    "type without scope",
+			message: "fix: correct typo",
+			want: git.CommitMessage{
+				Type:    "fix",
+				Scope:   "general", // default scope when not provided
+				Subject: "correct typo",
+				Body:    "",
+			},
+		},
+		{
+			name:    "header only",
+			message: "docs(readme): update installation guide",
+			want: git.CommitMessage{
+				Type:    "docs",
+				Scope:   "readme",
+				Subject: "update installation guide",
+				Body:    "",
+			},
+		},
+		{
+			name:    "multiline body",
+			message: "refactor(core): simplify logic\n\nRemoved redundant code.\nImproved performance.",
+			want: git.CommitMessage{
+				Type:    "refactor",
+				Scope:   "core",
+				Subject: "simplify logic",
+				Body:    "Removed redundant code.\nImproved performance.",
+			},
+		},
+		{
+			name:    "plain text fallback",
+			message: "update readme",
+			want: git.CommitMessage{
+				Type:    "feat",
+				Scope:   "general",
+				Subject: "update readme",
+				Body:    "",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := parseAIMessage(tt.message)
+			// Note: SOB is auto-generated, so we don't compare it
+			if got.Type != tt.want.Type {
+				t.Errorf("Type = %q, want %q", got.Type, tt.want.Type)
+			}
+			if got.Scope != tt.want.Scope {
+				t.Errorf("Scope = %q, want %q", got.Scope, tt.want.Scope)
+			}
+			if got.Subject != tt.want.Subject {
+				t.Errorf("Subject = %q, want %q", got.Subject, tt.want.Subject)
+			}
+			if got.Body != tt.want.Body {
+				t.Errorf("Body = %q, want %q", got.Body, tt.want.Body)
+			}
+		})
+	}
+}
+
+func TestParseHeader(t *testing.T) {
+	tests := []struct {
+		name        string
+		header      string
+		wantType    string
+		wantScope   string
+		wantSubject string
+	}{
+		{
+			name:        "full format",
+			header:      "feat(api): add endpoint",
+			wantType:    "feat",
+			wantScope:   "api",
+			wantSubject: "add endpoint",
+		},
+		{
+			name:        "no scope",
+			header:      "fix: bug fix",
+			wantType:    "fix",
+			wantScope:   "general", // default scope when not provided
+			wantSubject: "bug fix",
+		},
+		{
+			name:        "nested scope",
+			header:      "refactor(ui/commit): simplify",
+			wantType:    "refactor",
+			wantScope:   "ui/commit",
+			wantSubject: "simplify",
+		},
+		{
+			name:        "plain text",
+			header:      "update something",
+			wantType:    "feat",
+			wantScope:   "general",
+			wantSubject: "update something",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotType, gotScope, gotSubject := parseHeader(tt.header)
+			if gotType != tt.wantType {
+				t.Errorf("type = %q, want %q", gotType, tt.wantType)
+			}
+			if gotScope != tt.wantScope {
+				t.Errorf("scope = %q, want %q", gotScope, tt.wantScope)
+			}
+			if gotSubject != tt.wantSubject {
+				t.Errorf("subject = %q, want %q", gotSubject, tt.wantSubject)
+			}
+		})
+	}
+}
+
+func TestCalcVisibleRange(t *testing.T) {
+	tests := []struct {
+		name       string
+		fileCount  int
+		status     []int // 0=pending, 1=running, 2=done
+		maxVisible int
+		wantStart  int
+		wantEnd    int
+	}{
+		{
+			name:       "fewer files than max",
+			fileCount:  5,
+			status:     []int{2, 2, 1, 0, 0},
+			maxVisible: 10,
+			wantStart:  0,
+			wantEnd:    5,
+		},
+		{
+			name:       "running at start",
+			fileCount:  15,
+			status:     []int{1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			maxVisible: 10,
+			wantStart:  0,
+			wantEnd:    10,
+		},
+		{
+			name:       "running in middle",
+			fileCount:  15,
+			status:     []int{2, 2, 2, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+			maxVisible: 10,
+			wantStart:  3, // 5 - 2 (contextAbove)
+			wantEnd:    13,
+		},
+		{
+			name:       "running near end",
+			fileCount:  15,
+			status:     []int{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0},
+			maxVisible: 10,
+			wantStart:  5, // 15 - 10
+			wantEnd:    15,
+		},
+		{
+			name:       "all done shows from start",
+			fileCount:  15,
+			status:     []int{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+			maxVisible: 10,
+			wantStart:  0,
+			wantEnd:    10,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := aiModel{
+				files:      make([]git.FileDiff, tt.fileCount),
+				fileStatus: tt.status,
+			}
+			gotStart, gotEnd := m.calcVisibleRange(tt.maxVisible)
+			if gotStart != tt.wantStart || gotEnd != tt.wantEnd {
+				t.Errorf("calcVisibleRange() = (%d, %d), want (%d, %d)", gotStart, gotEnd, tt.wantStart, tt.wantEnd)
+			}
+		})
 	}
 }

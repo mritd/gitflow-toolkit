@@ -9,7 +9,7 @@ import (
 	"github.com/mattn/go-runewidth"
 
 	"github.com/mritd/gitflow-toolkit/v3/cmd"
-	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 )
 
 var (
@@ -23,8 +23,8 @@ func main() {
 	binName := detectBinaryName()
 
 	// Handle git subcommand invocations (e.g., git-ci -> ci)
-	if strings.HasPrefix(binName, config.GitCommandPrefix) {
-		subCmd := strings.TrimPrefix(binName, config.GitCommandPrefix)
+	if strings.HasPrefix(binName, consts.GitCommandPrefix) {
+		subCmd := strings.TrimPrefix(binName, consts.GitCommandPrefix)
 		os.Args = append([]string{os.Args[0], subCmd}, os.Args[1:]...)
 	}
 

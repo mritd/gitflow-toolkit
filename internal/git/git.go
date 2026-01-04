@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/config"
 )
 
 // Common errors.
@@ -29,8 +29,8 @@ func Run(args ...string) (string, error) {
 		cmd = exec.Command("git", args...)
 	}
 
-	// Disable strict host key checking unless explicitly enabled via environment variable
-	if os.Getenv(config.StrictHostKeyEnv) != "true" {
+	// Disable strict host key checking unless explicitly enabled via gitconfig
+	if !config.GetBool(config.GitConfigSSHStrictHost, false) {
 		cmd.Env = append(os.Environ(), "GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no")
 	}
 

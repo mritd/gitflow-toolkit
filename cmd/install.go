@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/install"
 )
@@ -47,8 +47,8 @@ This will:
 }
 
 func init() {
-	installCmd.Flags().StringVarP(&installDir, "dir", "d", config.DefaultInstallDir, "Installation directory")
-	uninstallCmd.Flags().StringVarP(&installDir, "dir", "d", config.DefaultInstallDir, "Installation directory")
+	installCmd.Flags().StringVarP(&installDir, "dir", "d", consts.DefaultInstallDir, "Installation directory")
+	uninstallCmd.Flags().StringVarP(&installDir, "dir", "d", consts.DefaultInstallDir, "Installation directory")
 
 	rootCmd.AddCommand(installCmd)
 	rootCmd.AddCommand(uninstallCmd)

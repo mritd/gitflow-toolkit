@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
 
@@ -21,7 +21,7 @@ type Paths struct {
 // NewPaths creates installation paths.
 func NewPaths(installDir string) (*Paths, error) {
 	return &Paths{
-		Binary:     filepath.Join(installDir, config.BinaryName),
+		Binary:     filepath.Join(installDir, consts.BinaryName),
 		InstallDir: installDir,
 	}, nil
 }
@@ -29,8 +29,8 @@ func NewPaths(installDir string) (*Paths, error) {
 // SymlinkPaths returns all symlink paths.
 func (p *Paths) SymlinkPaths() []string {
 	var links []string
-	for _, cmd := range config.SymlinkCommands() {
-		links = append(links, filepath.Join(p.InstallDir, config.GitCommandPrefix+cmd))
+	for _, cmd := range consts.SymlinkCommands() {
+		links = append(links, filepath.Join(p.InstallDir, consts.GitCommandPrefix+cmd))
 	}
 	return links
 }
@@ -123,7 +123,7 @@ func UninstallTasks(paths *Paths) []common.Task {
 
 // NeedsSudo checks if the installation directory requires elevated privileges.
 func NeedsSudo(installDir string) bool {
-	testFile := filepath.Join(installDir, "."+config.TempFilePrefix+"-test")
+	testFile := filepath.Join(installDir, "."+consts.TempFilePrefix+"-test")
 	f, err := os.Create(testFile)
 	if err != nil {
 		return true
@@ -137,7 +137,7 @@ func NeedsSudo(installDir string) bool {
 func GetRecommendedInstallDir() string {
 	homeDir := os.Getenv("HOME")
 	candidates := []string{
-		config.DefaultInstallDir,
+		consts.DefaultInstallDir,
 		filepath.Join(homeDir, ".local", "bin"),
 		filepath.Join(homeDir, "bin"),
 	}
@@ -148,5 +148,5 @@ func GetRecommendedInstallDir() string {
 		}
 	}
 
-	return config.DefaultInstallDir
+	return consts.DefaultInstallDir
 }

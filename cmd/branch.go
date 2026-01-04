@@ -7,13 +7,13 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 
-	"github.com/mritd/gitflow-toolkit/v3/internal/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/branch"
 )
 
 func init() {
 	// Add a command for each commit type
-	for _, ct := range config.CommitTypes {
+	for _, ct := range consts.CommitTypes {
 		cmd := createBranchCommand(ct.Name, ct.Description)
 		rootCmd.AddCommand(cmd)
 	}

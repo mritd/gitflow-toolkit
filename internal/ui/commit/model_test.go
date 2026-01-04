@@ -88,7 +88,8 @@ func TestNewInputsModel(t *testing.T) {
 }
 
 func TestNewSelectorModel(t *testing.T) {
-	m := newSelectorModel()
+	// Test without initial type
+	m := newSelectorModel("")
 
 	if m.list.Title != "Select Commit Type" {
 		t.Errorf("list.Title = %q, want 'Select Commit Type'", m.list.Title)
@@ -97,6 +98,34 @@ func TestNewSelectorModel(t *testing.T) {
 	// Should have 9 commit types
 	if len(m.list.Items()) != 9 {
 		t.Errorf("len(items) = %d, want 9", len(m.list.Items()))
+	}
+
+	// First item should be selected by default
+	if m.list.Index() != 0 {
+		t.Errorf("list.Index() = %d, want 0", m.list.Index())
+	}
+}
+
+func TestNewSelectorModelWithInitialType(t *testing.T) {
+	// Test with initial type "fix" (should be index 1)
+	m := newSelectorModel("fix")
+
+	if m.list.Index() != 1 {
+		t.Errorf("list.Index() = %d, want 1 (fix)", m.list.Index())
+	}
+
+	// Test with initial type "docs" (should be index 2)
+	m = newSelectorModel("docs")
+
+	if m.list.Index() != 2 {
+		t.Errorf("list.Index() = %d, want 2 (docs)", m.list.Index())
+	}
+
+	// Test with invalid type (should default to 0)
+	m = newSelectorModel("invalid")
+
+	if m.list.Index() != 0 {
+		t.Errorf("list.Index() = %d, want 0 (default)", m.list.Index())
 	}
 }
 

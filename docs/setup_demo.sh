@@ -1,9 +1,9 @@
 #!/bin/bash
 # Setup demo files for VHS recording
 
-rm -rf ~/tmp/testgit
-mkdir -p ~/tmp/testgit
-cd ~/tmp/testgit
+rm -rf /tmp/testgit
+mkdir -p /tmp/testgit
+cd /tmp/testgit
 git init
 git config user.name "Demo User"
 git config user.email "demo@example.com"

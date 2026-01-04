@@ -14,7 +14,7 @@ Set Shell "bash"
 
 # Prepare test repository (hidden)
 Hide
-Type "./setup_demo.sh && cd ~/tmp/testgit"
+Type "./setup_demo.sh && cd /tmp/testgit"
 Enter
 Sleep 1s
 Show

@@ -4,7 +4,7 @@ vars:
   VERSION:
     sh: git symbolic-ref -q --short HEAD || git describe --tags --exact-match 2>/dev/null || echo "dev"
   BUILD_COMMIT:
-    sh: git rev-parse --short HEAD 2>/dev/null || echo "unknown"
+    sh: git rev-parse HEAD 2>/dev/null || echo "unknown"
   BUILD_DATE:
     sh: date "+%F %T"
 

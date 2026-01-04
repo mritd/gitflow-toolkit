@@ -23,7 +23,7 @@ func TestValidateLuckyPrefix(t *testing.T) {
 		{"exactly 12 chars", "1234567890ab", "1234567890ab", false},
 		{"invalid chars", "xyz123", "", true},
 		{"invalid with space", "abc 123", "", true},
-		{"valid all zeros", "0000000000000000", "0000000000000000", false},
+		{"valid all zeros", "000000000000", "000000000000", false},
 	}
 
 	for _, tt := range tests {
@@ -65,7 +65,7 @@ func TestCheckLuckyCommit(t *testing.T) {
 func TestGetLuckyPrefix(t *testing.T) {
 	// NOTE: GetLuckyPrefix reads from gitconfig, which cannot be easily mocked.
 	// Skip if gitconfig has lucky-commit set.
-	if prefix := config.GetString(config.GitConfigLuckyCommit, ""); prefix != "" {
+	if prefix := config.GetString(config.GitConfigLuckyCommitPrefix, ""); prefix != "" {
 		t.Skip("Skipping: gitconfig has lucky-commit set")
 	}
 

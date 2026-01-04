@@ -665,7 +665,7 @@ func runAIPreview(message string) aiPreviewResult {
 // runAIGenerate runs the AI generation flow.
 func runAIGenerate() aiResult {
 	// Get staged diff
-	contextLines := llm.GetContext()
+	contextLines := llm.GetDiffContext()
 	diff, err := git.GetStagedDiff(contextLines)
 	if err != nil {
 		return aiResult{Err: fmt.Errorf("failed to get staged diff: %w", err)}

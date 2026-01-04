@@ -1,6 +1,8 @@
 // Package consts defines constants for gitflow-toolkit.
 package consts
 
+import "time"
+
 // Commit types following Angular commit message specification.
 const (
 	Feat     = "feat"
@@ -55,12 +57,12 @@ const (
 const (
 	LLMDefaultOllamaHost     = "http://localhost:11434"
 	LLMDefaultOpenRouterHost = "https://openrouter.ai"
-	LLMDefaultContext        = 5
-	LLMDefaultTimeout        = 120
+	LLMDefaultDiffContext    = 5
+	LLMDefaultRequestTimeout = 2 * time.Minute
 	LLMDefaultRetries        = 0
 	LLMDefaultLang           = "en"
 	LLMDefaultTemperature    = 0.3
-	LLMDefaultConcurrency    = 5
+	LLMDefaultConcurrency    = 3
 )
 
 // LLM language options.

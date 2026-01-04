@@ -124,6 +124,13 @@ tasks:
       - task: linux-arm64
       - task: darwin-amd64
       - task: darwin-arm64
+      - task: checksums
+
+  checksums:
+    desc: Generate checksums.txt for release
+    cmds:
+      - cd dist && shasum -a 256 gitflow-toolkit-* > checksums.txt
+      - cat dist/checksums.txt
 
   default:
     desc: Build for current platform

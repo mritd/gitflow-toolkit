@@ -15,5 +15,5 @@
 .idea
 gitflow-toolkit
 dist
-docs/demo.webm
+docs/*.webm
 AGENTS.md

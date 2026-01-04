@@ -18,6 +18,14 @@ GitFlow Toolkit is a CLI tool written in Go for standardizing git commit message
 
 ## Installation
 
+### Homebrew (macOS/Linux)
+
+```bash
+brew install mritd/gitflow-toolkit/gitflow-toolkit
+```
+
+### Manual
+
 Download the latest binary from the [Release page](https://github.com/mritd/gitflow-toolkit/releases) and run the install command:
 
 ```bash
@@ -29,11 +37,13 @@ chmod +x gitflow-toolkit
 sudo ./gitflow-toolkit install
 ```
 
-Or install via Go:
+### Go
 
 ```bash
 go install github.com/mritd/gitflow-toolkit/v3@latest
 ```
+
+Note: When installing via `go install`, you need to manually run `gitflow-toolkit install` to create git subcommand symlinks.
 
 ## Usage
 

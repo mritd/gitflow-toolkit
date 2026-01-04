@@ -39,6 +39,7 @@ const (
 type Client struct {
 	provider              Provider
 	host                  string
+	apiPath               string
 	apiKey                string
 	timeout               time.Duration
 	retries               int
@@ -62,36 +63,45 @@ type GenerateOptions struct {
 // Provider selection:
 //   - If API key is set, uses OpenAI-compatible API (OpenRouter by default)
 //   - Otherwise, uses local Ollama
+//
+// API path resolution:
+//  1. User-defined llm-api-path takes highest priority
+//  2. Auto-detect from host for known providers
+//  3. Fall back to OpenAI-compatible path (/v1/chat/completions)
 func NewClient() *Client {
 	// Get API key from gitconfig
 	apiKey := config.GetString(config.GitConfigLLMAPIKey, "")
 
 	// Determine provider and defaults based on API key presence
 	provider := ProviderOllama
-	defaultHost := consts.LLMDefaultOllamaHost
-	defaultModel := consts.LLMDefaultOllamaModel
+	defaultHost := consts.LLMHostOllama
+	defaultModel := consts.LLMModelOllama
+	defaultPath := consts.LLMPathOllama
 
 	if apiKey != "" {
 		provider = ProviderOpenRouter
-		defaultHost = consts.LLMDefaultOpenRouterHost
-		defaultModel = consts.LLMDefaultOpenRouterModel
+		defaultHost = consts.LLMHostOpenRouter
+		defaultModel = consts.LLMModelOpenRouter
+		defaultPath = consts.LLMPathOpenRouter
 	}
 
-	// Get host
+	// Get host and normalize
 	host := config.GetString(config.GitConfigLLMAPIHost, "")
 	if host == "" {
 		host = defaultHost
 	} else {
-		host = normalizeHost(host, defaultHost)
+		host = normalizeHost(host)
 	}
 
-	// Detect provider from host
+	// Detect provider from host and set appropriate API path
 	if apiKey != "" {
-		if strings.Contains(host, "groq.com") {
-			provider = ProviderGroq
-		} else if strings.Contains(host, "openai.com") {
-			provider = ProviderOpenAI
-		}
+		provider, defaultPath = detectProvider(host)
+	}
+
+	// Get user-defined API path (highest priority)
+	apiPath := config.GetString(config.GitConfigLLMAPIPath, "")
+	if apiPath == "" {
+		apiPath = defaultPath
 	}
 
 	// Get model
@@ -120,6 +130,7 @@ func NewClient() *Client {
 	return &Client{
 		provider:              provider,
 		host:                  host,
+		apiPath:               apiPath,
 		apiKey:                apiKey,
 		timeout:               timeout,
 		retries:               retries,
@@ -133,15 +144,33 @@ func NewClient() *Client {
 	}
 }
 
-// normalizeHost ensures the host has a proper scheme.
-func normalizeHost(host, defaultHost string) string {
-	if host == "" {
-		return defaultHost
+// detectProvider detects the LLM provider from host and returns the provider type and default API path.
+// For unknown hosts, returns OpenRouter provider with OpenAI-compatible path.
+func detectProvider(host string) (Provider, string) {
+	switch {
+	case strings.Contains(host, "groq.com"):
+		return ProviderGroq, consts.LLMPathGroq
+	case strings.Contains(host, "openai.com"):
+		return ProviderOpenAI, consts.LLMPathOpenAI
+	case strings.Contains(host, "deepseek.com"):
+		return ProviderOpenAI, consts.LLMPathOpenAI // DeepSeek uses OpenAI-compatible API
+	case strings.Contains(host, "mistral.ai"):
+		return ProviderOpenAI, consts.LLMPathOpenAI // Mistral uses OpenAI-compatible API
+	case strings.Contains(host, "openrouter.ai"):
+		return ProviderOpenRouter, consts.LLMPathOpenRouter
+	default:
+		// Unknown provider, assume OpenAI-compatible API
+		return ProviderOpenAI, consts.LLMPathOpenAI
 	}
+}
+
+// normalizeHost ensures the host has a proper scheme and no trailing slash.
+func normalizeHost(host string) string {
+	host = strings.TrimSuffix(host, "/")
 	if strings.HasPrefix(host, "http://") || strings.HasPrefix(host, "https://") {
-		return strings.TrimSuffix(host, "/")
+		return host
 	}
-	return "https://" + strings.TrimSuffix(host, "/")
+	return "https://" + host
 }
 
 // Generate calls the LLM API to generate text.
@@ -296,17 +325,7 @@ func (c *Client) doGenerateOpenAI(ctx context.Context, model, prompt string, opt
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
 
-	// Build endpoint URL based on provider
-	// Groq uses /openai/v1/..., OpenRouter/OpenAI use /api/v1/...
-	var endpoint string
-	switch c.provider {
-	case ProviderGroq:
-		endpoint = c.host + "/openai/v1/chat/completions"
-	default:
-		endpoint = c.host + "/api/v1/chat/completions"
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.host+c.apiPath, bytes.NewReader(body))
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}

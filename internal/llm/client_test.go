@@ -14,25 +14,50 @@ import (
 
 func TestNormalizeHost(t *testing.T) {
 	tests := []struct {
-		name        string
-		input       string
-		defaultHost string
-		want        string
+		name  string
+		input string
+		want  string
 	}{
-		{"empty with default", "", "http://default:1234", "http://default:1234"},
-		{"empty no default", "", "", ""},
-		{"host only", "localhost:11434", "", "https://localhost:11434"},
-		{"with http", "http://localhost:11434", "", "http://localhost:11434"},
-		{"with https", "https://ollama.example.com", "", "https://ollama.example.com"},
-		{"with trailing slash", "http://localhost:11434/", "", "http://localhost:11434"},
-		{"ip address", "192.168.1.100:11434", "", "https://192.168.1.100:11434"},
+		{"host only", "localhost:11434", "https://localhost:11434"},
+		{"with http", "http://localhost:11434", "http://localhost:11434"},
+		{"with https", "https://ollama.example.com", "https://ollama.example.com"},
+		{"with trailing slash", "http://localhost:11434/", "http://localhost:11434"},
+		{"ip address", "192.168.1.100:11434", "https://192.168.1.100:11434"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := normalizeHost(tt.input, tt.defaultHost)
+			got := normalizeHost(tt.input)
 			if got != tt.want {
-				t.Errorf("normalizeHost(%q, %q) = %q, want %q", tt.input, tt.defaultHost, got, tt.want)
+				t.Errorf("normalizeHost(%q) = %q, want %q", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDetectProvider(t *testing.T) {
+	tests := []struct {
+		name         string
+		host         string
+		wantProvider Provider
+		wantPath     string
+	}{
+		{"groq", "https://api.groq.com", ProviderGroq, consts.LLMPathGroq},
+		{"openai", "https://api.openai.com", ProviderOpenAI, consts.LLMPathOpenAI},
+		{"deepseek", "https://api.deepseek.com", ProviderOpenAI, consts.LLMPathOpenAI},
+		{"mistral", "https://api.mistral.ai", ProviderOpenAI, consts.LLMPathOpenAI},
+		{"openrouter", "https://openrouter.ai", ProviderOpenRouter, consts.LLMPathOpenRouter},
+		{"unknown", "https://custom-llm.example.com", ProviderOpenAI, consts.LLMPathOpenAI},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			provider, path := detectProvider(tt.host)
+			if provider != tt.wantProvider {
+				t.Errorf("detectProvider(%q) provider = %q, want %q", tt.host, provider, tt.wantProvider)
+			}
+			if path != tt.wantPath {
+				t.Errorf("detectProvider(%q) path = %q, want %q", tt.host, path, tt.wantPath)
 			}
 		})
 	}
@@ -52,11 +77,11 @@ func TestNewClient_Defaults(t *testing.T) {
 		if c.provider != ProviderOllama {
 			t.Errorf("provider = %q, want %q", c.provider, ProviderOllama)
 		}
-		if c.host != consts.LLMDefaultOllamaHost {
-			t.Errorf("host = %q, want %q", c.host, consts.LLMDefaultOllamaHost)
+		if c.host != consts.LLMHostOllama {
+			t.Errorf("host = %q, want %q", c.host, consts.LLMHostOllama)
 		}
-		if c.model != consts.LLMDefaultOllamaModel {
-			t.Errorf("model = %q, want %q", c.model, consts.LLMDefaultOllamaModel)
+		if c.model != consts.LLMModelOllama {
+			t.Errorf("model = %q, want %q", c.model, consts.LLMModelOllama)
 		}
 		if c.timeout != consts.LLMDefaultRequestTimeout {
 			t.Errorf("timeout = %v, want %v", c.timeout, consts.LLMDefaultRequestTimeout)
@@ -91,6 +116,7 @@ func TestGenerate_Ollama(t *testing.T) {
 		c := &Client{
 			provider: ProviderOllama,
 			host:     server.URL,
+			apiPath:  consts.LLMPathOllama,
 			timeout:  10 * time.Second,
 			retries:  0,
 		}
@@ -120,6 +146,7 @@ func TestGenerate_Ollama(t *testing.T) {
 		c := &Client{
 			provider: ProviderOllama,
 			host:     server.URL,
+			apiPath:  consts.LLMPathOllama,
 			timeout:  10 * time.Second,
 			retries:  2,
 		}
@@ -174,6 +201,7 @@ func TestGenerate_OpenAI(t *testing.T) {
 		c := &Client{
 			provider: ProviderGroq,
 			host:     server.URL,
+			apiPath:  consts.LLMPathGroq,
 			apiKey:   "test-key",
 			timeout:  10 * time.Second,
 			retries:  0,
@@ -201,6 +229,7 @@ func TestGenerate_OpenAI(t *testing.T) {
 		c := &Client{
 			provider: ProviderGroq,
 			host:     server.URL,
+			apiPath:  consts.LLMPathGroq,
 			apiKey:   "test-key",
 			timeout:  10 * time.Second,
 			retries:  0,

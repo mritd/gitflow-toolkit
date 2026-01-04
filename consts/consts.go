@@ -45,7 +45,7 @@ const (
 	LuckyCommitBinary = "lucky_commit"
 
 	// LuckyCommitMaxLen is the maximum length of lucky commit prefix.
-	LuckyCommitMaxLen = 16
+	LuckyCommitMaxLen = 12
 
 	// LuckyCommitURL is the download URL for lucky_commit.
 	LuckyCommitURL = "https://github.com/not-an-aardvark/lucky-commit"
@@ -73,7 +73,7 @@ const (
 // LLM default models.
 const (
 	LLMDefaultOllamaModel     = "qwen2.5-coder:7b"
-	LLMDefaultOpenRouterModel = "qwen/qwen3-coder:free"
+	LLMDefaultOpenRouterModel = "mistralai/devstral-2512:free"
 )
 
 // LLM default prompts (can be overridden via gitconfig).

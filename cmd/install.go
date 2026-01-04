@@ -59,7 +59,7 @@ func isInteractive() bool {
 	return term.IsTerminal(int(os.Stdout.Fd()))
 }
 
-func runInstall(cmd *cobra.Command, args []string) error {
+func runInstall(cmd *cobra.Command, _ []string) error {
 	// Check if we have write permission to the install directory
 	if install.NeedsSudo(installDir) {
 		return renderError(cmd, "Permission denied",
@@ -98,7 +98,7 @@ func runInstall(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func runUninstall(cmd *cobra.Command, args []string) error {
+func runUninstall(cmd *cobra.Command, _ []string) error {
 	// Check if we have write permission to the install directory
 	if install.NeedsSudo(installDir) {
 		return renderError(cmd, "Permission denied",

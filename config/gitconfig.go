@@ -7,26 +7,26 @@ import (
 	"strings"
 )
 
-// GitConfig section name for gitflow-toolkit settings.
+// GitConfigSection name for gitflow-toolkit settings.
 const GitConfigSection = "gitflow"
 
 // GitConfig keys.
 const (
-	GitConfigLLMAPIKey             = "llm-api-key"
-	GitConfigLLMHost               = "llm-host"
-	GitConfigLLMModel              = "llm-model"
-	GitConfigLLMTemperature        = "llm-temperature"
-	GitConfigLLMTimeout            = "llm-timeout"
-	GitConfigLLMRetries            = "llm-retries"
-	GitConfigLLMLang               = "llm-lang"
-	GitConfigLLMContext            = "llm-context"
-	GitConfigLLMConcurrency        = "llm-concurrency"
-	GitConfigLLMFilePrompt         = "llm-file-prompt"
-	GitConfigLLMCommitPromptEN     = "llm-commit-prompt-en"
-	GitConfigLLMCommitPromptZH     = "llm-commit-prompt-zh"
-	GitConfigLLMCommitPromptBiling = "llm-commit-prompt-biling"
-	GitConfigLuckyCommit           = "lucky-commit"
-	GitConfigSSHStrictHost         = "ssh-strict-host-key"
+	GitConfigLLMAPIKey                = "llm-api-key"
+	GitConfigLLMHost                  = "llm-host"
+	GitConfigLLMModel                 = "llm-model"
+	GitConfigLLMTemperature           = "llm-temperature"
+	GitConfigLLMTimeout               = "llm-timeout"
+	GitConfigLLMRetries               = "llm-retries"
+	GitConfigLLMLang                  = "llm-lang"
+	GitConfigLLMContext               = "llm-context"
+	GitConfigLLMConcurrency           = "llm-concurrency"
+	GitConfigLLMFilePrompt            = "llm-file-prompt"
+	GitConfigLLMCommitPromptEN        = "llm-commit-prompt-en"
+	GitConfigLLMCommitPromptZH        = "llm-commit-prompt-zh"
+	GitConfigLLMCommitPromptBilingual = "llm-commit-prompt-bilingual"
+	GitConfigLuckyCommit              = "lucky-commit"
+	GitConfigSSHStrictHost            = "ssh-strict-host-key"
 )
 
 // gitConfig runs git config --get and returns the value.
@@ -75,7 +75,7 @@ func GetFloat(gitKey string, defaultVal float64) float64 {
 
 // GetBool returns a bool config value from gitconfig, or default if not set.
 func GetBool(gitKey string, defaultVal bool) bool {
-	if val := gitConfig(gitKey); val != "" {
+	if val := strings.ToLower(gitConfig(gitKey)); val != "" {
 		return val == "true" || val == "1" || val == "yes"
 	}
 	return defaultVal

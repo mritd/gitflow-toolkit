@@ -37,18 +37,18 @@ const (
 
 // Client is an LLM API client supporting multiple providers.
 type Client struct {
-	provider           Provider
-	host               string
-	apiKey             string
-	timeout            time.Duration
-	retries            int
-	lang               string
-	model              string
-	temperature        float64
-	filePrompt         string
-	commitPromptEN     string
-	commitPromptZH     string
-	commitPromptBiling string
+	provider              Provider
+	host                  string
+	apiKey                string
+	timeout               time.Duration
+	retries               int
+	lang                  string
+	model                 string
+	temperature           float64
+	filePrompt            string
+	commitPromptEN        string
+	commitPromptZH        string
+	commitPromptBilingual string
 }
 
 // GenerateOptions configures a generation request.
@@ -115,21 +115,21 @@ func NewClient() *Client {
 	filePrompt := config.GetString(config.GitConfigLLMFilePrompt, "")
 	commitPromptEN := config.GetString(config.GitConfigLLMCommitPromptEN, "")
 	commitPromptZH := config.GetString(config.GitConfigLLMCommitPromptZH, "")
-	commitPromptBiling := config.GetString(config.GitConfigLLMCommitPromptBiling, "")
+	commitPromptBilingual := config.GetString(config.GitConfigLLMCommitPromptBilingual, "")
 
 	return &Client{
-		provider:           provider,
-		host:               host,
-		apiKey:             apiKey,
-		timeout:            time.Duration(timeout) * time.Second,
-		retries:            retries,
-		lang:               lang,
-		model:              model,
-		temperature:        temperature,
-		filePrompt:         filePrompt,
-		commitPromptEN:     commitPromptEN,
-		commitPromptZH:     commitPromptZH,
-		commitPromptBiling: commitPromptBiling,
+		provider:              provider,
+		host:                  host,
+		apiKey:                apiKey,
+		timeout:               time.Duration(timeout) * time.Second,
+		retries:               retries,
+		lang:                  lang,
+		model:                 model,
+		temperature:           temperature,
+		filePrompt:            filePrompt,
+		commitPromptEN:        commitPromptEN,
+		commitPromptZH:        commitPromptZH,
+		commitPromptBilingual: commitPromptBilingual,
 	}
 }
 
@@ -362,7 +362,7 @@ func (c *Client) GetCommitPrompt(lang string) string {
 	case consts.LLMLangZH:
 		return c.commitPromptZH
 	case consts.LLMLangBilingual:
-		return c.commitPromptBiling
+		return c.commitPromptBilingual
 	default:
 		return c.commitPromptEN
 	}

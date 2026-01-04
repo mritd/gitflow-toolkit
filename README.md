@@ -21,12 +21,12 @@ GitFlow Toolkit is a CLI tool written in Go for standardizing git commit message
 Download the latest binary from the [Release page](https://github.com/mritd/gitflow-toolkit/releases) and run the install command:
 
 ```bash
-# Download (replace with your platform: linux-amd64, darwin-arm64, etc.)
-wget https://github.com/mritd/gitflow-toolkit/releases/download/v3.0.0/gitflow-toolkit-darwin-arm64
-chmod +x gitflow-toolkit-darwin-arm64
+# Download the latest release (replace PLATFORM with: linux-amd64, darwin-arm64, etc.)
+curl -fsSL https://github.com/mritd/gitflow-toolkit/releases/latest/download/gitflow-toolkit-PLATFORM -o gitflow-toolkit
+chmod +x gitflow-toolkit
 
 # Install (creates symlinks for git subcommands)
-sudo ./gitflow-toolkit-darwin-arm64 install
+sudo ./gitflow-toolkit install
 ```
 
 Or install via Go:
@@ -123,7 +123,7 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
     llm-file-prompt = "Summarize this diff briefly."
     llm-commit-prompt-en = "Your custom English commit prompt."
     llm-commit-prompt-zh = "Your custom Chinese commit prompt."
-    llm-commit-prompt-biling = "Your custom bilingual commit prompt."
+    llm-commit-prompt-bilingual = "Your custom bilingual commit prompt."
     
     # Lucky commit prefix (hex characters, max 16)
     lucky-commit = abc
@@ -148,7 +148,7 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
 | `llm-file-prompt` | Custom file analysis prompt | - |
 | `llm-commit-prompt-en` | Custom English commit prompt | - |
 | `llm-commit-prompt-zh` | Custom Chinese commit prompt | - |
-| `llm-commit-prompt-biling` | Custom bilingual commit prompt | - |
+| `llm-commit-prompt-bilingual` | Custom bilingual commit prompt | - |
 | `lucky-commit` | Lucky commit hex prefix (max 16 chars) | - |
 | `ssh-strict-host-key` | SSH strict host key checking | `false` |
 

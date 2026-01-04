@@ -19,7 +19,6 @@ var (
 	ColorError   = lipgloss.AdaptiveColor{Light: "#DC2626", Dark: "#F87171"}
 	ColorText    = lipgloss.AdaptiveColor{Light: "#1A1A1A", Dark: "#DDDDDD"}
 	ColorMuted   = lipgloss.AdaptiveColor{Light: "#6F6C6C", Dark: "#7A7A7A"}
-	ColorDimmed  = lipgloss.AdaptiveColor{Light: "#9CA3AF", Dark: "#6B7280"}
 
 	// Commit message colors
 	ColorCommitType    = lipgloss.AdaptiveColor{Light: "#CA8A04", Dark: "#FACC15"} // Yellow for type

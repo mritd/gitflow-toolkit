@@ -232,6 +232,15 @@ git ci
 
 ## Uninstall
 
+### Homebrew
+
+```bash
+brew uninstall gitflow-toolkit
+brew untap mritd/gitflow-toolkit
+```
+
+### Manual
+
 ```bash
 sudo gitflow-toolkit uninstall
 ```

@@ -2,7 +2,7 @@
 
 GitFlow Toolkit is a CLI tool written in Go for standardizing git commit messages following the [Angular commit message specification](https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#heading=h.greljkmo14y0). It provides an interactive TUI for creating commits, branches, and managing git operations.
 
-[demo.webm](https://github.com/user-attachments/assets/da224050-ed47-4667-910d-a5f5a77989af)
+[demo.webm](https://github.com/user-attachments/assets/f50ea867-3be3-46c0-905c-e0a092f9d6a0)
 
 ## Features
 

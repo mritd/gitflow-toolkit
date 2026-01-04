@@ -29,6 +29,7 @@ const (
 	GitConfigLLMCommitPromptBilingual = "llm-commit-prompt-bilingual"
 	GitConfigLuckyCommitPrefix        = "lucky-commit-prefix"
 	GitConfigSSHStrictHostKey         = "ssh-strict-host-key"
+	GitConfigBranchAutoDetect         = "branch-auto-detect"
 )
 
 // gitConfig runs git config --get and returns the value.

@@ -143,6 +143,9 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
     
     # SSH strict host key checking (default: false)
     ssh-strict-host-key = false
+    
+    # Auto-detect commit type from branch name (default: false)
+    branch-auto-detect = true
 ```
 
 ### Configuration Reference
@@ -165,6 +168,7 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
 | `llm-commit-prompt-bilingual` | Custom bilingual commit prompt | - |
 | `lucky-commit-prefix` | Lucky commit hex prefix (max 12 chars) | - |
 | `ssh-strict-host-key` | SSH strict host key checking | `false` |
+| `branch-auto-detect` | Auto-detect commit type from branch name | `false` |
 
 ### Auto Generate (AI)
 
@@ -231,6 +235,34 @@ git ci
 - Prefix must be valid hex characters (0-9, a-f)
 - Maximum prefix length is 12 characters
 - Press Ctrl+C during search to skip and keep original commit
+
+### Branch Auto-Detection
+
+Automatically pre-select the commit type based on your current branch name:
+
+```bash
+# Enable the feature
+git config --global gitflow.branch-auto-detect true
+
+# Now when you're on a branch like "feat/login" or "feature-new-ui"
+git ci  # Cursor will auto-select "feat" type
+```
+
+**Supported branch prefixes:**
+
+| Branch Prefix | Commit Type |
+|---------------|-------------|
+| `feat`, `feature` | feat |
+| `fix`, `bugfix`, `bug` | fix |
+| `docs`, `doc`, `document` | docs |
+| `style` | style |
+| `refactor`, `refact` | refactor |
+| `test`, `testing` | test |
+| `chore` | chore |
+| `perf`, `performance` | perf |
+| `hotfix` | hotfix |
+
+Supports separators: `/`, `-`, `_` (e.g., `feat/login`, `fix-bug-123`, `docs_readme`)
 
 ## Uninstall
 

@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/mritd/gitflow-toolkit/v3/config"
 	"github.com/mritd/gitflow-toolkit/v3/internal/git"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
@@ -26,8 +27,16 @@ type Result struct {
 func Run(luckyPrefix string) Result {
 	var result Result
 
+	// Detect commit type from branch name if enabled
+	var initialType string
+	if config.GetBool(config.GitConfigBranchAutoDetect, false) {
+		if branch, err := git.CurrentBranch(); err == nil {
+			initialType = git.ParseBranchType(branch)
+		}
+	}
+
 	// Step 1: Select commit type or AI generate
-	choice, err := runSelector()
+	choice, err := runSelector(initialType)
 	if err != nil {
 		if errors.Is(err, errUserAborted) {
 			result.Cancelled = true

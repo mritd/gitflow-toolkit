@@ -109,7 +109,18 @@ type selectorModel struct {
 	width      int
 }
 
-func newSelectorModel() selectorModel {
+// findTypeIndex returns the index of the commit type in CommitTypes.
+// Returns 0 if not found.
+func findTypeIndex(commitType string) int {
+	for i, ct := range consts.CommitTypes {
+		if ct.Name == commitType {
+			return i
+		}
+	}
+	return 0
+}
+
+func newSelectorModel(initialType string) selectorModel {
 	items := make([]list.Item, len(consts.CommitTypes))
 	for i, ct := range consts.CommitTypes {
 		items[i] = selectorItem{
@@ -130,6 +141,11 @@ func newSelectorModel() selectorModel {
 	l.SetShowHelp(false) // Disable built-in help, we render our own
 	l.Styles.Title = selectorTitleStyle
 	l.Styles.PaginationStyle = lipgloss.NewStyle().PaddingLeft(2)
+
+	// Set initial selection based on branch type
+	if initialType != "" {
+		l.Select(findTypeIndex(initialType))
+	}
 
 	return selectorModel{list: l, delegate: delegate, aiSelected: false}
 }
@@ -243,8 +259,9 @@ func (m selectorModel) View() string {
 }
 
 // runSelector shows a selector for commit type using bubbles/list.
-func runSelector() (string, error) {
-	m := newSelectorModel()
+// initialType is the commit type to pre-select (can be empty).
+func runSelector(initialType string) (string, error) {
+	m := newSelectorModel(initialType)
 	p := tea.NewProgram(m)
 
 	finalModel, err := p.Run()

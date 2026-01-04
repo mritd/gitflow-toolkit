@@ -229,8 +229,8 @@ func TestGetContentWidth(t *testing.T) {
 		expected      int
 	}{
 		{"Narrow terminal", 50, 46},
-		{"Normal terminal", 100, 80},
-		{"Wide terminal", 200, 80},
+		{"Normal terminal", 100, 96},
+		{"Wide terminal", 200, 120},      // MaxContentWidth = 120
 		{"Very narrow terminal", 30, 40}, // Minimum width
 	}
 

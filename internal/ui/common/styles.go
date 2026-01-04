@@ -2,7 +2,10 @@
 package common
 
 import (
+	"os"
+
 	"github.com/charmbracelet/lipgloss"
+	"golang.org/x/term"
 )
 
 // Adaptive colors for light and dark terminals.
@@ -48,11 +51,20 @@ const (
 )
 
 // MaxContentWidth defines the maximum display width for content.
-const MaxContentWidth = 80
+const MaxContentWidth = 120
 
 // GetContentWidth calculates the appropriate content width for the given terminal width.
+// If terminalWidth is 0, it auto-detects the terminal width.
 // It returns the smaller of (terminalWidth - 4) or MaxContentWidth, with a minimum of 40.
 func GetContentWidth(terminalWidth int) int {
+	if terminalWidth <= 0 {
+		w, _, err := term.GetSize(int(os.Stdout.Fd()))
+		if err == nil && w > 0 {
+			terminalWidth = w
+		} else {
+			terminalWidth = 80
+		}
+	}
 	width := terminalWidth - 4
 	if width > MaxContentWidth {
 		width = MaxContentWidth

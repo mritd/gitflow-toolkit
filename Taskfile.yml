@@ -75,6 +75,11 @@ tasks:
       - task: build-cross
         vars: { TASK: "{{.TASK}}", GOOS: linux, GOARCH: amd64, GOAMD64: v3 }
 
+  linux-amd64-v4:
+    cmds:
+      - task: build-cross
+        vars: { TASK: "{{.TASK}}", GOOS: linux, GOARCH: amd64, GOAMD64: v4 }
+
   linux-armv5:
     cmds:
       - task: build-cross
@@ -112,6 +117,7 @@ tasks:
       - task: linux-386
       - task: linux-amd64
       - task: linux-amd64-v3
+      - task: linux-amd64-v4
       - task: linux-armv5
       - task: linux-armv6
       - task: linux-armv7

@@ -27,7 +27,7 @@ func init() {
 	rootCmd.AddCommand(pushCmd)
 }
 
-func runPush(cmd *cobra.Command, args []string) error {
+func runPush(cmd *cobra.Command, _ []string) error {
 	model := push.NewModel()
 	p := tea.NewProgram(model)
 

@@ -37,7 +37,7 @@ func init() {
 	rootCmd.AddCommand(commitCmd)
 }
 
-func runCommit(cmd *cobra.Command, args []string) error {
+func runCommit(cmd *cobra.Command, _ []string) error {
 	// Check if there are staged files
 	if err := git.HasStagedFiles(); err != nil {
 		return renderError(cmd, "No staged files", err)

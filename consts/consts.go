@@ -55,14 +55,30 @@ const (
 
 // LLM defaults.
 const (
-	LLMDefaultOllamaHost     = "http://localhost:11434"
-	LLMDefaultOpenRouterHost = "https://openrouter.ai"
 	LLMDefaultDiffContext    = 5
 	LLMDefaultRequestTimeout = 2 * time.Minute
 	LLMDefaultRetries        = 0
 	LLMDefaultLang           = "en"
 	LLMDefaultTemperature    = 0.3
 	LLMDefaultConcurrency    = 3
+)
+
+// LLM provider hosts (OpenAI-compatible APIs only).
+const (
+	LLMHostOllama     = "http://localhost:11434"
+	LLMHostOpenRouter = "https://openrouter.ai"
+	LLMHostGroq       = "https://api.groq.com"
+	LLMHostOpenAI     = "https://api.openai.com"
+	LLMHostDeepSeek   = "https://api.deepseek.com"
+	LLMHostMistral    = "https://api.mistral.ai"
+)
+
+// LLM API paths for chat completions.
+const (
+	LLMPathOllama     = "/api/generate"
+	LLMPathOpenAI     = "/v1/chat/completions"        // OpenAI, DeepSeek, Mistral, most compatible APIs
+	LLMPathOpenRouter = "/api/v1/chat/completions"    // OpenRouter
+	LLMPathGroq       = "/openai/v1/chat/completions" // Groq
 )
 
 // LLM language options.
@@ -74,8 +90,8 @@ const (
 
 // LLM default models.
 const (
-	LLMDefaultOllamaModel     = "qwen2.5-coder:7b"
-	LLMDefaultOpenRouterModel = "mistralai/devstral-2512:free"
+	LLMModelOllama     = "qwen2.5-coder:7b"
+	LLMModelOpenRouter = "mistralai/devstral-2512:free"
 )
 
 // LLM default prompts (can be overridden via gitconfig).

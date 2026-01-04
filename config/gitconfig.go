@@ -15,6 +15,7 @@ const GitConfigSection = "gitflow"
 const (
 	GitConfigLLMAPIKey                = "llm-api-key"
 	GitConfigLLMAPIHost               = "llm-api-host"
+	GitConfigLLMAPIPath               = "llm-api-path"
 	GitConfigLLMModel                 = "llm-model"
 	GitConfigLLMTemperature           = "llm-temperature"
 	GitConfigLLMRequestTimeout        = "llm-request-timeout"

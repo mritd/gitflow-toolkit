@@ -399,6 +399,7 @@ func (m confirmModel) View() string {
 
 // renderPreview renders the commit message preview using the same colors as result.
 func renderPreview(msg git.CommitMessage) string {
+	// Preview doesn't need wrapping (displayed in content box with its own width)
 	return common.FormatCommitMessage(common.CommitMessageContent{
 		Type:    msg.Type,
 		Scope:   msg.Scope,
@@ -406,7 +407,7 @@ func renderPreview(msg git.CommitMessage) string {
 		Body:    msg.Body,
 		Footer:  msg.Footer,
 		SOB:     msg.SOB,
-	})
+	}, 0)
 }
 
 // renderButtons renders the confirm/cancel buttons.

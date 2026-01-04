@@ -73,8 +73,10 @@ func runCommit(cmd *cobra.Command, args []string) error {
 		return renderError(cmd, "Commit failed", result.Err)
 	}
 
-	// Build success message
+	// Build success message with proper width for wrapping
 	msg := result.Message
+	// GetContentWidth returns at least 40, minus 4 for border/padding = at least 36
+	contentWidth := common.GetContentWidth(0) - 4
 	content := common.FormatCommitMessage(common.CommitMessageContent{
 		Type:    msg.Type,
 		Scope:   msg.Scope,
@@ -82,7 +84,7 @@ func runCommit(cmd *cobra.Command, args []string) error {
 		Body:    msg.Body,
 		Footer:  msg.Footer,
 		SOB:     msg.SOB,
-	})
+	}, contentWidth)
 
 	// Add hash info
 	if result.Hash != "" {

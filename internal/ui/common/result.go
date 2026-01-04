@@ -35,6 +35,11 @@ func getTerminalWidth() int {
 	return width
 }
 
+// containsANSI checks if a string contains ANSI escape codes.
+func containsANSI(s string) bool {
+	return strings.Contains(s, "\x1b[")
+}
+
 // RenderResult renders a Result with adaptive terminal width.
 // The output automatically adjusts to terminal width (capped at MaxContentWidth),
 // and preserves URLs and file paths on single lines without wrapping.
@@ -72,12 +77,15 @@ func RenderResult(r Result) string {
 		BorderForeground(bgColor).
 		PaddingLeft(1)
 
-	// Format content with line wrapping
-	termWidth := getTerminalWidth()
-	contentWidth := GetContentWidth(termWidth)
-	// Account for padding (2 left) and border (2 = "│ ")
-	maxContentWidth := contentWidth - 4
-	formattedContent := formatContent(r.Content, maxContentWidth)
+	// Format content with line wrapping (skip if content already contains ANSI codes)
+	formattedContent := r.Content
+	if !containsANSI(r.Content) {
+		termWidth := getTerminalWidth()
+		contentWidth := GetContentWidth(termWidth)
+		// Account for padding (2 left) and border (2 = "│ ")
+		maxContentWidth := contentWidth - 4
+		formattedContent = formatContent(r.Content, maxContentWidth)
+	}
 
 	title := titleLayout.Render(titleStyle.Render(symbol + " " + r.Title))
 	content := contentLayout.Render(contentStyle.Render(formattedContent))
@@ -284,7 +292,8 @@ type CommitMessageContent struct {
 // Body: green
 // Footer: blue
 // SOB: gray
-func FormatCommitMessage(msg CommitMessageContent) string {
+// maxWidth: maximum line width for wrapping (0 = no wrapping)
+func FormatCommitMessage(msg CommitMessageContent, maxWidth int) string {
 	var sb strings.Builder
 
 	// Header: type(scope): subject - each part with distinct color
@@ -292,22 +301,69 @@ func FormatCommitMessage(msg CommitMessageContent) string {
 	scopeStyle := lipgloss.NewStyle().Foreground(ColorCommitScope)
 	subjectStyle := lipgloss.NewStyle().Foreground(ColorCommitSubject)
 
+	// Calculate header prefix length for subject wrapping
+	headerPrefix := msg.Type + "(" + msg.Scope + "): "
+	prefixLen := len(headerPrefix)
+
 	sb.WriteString(typeStyle.Render(msg.Type))
 	sb.WriteString(scopeStyle.Render("(" + msg.Scope + ")"))
-	sb.WriteString(subjectStyle.Render(": " + msg.Subject))
+	sb.WriteString(": ")
 
-	// Body
+	// Wrap subject if needed, applying color to each line
+	if maxWidth > 0 && len(headerPrefix)+len(msg.Subject) > maxWidth {
+		subjectWidth := maxWidth - prefixLen
+		if subjectWidth < 20 {
+			subjectWidth = 20
+		}
+		subjectLines := wrapLine(msg.Subject, subjectWidth)
+		for i, line := range subjectLines {
+			if i > 0 {
+				sb.WriteString("\n")
+			}
+			sb.WriteString(subjectStyle.Render(line))
+		}
+	} else {
+		sb.WriteString(subjectStyle.Render(msg.Subject))
+	}
+
+	// Body - wrap each line and apply color
 	if msg.Body != "" {
 		sb.WriteString("\n\n")
 		bodyStyle := lipgloss.NewStyle().Foreground(ColorCommitBody)
-		sb.WriteString(bodyStyle.Render(msg.Body))
+		bodyLines := strings.Split(msg.Body, "\n")
+		for i, line := range bodyLines {
+			if i > 0 {
+				sb.WriteString("\n")
+			}
+			if maxWidth > 0 && len(line) > maxWidth {
+				wrapped := wrapLine(line, maxWidth)
+				for j, wl := range wrapped {
+					if j > 0 {
+						sb.WriteString("\n")
+					}
+					sb.WriteString(bodyStyle.Render(wl))
+				}
+			} else {
+				sb.WriteString(bodyStyle.Render(line))
+			}
+		}
 	}
 
-	// Footer
+	// Footer - wrap and apply color
 	if msg.Footer != "" {
 		sb.WriteString("\n\n")
 		footerStyle := lipgloss.NewStyle().Foreground(ColorCommitFooter)
-		sb.WriteString(footerStyle.Render(msg.Footer))
+		if maxWidth > 0 && len(msg.Footer) > maxWidth {
+			footerLines := wrapLine(msg.Footer, maxWidth)
+			for i, line := range footerLines {
+				if i > 0 {
+					sb.WriteString("\n")
+				}
+				sb.WriteString(footerStyle.Render(line))
+			}
+		} else {
+			sb.WriteString(footerStyle.Render(msg.Footer))
+		}
 	}
 
 	// Signed-off-by

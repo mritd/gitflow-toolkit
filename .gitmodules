@@ -1,0 +1,3 @@
+[submodule "homebrew"]
+	path = homebrew
+	url = git@github.com:mritd/homebrew-gitflow-toolkit.git

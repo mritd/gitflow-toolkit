@@ -125,7 +125,7 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
     llm-commit-prompt-zh = "Your custom Chinese commit prompt."
     llm-commit-prompt-bilingual = "Your custom bilingual commit prompt."
     
-    # Lucky commit prefix (hex characters, max 16)
+    # Lucky commit prefix (hex characters, max 12)
     lucky-commit = abc
     
     # SSH strict host key checking (default: false)
@@ -149,7 +149,7 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
 | `llm-commit-prompt-en` | Custom English commit prompt | - |
 | `llm-commit-prompt-zh` | Custom Chinese commit prompt | - |
 | `llm-commit-prompt-bilingual` | Custom bilingual commit prompt | - |
-| `lucky-commit` | Lucky commit hex prefix (max 16 chars) | - |
+| `lucky-commit` | Lucky commit hex prefix (max 12 chars) | - |
 | `ssh-strict-host-key` | SSH strict host key checking | `false` |
 
 ### Auto Generate (AI)
@@ -197,7 +197,7 @@ Generate commit hashes with a specific prefix using [lucky_commit](https://githu
 # Install lucky_commit first
 cargo install lucky_commit
 
-# Set the desired prefix (hex characters, max 16)
+# Set the desired prefix (hex characters, max 12)
 git config --global gitflow.lucky-commit abc
 
 # Commit as usual - hash will start with "abc"
@@ -205,7 +205,7 @@ git ci
 ```
 
 - Prefix must be valid hex characters (0-9, a-f)
-- Maximum prefix length is 16 characters
+- Maximum prefix length is 12 characters
 - Press Ctrl+C during search to skip and keep original commit
 
 ## Uninstall

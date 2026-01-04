@@ -8,9 +8,12 @@ Set Height 700
 Set Theme "Catppuccin Mocha"
 Set TypingSpeed 30ms
 Set Padding 20
-Set Framerate 30
+Set Framerate 60
 Set CursorBlink true
 Set Shell "bash"
+Set Margin 20
+Set MarginFill "#674EFF"
+Set BorderRadius 15
 
 # Prepare test repository (hidden)
 Hide

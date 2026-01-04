@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 )
 
 func TestNormalizeHost(t *testing.T) {
@@ -43,7 +43,7 @@ func TestNewClient_Defaults(t *testing.T) {
 	// Skip if any gitconfig LLM settings are set.
 	if config.GetString(config.GitConfigLLMAPIKey, "") != "" ||
 		config.GetString(config.GitConfigLLMModel, "") != "" ||
-		config.GetString(config.GitConfigLLMHost, "") != "" {
+		config.GetString(config.GitConfigLLMAPIHost, "") != "" {
 		t.Skip("Skipping: gitconfig has LLM settings")
 	}
 
@@ -58,8 +58,8 @@ func TestNewClient_Defaults(t *testing.T) {
 		if c.model != consts.LLMDefaultOllamaModel {
 			t.Errorf("model = %q, want %q", c.model, consts.LLMDefaultOllamaModel)
 		}
-		if c.timeout != time.Duration(consts.LLMDefaultTimeout)*time.Second {
-			t.Errorf("timeout = %v, want %v", c.timeout, time.Duration(consts.LLMDefaultTimeout)*time.Second)
+		if c.timeout != consts.LLMDefaultRequestTimeout {
+			t.Errorf("timeout = %v, want %v", c.timeout, consts.LLMDefaultRequestTimeout)
 		}
 	})
 }
@@ -213,15 +213,15 @@ func TestGenerate_OpenAI(t *testing.T) {
 	})
 }
 
-func TestGetContext(t *testing.T) {
+func TestGetDiffContext(t *testing.T) {
 	// NOTE: This test may be affected by ~/.gitconfig settings.
-	if ctx := config.GetString(config.GitConfigLLMContext, ""); ctx != "" {
-		t.Skip("Skipping: gitconfig has llm-context set")
+	if ctx := config.GetString(config.GitConfigLLMDiffContext, ""); ctx != "" {
+		t.Skip("Skipping: gitconfig has llm-diff-context set")
 	}
 
 	t.Run("default", func(t *testing.T) {
-		if got := GetContext(); got != consts.LLMDefaultContext {
-			t.Errorf("GetContext() = %d, want %d", got, consts.LLMDefaultContext)
+		if got := GetDiffContext(); got != consts.LLMDefaultDiffContext {
+			t.Errorf("GetDiffContext() = %d, want %d", got, consts.LLMDefaultDiffContext)
 		}
 	})
 }

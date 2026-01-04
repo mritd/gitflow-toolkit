@@ -30,7 +30,7 @@ func Run(args ...string) (string, error) {
 	}
 
 	// Disable strict host key checking unless explicitly enabled via gitconfig
-	if !config.GetBool(config.GitConfigSSHStrictHost, false) {
+	if !config.GetBool(config.GitConfigSSHStrictHostKey, false) {
 		cmd.Env = append(os.Environ(), "GIT_SSH_COMMAND=ssh -o StrictHostKeyChecking=no")
 	}
 

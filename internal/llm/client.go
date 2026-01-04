@@ -78,7 +78,7 @@ func NewClient() *Client {
 	}
 
 	// Get host
-	host := config.GetString(config.GitConfigLLMHost, "")
+	host := config.GetString(config.GitConfigLLMAPIHost, "")
 	if host == "" {
 		host = defaultHost
 	} else {
@@ -98,12 +98,12 @@ func NewClient() *Client {
 	model := config.GetString(config.GitConfigLLMModel, defaultModel)
 
 	// Get other settings
-	timeout := config.GetInt(config.GitConfigLLMTimeout, consts.LLMDefaultTimeout)
-	retries := config.GetInt(config.GitConfigLLMRetries, consts.LLMDefaultRetries)
+	timeout := config.GetDuration(config.GitConfigLLMRequestTimeout, consts.LLMDefaultRequestTimeout)
+	retries := config.GetInt(config.GitConfigLLMMaxRetries, consts.LLMDefaultRetries)
 	temperature := config.GetFloat(config.GitConfigLLMTemperature, consts.LLMDefaultTemperature)
 
 	// Get language (validate value)
-	lang := config.GetString(config.GitConfigLLMLang, consts.LLMDefaultLang)
+	lang := config.GetString(config.GitConfigLLMOutputLang, consts.LLMDefaultLang)
 	switch lang {
 	case consts.LLMLangEN, consts.LLMLangZH, consts.LLMLangBilingual:
 		// valid
@@ -112,7 +112,7 @@ func NewClient() *Client {
 	}
 
 	// Get custom prompts
-	filePrompt := config.GetString(config.GitConfigLLMFilePrompt, "")
+	filePrompt := config.GetString(config.GitConfigLLMFileAnalysisPrompt, "")
 	commitPromptEN := config.GetString(config.GitConfigLLMCommitPromptEN, "")
 	commitPromptZH := config.GetString(config.GitConfigLLMCommitPromptZH, "")
 	commitPromptBilingual := config.GetString(config.GitConfigLLMCommitPromptBilingual, "")
@@ -121,7 +121,7 @@ func NewClient() *Client {
 		provider:              provider,
 		host:                  host,
 		apiKey:                apiKey,
-		timeout:               time.Duration(timeout) * time.Second,
+		timeout:               timeout,
 		retries:               retries,
 		lang:                  lang,
 		model:                 model,
@@ -368,12 +368,12 @@ func (c *Client) GetCommitPrompt(lang string) string {
 	}
 }
 
-// GetContext returns the configured diff context lines.
-func GetContext() int {
-	return config.GetInt(config.GitConfigLLMContext, consts.LLMDefaultContext)
+// GetDiffContext returns the configured diff context lines.
+func GetDiffContext() int {
+	return config.GetInt(config.GitConfigLLMDiffContext, consts.LLMDefaultDiffContext)
 }
 
 // GetConcurrency returns the configured concurrency limit for parallel file analysis.
 func GetConcurrency() int {
-	return config.GetInt(config.GitConfigLLMConcurrency, consts.LLMDefaultConcurrency)
+	return config.GetInt(config.GitConfigLLMMaxConcurrency, consts.LLMDefaultConcurrency)
 }

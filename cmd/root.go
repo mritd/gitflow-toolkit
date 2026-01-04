@@ -4,13 +4,26 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
 
-var version = "dev"
+// VersionInfo holds version information for display.
+type VersionInfo struct {
+	Version   string
+	Commit    string
+	BuildDate string
+	GoVersion string
+	Platform  string
+}
+
+var versionInfo = VersionInfo{
+	Version: "dev",
+}
 
 // rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
@@ -38,7 +51,6 @@ Available commit types:
   chore    - Changing CI/CD
   perf     - Improving performance
   hotfix   - Bug fix urgently`,
-	Version: version,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -62,8 +74,54 @@ func init() {
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 }
 
-// SetVersion sets the version string.
-func SetVersion(v string) {
-	version = v
-	rootCmd.Version = v
+// SetVersionInfo sets the version information.
+func SetVersionInfo(info VersionInfo) {
+	versionInfo = info
+	rootCmd.Version = info.Version
+	// Set custom version template after version info is populated
+	rootCmd.SetVersionTemplate(renderVersion())
+}
+
+// renderVersion renders a styled version output.
+func renderVersion() string {
+	var sb strings.Builder
+
+	// Title style
+	titleStyle := lipgloss.NewStyle().
+		Foreground(common.ColorTitleFg).
+		Background(common.ColorTitleBg).
+		Bold(true).
+		Padding(0, 1)
+
+	// Label style (width includes space after colon)
+	labelStyle := lipgloss.NewStyle().
+		Foreground(common.ColorMuted).
+		Width(14)
+
+	// Value style
+	valueStyle := lipgloss.NewStyle().
+		Foreground(common.ColorSuccess)
+
+	// Commit style (dimmer for long hash)
+	commitStyle := lipgloss.NewStyle().
+		Foreground(common.ColorMuted)
+
+	// Layout
+	titleLayout := lipgloss.NewStyle().Padding(1, 0, 0, 2)
+	contentLayout := lipgloss.NewStyle().PaddingLeft(2)
+
+	sb.WriteString(titleLayout.Render(titleStyle.Render("gitflow-toolkit")))
+	sb.WriteString("\n\n")
+
+	// Version info rows
+	sb.WriteString(contentLayout.Render(labelStyle.Render("Version:") + valueStyle.Render(versionInfo.Version)))
+	sb.WriteString("\n")
+	sb.WriteString(contentLayout.Render(labelStyle.Render("Built:") + valueStyle.Render(versionInfo.BuildDate)))
+	sb.WriteString("\n")
+	sb.WriteString(contentLayout.Render(labelStyle.Render("Go Version:") + valueStyle.Render(versionInfo.GoVersion)))
+	sb.WriteString("\n")
+	sb.WriteString(contentLayout.Render(labelStyle.Render("Commit Hash:") + commitStyle.Render(versionInfo.Commit)))
+	sb.WriteString("\n\n")
+
+	return sb.String()
 }

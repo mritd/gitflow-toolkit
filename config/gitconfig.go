@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // GitConfigSection name for gitflow-toolkit settings.
@@ -13,20 +14,20 @@ const GitConfigSection = "gitflow"
 // GitConfig keys.
 const (
 	GitConfigLLMAPIKey                = "llm-api-key"
-	GitConfigLLMHost                  = "llm-host"
+	GitConfigLLMAPIHost               = "llm-api-host"
 	GitConfigLLMModel                 = "llm-model"
 	GitConfigLLMTemperature           = "llm-temperature"
-	GitConfigLLMTimeout               = "llm-timeout"
-	GitConfigLLMRetries               = "llm-retries"
-	GitConfigLLMLang                  = "llm-lang"
-	GitConfigLLMContext               = "llm-context"
-	GitConfigLLMConcurrency           = "llm-concurrency"
-	GitConfigLLMFilePrompt            = "llm-file-prompt"
+	GitConfigLLMRequestTimeout        = "llm-request-timeout"
+	GitConfigLLMMaxRetries            = "llm-max-retries"
+	GitConfigLLMOutputLang            = "llm-output-lang"
+	GitConfigLLMDiffContext           = "llm-diff-context"
+	GitConfigLLMMaxConcurrency        = "llm-max-concurrency"
+	GitConfigLLMFileAnalysisPrompt    = "llm-file-analysis-prompt"
 	GitConfigLLMCommitPromptEN        = "llm-commit-prompt-en"
 	GitConfigLLMCommitPromptZH        = "llm-commit-prompt-zh"
 	GitConfigLLMCommitPromptBilingual = "llm-commit-prompt-bilingual"
-	GitConfigLuckyCommit              = "lucky-commit"
-	GitConfigSSHStrictHost            = "ssh-strict-host-key"
+	GitConfigLuckyCommitPrefix        = "lucky-commit-prefix"
+	GitConfigSSHStrictHostKey         = "ssh-strict-host-key"
 )
 
 // gitConfig runs git config --get and returns the value.
@@ -77,6 +78,17 @@ func GetFloat(gitKey string, defaultVal float64) float64 {
 func GetBool(gitKey string, defaultVal bool) bool {
 	if val := strings.ToLower(gitConfig(gitKey)); val != "" {
 		return val == "true" || val == "1" || val == "yes"
+	}
+	return defaultVal
+}
+
+// GetDuration returns a time.Duration config value from gitconfig, or default if not set.
+// Supports Go duration format (e.g., "30s", "2m", "1h30m").
+func GetDuration(gitKey string, defaultVal time.Duration) time.Duration {
+	if val := gitConfig(gitKey); val != "" {
+		if d, err := time.ParseDuration(val); err == nil {
+			return d
+		}
 	}
 	return defaultVal
 }

@@ -21,7 +21,7 @@ var (
 // GetLuckyPrefix returns the lucky commit prefix from gitconfig.
 // Returns empty string if not set.
 func GetLuckyPrefix() string {
-	return config.GetString(config.GitConfigLuckyCommit, "")
+	return config.GetString(config.GitConfigLuckyCommitPrefix, "")
 }
 
 // ValidateLuckyPrefix validates and normalizes the prefix.

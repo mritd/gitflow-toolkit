@@ -110,23 +110,23 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
     llm-api-key = sk-or-v1-xxxxx
     
     # LLM settings
-    llm-host = https://openrouter.ai
+    llm-api-host = https://openrouter.ai
     llm-model = mistralai/devstral-2512:free
     llm-temperature = 0.3
-    llm-context = 5
-    llm-timeout = 120
-    llm-retries = 0
-    llm-lang = en
-    llm-concurrency = 5
+    llm-diff-context = 5
+    llm-request-timeout = 2m
+    llm-max-retries = 0
+    llm-output-lang = en
+    llm-max-concurrency = 3
     
     # Custom prompts (optional, language-specific)
-    llm-file-prompt = "Summarize this diff briefly."
+    llm-file-analysis-prompt = "Summarize this diff briefly."
     llm-commit-prompt-en = "Your custom English commit prompt."
     llm-commit-prompt-zh = "Your custom Chinese commit prompt."
     llm-commit-prompt-bilingual = "Your custom bilingual commit prompt."
     
     # Lucky commit prefix (hex characters, max 12)
-    lucky-commit = abc
+    lucky-commit-prefix = abc
     
     # SSH strict host key checking (default: false)
     ssh-strict-host-key = false
@@ -137,19 +137,19 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
 | Key | Description | Default |
 |-----|-------------|---------|
 | `llm-api-key` | API key for cloud LLM providers | - |
-| `llm-host` | LLM API endpoint | see below |
+| `llm-api-host` | LLM API endpoint | see below |
 | `llm-model` | LLM model name | see below |
 | `llm-temperature` | Model temperature | `0.3` |
-| `llm-context` | Diff context lines | `5` |
-| `llm-timeout` | Request timeout (seconds) | `120` |
-| `llm-retries` | Retry count on failure | `0` |
-| `llm-lang` | Output language (`en`, `zh`, `bilingual`) | `en` |
-| `llm-concurrency` | Parallel file analysis limit | `5` |
-| `llm-file-prompt` | Custom file analysis prompt | - |
+| `llm-diff-context` | Diff context lines | `5` |
+| `llm-request-timeout` | Request timeout (Go duration, e.g., `2m`, `30s`) | `2m` |
+| `llm-max-retries` | Max retry count on failure | `0` |
+| `llm-output-lang` | Output language (`en`, `zh`, `bilingual`) | `en` |
+| `llm-max-concurrency` | Max parallel file analysis | `3` |
+| `llm-file-analysis-prompt` | Custom file analysis prompt | - |
 | `llm-commit-prompt-en` | Custom English commit prompt | - |
 | `llm-commit-prompt-zh` | Custom Chinese commit prompt | - |
 | `llm-commit-prompt-bilingual` | Custom bilingual commit prompt | - |
-| `lucky-commit` | Lucky commit hex prefix (max 12 chars) | - |
+| `lucky-commit-prefix` | Lucky commit hex prefix (max 12 chars) | - |
 | `ssh-strict-host-key` | SSH strict host key checking | `false` |
 
 ### Auto Generate (AI)
@@ -198,7 +198,7 @@ Generate commit hashes with a specific prefix using [lucky_commit](https://githu
 cargo install lucky_commit
 
 # Set the desired prefix (hex characters, max 12)
-git config --global gitflow.lucky-commit abc
+git config --global gitflow.lucky-commit-prefix abc
 
 # Commit as usual - hash will start with "abc"
 git ci

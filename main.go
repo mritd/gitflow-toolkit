@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/mattn/go-runewidth"
@@ -28,8 +29,14 @@ func main() {
 		os.Args = append([]string{os.Args[0], subCmd}, os.Args[1:]...)
 	}
 
-	// Set version
-	cmd.SetVersion(buildVersionString())
+	// Set version info
+	cmd.SetVersionInfo(cmd.VersionInfo{
+		Version:   version,
+		Commit:    commit,
+		BuildDate: buildDate,
+		GoVersion: runtime.Version(),
+		Platform:  runtime.GOOS + "/" + runtime.GOARCH,
+	})
 
 	// Execute
 	cmd.Execute()
@@ -42,11 +49,6 @@ func detectBinaryName() string {
 		return filepath.Base(os.Args[0])
 	}
 	return filepath.Base(bin)
-}
-
-// buildVersionString builds the version string.
-func buildVersionString() string {
-	return version + " (" + commit + ") " + buildDate
 }
 
 // See: https://github.com/charmbracelet/lipgloss/issues/40#issuecomment-891167509

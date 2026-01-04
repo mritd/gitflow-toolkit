@@ -20,7 +20,7 @@ func TestValidateLuckyPrefix(t *testing.T) {
 		{"valid mixed case", "AbC123", "abc123", false},
 		{"empty string", "", "", true},
 		{"too long", "12345678901234567", "", true},
-		{"exactly 16 chars", "1234567890abcdef", "1234567890abcdef", false},
+		{"exactly 12 chars", "1234567890ab", "1234567890ab", false},
 		{"invalid chars", "xyz123", "", true},
 		{"invalid with space", "abc 123", "", true},
 		{"valid all zeros", "0000000000000000", "0000000000000000", false},

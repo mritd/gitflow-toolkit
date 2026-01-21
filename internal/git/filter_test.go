@@ -94,3 +94,78 @@ func TestDetectPriority(t *testing.T) {
 		})
 	}
 }
+
+func TestCountDiffLines(t *testing.T) {
+	tests := []struct {
+		name    string
+		diff    string
+		wantAdd int
+		wantDel int
+	}{
+		{
+			name:    "empty diff",
+			diff:    "",
+			wantAdd: 0,
+			wantDel: 0,
+		},
+		{
+			name: "only additions",
+			diff: `diff --git a/main.go b/main.go
+--- a/main.go
++++ b/main.go
+@@ -1,3 +1,5 @@
+ package main
++import "fmt"
++import "os"`,
+			wantAdd: 2,
+			wantDel: 0,
+		},
+		{
+			name: "only deletions",
+			diff: `diff --git a/main.go b/main.go
+--- a/main.go
++++ b/main.go
+@@ -1,5 +1,3 @@
+ package main
+-import "fmt"
+-import "os"`,
+			wantAdd: 0,
+			wantDel: 2,
+		},
+		{
+			name: "mixed changes",
+			diff: `diff --git a/main.go b/main.go
+--- a/main.go
++++ b/main.go
+@@ -1,5 +1,5 @@
+ package main
+-import "fmt"
++import "log"
++import "os"
+-import "io"`,
+			wantAdd: 2,
+			wantDel: 2,
+		},
+		{
+			name: "ignore header lines",
+			diff: `diff --git a/main.go b/main.go
+--- a/main.go
++++ b/main.go
+@@ -1,3 +1,4 @@
+ package main
++import "fmt"`,
+			wantAdd: 1,
+			wantDel: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotAdd, gotDel := CountDiffLines(tt.diff)
+			if gotAdd != tt.wantAdd || gotDel != tt.wantDel {
+				t.Errorf("CountDiffLines() = (%d, %d), want (%d, %d)",
+					gotAdd, gotDel, tt.wantAdd, tt.wantDel)
+			}
+		})
+	}
+}

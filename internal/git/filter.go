@@ -129,3 +129,17 @@ func DetectPriority(path string) FilePriority {
 	// Default to medium for unknown files
 	return PriorityMedium
 }
+
+// CountDiffLines counts added and deleted lines in a diff.
+// Only counts lines starting with + or - (excluding +++ and --- headers).
+func CountDiffLines(diff string) (add, del int) {
+	lines := strings.Split(diff, "\n")
+	for _, line := range lines {
+		if strings.HasPrefix(line, "+") && !strings.HasPrefix(line, "+++") {
+			add++
+		} else if strings.HasPrefix(line, "-") && !strings.HasPrefix(line, "---") {
+			del++
+		}
+	}
+	return add, del
+}

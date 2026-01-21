@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/mritd/gitflow-toolkit/v3/config"
 	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/internal/git"
 	"github.com/mritd/gitflow-toolkit/v3/internal/llm"
@@ -130,6 +131,15 @@ func (m aiModel) startNextFile() (int, tea.Cmd) {
 
 func (m aiModel) analyzeFile(idx int) tea.Cmd {
 	file := m.files[idx]
+
+	// Skip LLM call for truncated files
+	if file.Truncated {
+		summary := fmt.Sprintf("(file changes: +%d/-%d lines, content omitted)",
+			file.LinesAdd, file.LinesDel)
+		return func() tea.Msg {
+			return aiFileAnalyzedMsg{idx: idx, summary: summary, err: nil}
+		}
+	}
 
 	return func() tea.Msg {
 		prompt := m.buildFilePrompt(file)
@@ -678,6 +688,13 @@ func runAIGenerate() aiResult {
 	files := git.SplitDiffByFile(diff)
 	if len(files) == 0 {
 		return aiResult{Err: fmt.Errorf("no files in diff")}
+	}
+
+	// Filter and truncate diffs
+	maxDiffLines := config.GetInt(config.GitConfigLLMMaxDiffLines, consts.LLMDefaultMaxDiffLines)
+	files = git.FilterAndTruncateDiffs(files, maxDiffLines)
+	if len(files) == 0 {
+		return aiResult{Err: fmt.Errorf("no files after filtering")}
 	}
 
 	// Create LLM client

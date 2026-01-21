@@ -5,10 +5,23 @@ import (
 	"strings"
 )
 
-// FileDiff represents a single file's diff.
+// FilePriority represents the priority level for diff truncation.
+type FilePriority int
+
+const (
+	PriorityHigh   FilePriority = iota // Source code
+	PriorityMedium                     // Config, scripts
+	PriorityLow                        // Tests, docs, generated
+)
+
+// FileDiff represents a single file's diff with metadata.
 type FileDiff struct {
-	Path string
-	Diff string
+	Path      string
+	Diff      string
+	Priority  FilePriority
+	LinesAdd  int
+	LinesDel  int
+	Truncated bool
 }
 
 // GetStagedDiff returns the staged diff with specified context lines.

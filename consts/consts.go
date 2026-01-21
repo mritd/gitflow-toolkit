@@ -61,6 +61,7 @@ const (
 	LLMDefaultLang           = "en"
 	LLMDefaultTemperature    = 0.3
 	LLMDefaultConcurrency    = 3
+	LLMDefaultMaxDiffLines   = 500
 )
 
 // LLM provider hosts (OpenAI-compatible APIs only).

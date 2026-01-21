@@ -30,6 +30,7 @@ const (
 	GitConfigLuckyCommitPrefix        = "lucky-commit-prefix"
 	GitConfigSSHStrictHostKey         = "ssh-strict-host-key"
 	GitConfigBranchAutoDetect         = "branch-auto-detect"
+	GitConfigLLMMaxDiffLines          = "llm-max-diff-lines"
 )
 
 // gitConfig runs git config --get and returns the value.

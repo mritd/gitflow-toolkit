@@ -2,6 +2,7 @@ package git
 
 import (
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -142,4 +143,73 @@ func CountDiffLines(diff string) (add, del int) {
 		}
 	}
 	return add, del
+}
+
+// FilterAndTruncateDiffs filters lock files and truncates diffs by priority.
+// Lock files are removed when total file count >= 5.
+// Files are truncated by priority: High > Medium > Low.
+// Within same priority, smaller files are preserved first.
+func FilterAndTruncateDiffs(files []FileDiff, maxLines int) []FileDiff {
+	if len(files) == 0 {
+		return files
+	}
+
+	// Step 1: Parse metadata for all files
+	for i := range files {
+		files[i].Priority = DetectPriority(files[i].Path)
+		files[i].LinesAdd, files[i].LinesDel = CountDiffLines(files[i].Diff)
+	}
+
+	// Step 2: Filter lock files if total >= 5
+	if len(files) >= 5 {
+		filtered := make([]FileDiff, 0, len(files))
+		for _, f := range files {
+			if !IsLockFile(f.Path) {
+				filtered = append(filtered, f)
+			}
+		}
+		files = filtered
+	}
+
+	if len(files) == 0 {
+		return files
+	}
+
+	// Step 3: Group by priority
+	groups := map[FilePriority][]int{
+		PriorityHigh:   {},
+		PriorityMedium: {},
+		PriorityLow:    {},
+	}
+	for i := range files {
+		groups[files[i].Priority] = append(groups[files[i].Priority], i)
+	}
+
+	// Step 4: Sort each group by total lines (ascending - small files first)
+	for p := range groups {
+		sort.Slice(groups[p], func(i, j int) bool {
+			a, b := files[groups[p][i]], files[groups[p][j]]
+			return (a.LinesAdd + a.LinesDel) < (b.LinesAdd + b.LinesDel)
+		})
+	}
+
+	// Step 5: Allocate budget by priority
+	budget := maxLines
+	priorities := []FilePriority{PriorityHigh, PriorityMedium, PriorityLow}
+
+	for _, p := range priorities {
+		for _, idx := range groups[p] {
+			fileLines := files[idx].LinesAdd + files[idx].LinesDel
+			if fileLines <= budget {
+				// File fits within budget
+				budget -= fileLines
+			} else {
+				// File exceeds budget - truncate
+				files[idx].Truncated = true
+				files[idx].Diff = ""
+			}
+		}
+	}
+
+	return files
 }

@@ -169,3 +169,116 @@ func TestCountDiffLines(t *testing.T) {
 		})
 	}
 }
+
+func TestFilterAndTruncateDiffs(t *testing.T) {
+	t.Run("filter lock files when >= 5 files", func(t *testing.T) {
+		files := []FileDiff{
+			{Path: "main.go", Diff: "+line1"},
+			{Path: "util.go", Diff: "+line2"},
+			{Path: "config.yaml", Diff: "+line3"},
+			{Path: "README.md", Diff: "+line4"},
+			{Path: "package-lock.json", Diff: "+line5\n+line6\n+line7"},
+		}
+
+		result := FilterAndTruncateDiffs(files, 1000)
+
+		// Should have 4 files (lock file removed)
+		if len(result) != 4 {
+			t.Errorf("expected 4 files, got %d", len(result))
+		}
+
+		// Verify lock file is removed
+		for _, f := range result {
+			if f.Path == "package-lock.json" {
+				t.Error("lock file should be filtered out")
+			}
+		}
+	})
+
+	t.Run("keep lock files when < 5 files", func(t *testing.T) {
+		files := []FileDiff{
+			{Path: "main.go", Diff: "+line1"},
+			{Path: "go.sum", Diff: "+line2"},
+		}
+
+		result := FilterAndTruncateDiffs(files, 1000)
+
+		if len(result) != 2 {
+			t.Errorf("expected 2 files, got %d", len(result))
+		}
+	})
+
+	t.Run("truncate by priority", func(t *testing.T) {
+		// Create files that exceed maxLines
+		files := []FileDiff{
+			{Path: "main.go", Diff: "+a\n+b\n+c"},            // High: 3 lines
+			{Path: "config.yaml", Diff: "+d\n+e"},            // Medium: 2 lines
+			{Path: "README.md", Diff: "+f\n+g\n+h\n+i\n+j"}, // Low: 5 lines
+		}
+
+		// Only allow 5 lines total - should keep high and medium, truncate low
+		result := FilterAndTruncateDiffs(files, 5)
+
+		// Find each file and check
+		var mainFile, configFile, readmeFile *FileDiff
+		for i := range result {
+			switch result[i].Path {
+			case "main.go":
+				mainFile = &result[i]
+			case "config.yaml":
+				configFile = &result[i]
+			case "README.md":
+				readmeFile = &result[i]
+			}
+		}
+
+		if mainFile == nil || mainFile.Truncated {
+			t.Error("main.go should not be truncated")
+		}
+		if configFile == nil || configFile.Truncated {
+			t.Error("config.yaml should not be truncated")
+		}
+		if readmeFile == nil || !readmeFile.Truncated {
+			t.Error("README.md should be truncated")
+		}
+	})
+
+	t.Run("preserve line counts for truncated files", func(t *testing.T) {
+		files := []FileDiff{
+			{Path: "main.go", Diff: "+a\n+b\n+c\n-d\n-e"}, // 3 add, 2 del
+		}
+
+		result := FilterAndTruncateDiffs(files, 1) // Force truncation
+
+		if result[0].LinesAdd != 3 || result[0].LinesDel != 2 {
+			t.Errorf("expected LinesAdd=3, LinesDel=2, got %d, %d",
+				result[0].LinesAdd, result[0].LinesDel)
+		}
+	})
+
+	t.Run("small files preserved first within same priority", func(t *testing.T) {
+		files := []FileDiff{
+			{Path: "big.go", Diff: "+1\n+2\n+3\n+4\n+5"}, // 5 lines
+			{Path: "small.go", Diff: "+a"},               // 1 line
+		}
+
+		result := FilterAndTruncateDiffs(files, 3)
+
+		var bigFile, smallFile *FileDiff
+		for i := range result {
+			switch result[i].Path {
+			case "big.go":
+				bigFile = &result[i]
+			case "small.go":
+				smallFile = &result[i]
+			}
+		}
+
+		if smallFile == nil || smallFile.Truncated {
+			t.Error("small.go should not be truncated")
+		}
+		if bigFile == nil || !bigFile.Truncated {
+			t.Error("big.go should be truncated")
+		}
+	})
+}

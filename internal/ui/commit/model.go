@@ -59,7 +59,7 @@ func Run(luckyPrefix string) Result {
 func runManualFlow(commitType, luckyPrefix string) Result {
 	var result Result
 
-	// Step 2: Input all fields (scope, subject, body, footer)
+	// Step 2: Input all fields (scope, subject, body, footer, breaking change)
 	inputs, err := runInputs(commitType)
 	if err != nil {
 		if errors.Is(err, errUserAborted) {
@@ -79,13 +79,26 @@ func runManualFlow(commitType, luckyPrefix string) Result {
 		body = inputs.subject
 	}
 
+	// Handle breaking change: add ! marker to type and BREAKING CHANGE footer
+	finalType := commitType
+	footer := inputs.footer
+	if inputs.breakingChange != "" {
+		finalType = commitType + "!"
+		breakingFooter := "BREAKING CHANGE: " + inputs.breakingChange
+		if footer != "" {
+			footer = footer + "\n\n" + breakingFooter
+		} else {
+			footer = breakingFooter
+		}
+	}
+
 	// Build commit message
 	result.Message = git.CommitMessage{
-		Type:    commitType,
+		Type:    finalType,
 		Scope:   inputs.scope,
 		Subject: inputs.subject,
 		Body:    body,
-		Footer:  inputs.footer,
+		Footer:  footer,
 		SOB:     sob,
 	}
 

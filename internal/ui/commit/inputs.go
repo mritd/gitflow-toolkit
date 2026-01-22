@@ -14,6 +14,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/mritd/gitflow-toolkit/v3/config"
 	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
@@ -110,16 +111,17 @@ type inputsModel struct {
 
 // inputsResult holds the result of the inputs screen.
 type inputsResult struct {
-	scope   string
-	subject string
-	body    string
-	footer  string
+	scope          string
+	subject        string
+	body           string
+	footer         string
+	breakingChange string // if non-empty, adds ! marker and BREAKING CHANGE footer
 }
 
 func newInputsModel(commitType string) inputsModel {
 	m := inputsModel{
 		title:  "Commit Type: " + strings.ToUpper(commitType),
-		inputs: make([]inputField, 4),
+		inputs: make([]inputField, 5),
 	}
 
 	// Create error spinner with animated frames
@@ -136,6 +138,25 @@ func newInputsModel(commitType string) inputsModel {
 		FPS: time.Second / 10,
 	}
 
+	// Read configuration for required fields
+	requireScope := config.GetBool(config.GitConfigRequireScope, false)
+	requireBody := config.GetBool(config.GitConfigRequireBody, false)
+	requireFooter := config.GetBool(config.GitConfigRequireFooter, false)
+
+	// Build placeholders based on required settings
+	scopePlaceholder := "Specifying place of the commit change (optional, e.g., api, ui, core)"
+	if requireScope {
+		scopePlaceholder = "Specifying place of the commit change (required, e.g., api, ui, core)"
+	}
+	bodyPlaceholder := "Detailed description (optional, Ctrl+E open editor)"
+	if requireBody {
+		bodyPlaceholder = "Detailed description (required, Ctrl+E open editor)"
+	}
+	footerPlaceholder := "Closes #123 or Refs: #456 (optional)"
+	if requireFooter {
+		footerPlaceholder = "Closes #123 or Refs: #456 (required)"
+	}
+
 	prompts := []struct {
 		prompt      string
 		placeholder string
@@ -143,12 +164,12 @@ func newInputsModel(commitType string) inputsModel {
 	}{
 		{
 			prompt:      "1. SCOPE ",
-			placeholder: "Specifying place of the commit change (e.g., api, ui, core)",
+			placeholder: scopePlaceholder,
 			checker: func(s string) error {
-				if strings.TrimSpace(s) == "" {
+				if requireScope && strings.TrimSpace(s) == "" {
 					return errors.New("Scope cannot be empty")
 				}
-				if strings.ContainsAny(s, "():/\\") {
+				if s != "" && strings.ContainsAny(s, "():/\\") {
 					return errors.New("Scope cannot contain ():/\\")
 				}
 				return nil
@@ -169,12 +190,27 @@ func newInputsModel(commitType string) inputsModel {
 		},
 		{
 			prompt:      "3. BODY ",
-			placeholder: "Detailed description (optional, Ctrl+E open editor)",
-			checker:     nil,
+			placeholder: bodyPlaceholder,
+			checker: func(s string) error {
+				if requireBody && strings.TrimSpace(s) == "" {
+					return errors.New("Body cannot be empty")
+				}
+				return nil
+			},
 		},
 		{
 			prompt:      "4. FOOTER ",
-			placeholder: "BREAKING CHANGE: ... or Closes #123 (optional)",
+			placeholder: footerPlaceholder,
+			checker: func(s string) error {
+				if requireFooter && strings.TrimSpace(s) == "" {
+					return errors.New("Footer cannot be empty")
+				}
+				return nil
+			},
+		},
+		{
+			prompt:      "5. BREAKING ",
+			placeholder: "Breaking change description (optional, auto adds ! marker)",
 			checker:     nil,
 		},
 	}
@@ -406,10 +442,11 @@ func (m inputsModel) result() inputsResult {
 		body = m.inputs[2].input.Value()
 	}
 	return inputsResult{
-		scope:   strings.TrimSpace(m.inputs[0].input.Value()),
-		subject: strings.TrimSpace(m.inputs[1].input.Value()),
-		body:    strings.TrimSpace(body),
-		footer:  strings.TrimSpace(m.inputs[3].input.Value()),
+		scope:          strings.TrimSpace(m.inputs[0].input.Value()),
+		subject:        strings.TrimSpace(m.inputs[1].input.Value()),
+		body:           strings.TrimSpace(body),
+		footer:         strings.TrimSpace(m.inputs[3].input.Value()),
+		breakingChange: strings.TrimSpace(m.inputs[4].input.Value()),
 	}
 }
 

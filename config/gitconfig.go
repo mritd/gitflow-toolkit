@@ -32,6 +32,9 @@ const (
 	GitConfigLuckyCommitPrefix        = "lucky-commit-prefix"
 	GitConfigSSHStrictHostKey         = "ssh-strict-host-key"
 	GitConfigBranchAutoDetect         = "branch-auto-detect"
+	GitConfigRequireScope             = "require-scope"
+	GitConfigRequireBody              = "require-body"
+	GitConfigRequireFooter            = "require-footer"
 )
 
 // gitConfig runs git config --get and returns the value.

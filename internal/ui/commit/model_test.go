@@ -77,8 +77,8 @@ func TestNewInputsModel(t *testing.T) {
 		t.Errorf("title = %q, want 'Commit Type: FEAT'", m.title)
 	}
 
-	if len(m.inputs) != 4 {
-		t.Errorf("len(inputs) = %d, want 4", len(m.inputs))
+	if len(m.inputs) != 5 {
+		t.Errorf("len(inputs) = %d, want 5", len(m.inputs))
 	}
 
 	// First input should be focused
@@ -95,9 +95,9 @@ func TestNewSelectorModel(t *testing.T) {
 		t.Errorf("list.Title = %q, want 'Select Commit Type'", m.list.Title)
 	}
 
-	// Should have 9 commit types
-	if len(m.list.Items()) != 9 {
-		t.Errorf("len(items) = %d, want 9", len(m.list.Items()))
+	// Should have 10 commit types (including Build)
+	if len(m.list.Items()) != 10 {
+		t.Errorf("len(items) = %d, want 10", len(m.list.Items()))
 	}
 
 	// First item should be selected by default

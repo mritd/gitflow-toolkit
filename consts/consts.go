@@ -14,6 +14,7 @@ const (
 	Chore    = "chore"
 	Perf     = "perf"
 	Hotfix   = "hotfix"
+	Build    = "build"
 )
 
 // Command aliases for git subcommands.
@@ -36,9 +37,10 @@ var CommitTypes = []CommitType{
 	{Style, "Improving structure/format of the code"},
 	{Refactor, "Refactoring code"},
 	{Test, "When adding missing tests"},
-	{Chore, "Changing CI/CD"},
+	{Chore, "Maintenance tasks (CI/CD, configs, etc.)"},
 	{Perf, "Improving performance"},
 	{Hotfix, "Bug fix urgently"},
+	{Build, "Changes to build system or dependencies"},
 }
 
 // Lucky commit constants.
@@ -125,7 +127,7 @@ FORMAT (MUST follow exactly):
 - <body line 2 if needed>
 
 RULES:
-- type: feat|fix|docs|refactor|test|chore|perf
+- type: feat|fix|docs|refactor|test|chore|perf|build
 - scope: the main component being changed (llm, config, ui, git, api)
 - subject: what this commit does, max 50 chars, no period
 - body: 1-3 lines MAX, each starting with "- "
@@ -150,7 +152,7 @@ Output the commit message directly, no explanation.`
 - <正文第2行, 如需要>
 
 规则:
-- type: feat|fix|docs|refactor|test|chore|perf
+- type: feat|fix|docs|refactor|test|chore|perf|build
 - scope: 主要改动的组件 (llm, config, ui, git, api)
 - subject: 这个提交做了什么, 最多 50 字, 不加句号
 - body: 最多 1-3 行, 每行以 "- " 开头
@@ -175,7 +177,7 @@ FORMAT (MUST follow exactly):
 - <中文正文第2行, 如需要>
 
 RULES:
-- type: feat|fix|docs|refactor|test|chore|perf
+- type: feat|fix|docs|refactor|test|chore|perf|build
 - scope: main component (llm, config, ui, git, api)
 - subject: "english (中文)" format, no period
 - body: 1-3 lines MAX in Chinese, each starting with "- "
@@ -220,5 +222,6 @@ func SymlinkCommands() []string {
 		Chore,
 		Perf,
 		Hotfix,
+		Build,
 	}
 }

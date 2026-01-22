@@ -1,12 +1,14 @@
 # GitFlow Toolkit
 
-GitFlow Toolkit is a CLI tool written in Go for standardizing git commit messages following the [Angular commit message specification](https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#heading=h.greljkmo14y0). It provides an interactive TUI for creating commits, branches, and managing git operations.
+GitFlow Toolkit is a CLI tool written in Go for standardizing git commit messages following the [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) specification. It provides an interactive TUI for creating commits, branches, and managing git operations.
 
 [demo.webm](https://github.com/user-attachments/assets/f50ea867-3be3-46c0-905c-e0a092f9d6a0)
 
 ## Features
 
-- Interactive commit message creation with type, scope, subject, body, and footer
+- Interactive commit message creation following Conventional Commits 1.0.0
+- **BREAKING CHANGE support** with automatic `!` marker and footer generation
+- Optional scope - only type and description are required
 - **AI-powered commit message generation** using LLM (OpenRouter, Groq, OpenAI, or local Ollama)
 - Automatic `Signed-off-by` generation
 - Git subcommand integration (`git ci`, `git ps`, `git feat`, etc.)
@@ -58,11 +60,12 @@ git ci
 ```
 
 This opens an interactive TUI to create a commit message with:
-- Type selection (feat, fix, docs, etc.)
-- Scope input
-- Subject line
+- Type selection (feat, fix, docs, build, etc.)
+- Scope input (optional)
+- Subject line (required)
 - Optional body (supports external editor with `Ctrl+E`)
 - Optional footer
+- Optional breaking change description (auto adds `!` marker)
 
 ### Push
 
@@ -95,22 +98,31 @@ git docs readme        # Creates docs/readme
 | `git chore NAME`    | Create branch `chore/NAME`                     |
 | `git perf NAME`     | Create branch `perf/NAME`                      |
 | `git test NAME`     | Create branch `test/NAME`                      |
+| `git build NAME`    | Create branch `build/NAME`                     |
 
 ## Commit Message Format
 
-The tool enforces the Angular commit message format:
+The tool follows the [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) specification:
 
 ```
-type(scope): subject
+<type>[optional scope]: <description>
 
-body
+[optional body]
 
-footer
+[optional footer(s)]
 
 Signed-off-by: Name <email>
 ```
 
-**Supported types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `hotfix`
+**Required:** `type` and `description`
+
+**Optional:** `scope`, `body`, `footer`
+
+**BREAKING CHANGE:** Add a breaking change description to automatically:
+- Add `!` marker after type/scope (e.g., `feat!:` or `feat(api)!:`)
+- Add `BREAKING CHANGE: <description>` footer
+
+**Supported types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `hotfix`, `build`
 
 ## Configuration
 
@@ -146,6 +158,11 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
     
     # Auto-detect commit type from branch name (default: false)
     branch-auto-detect = true
+
+    # Require optional fields (default: false)
+    require-scope = false
+    require-body = false
+    require-footer = false
 ```
 
 ### Configuration Reference
@@ -169,6 +186,9 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
 | `lucky-commit-prefix` | Lucky commit hex prefix (max 12 chars) | - |
 | `ssh-strict-host-key` | SSH strict host key checking | `false` |
 | `branch-auto-detect` | Auto-detect commit type from branch name | `false` |
+| `require-scope` | Require scope field | `false` |
+| `require-body` | Require body field | `false` |
+| `require-footer` | Require footer field | `false` |
 
 ### Auto Generate (AI)
 
@@ -261,6 +281,7 @@ git ci  # Cursor will auto-select "feat" type
 | `chore` | chore |
 | `perf`, `performance` | perf |
 | `hotfix` | hotfix |
+| `build` | build |
 
 Supports separators: `/`, `-`, `_` (e.g., `feat/login`, `fix-bug-123`, `docs_readme`)
 

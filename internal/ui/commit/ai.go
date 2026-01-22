@@ -185,68 +185,128 @@ func (m aiModel) generateFinalMessage() tea.Cmd {
 
 // buildFilePrompt creates a prompt for analyzing a single file's changes.
 func (m aiModel) buildFilePrompt(file git.FileDiff) string {
-	return fmt.Sprintf(`Summarize the changes in this git diff in 1-2 sentences.
-Focus on WHAT changed and WHY (if apparent). Be concise.
-
-File: %s
+	return fmt.Sprintf(`File: %s
 Diff:
 %s
 
-Summary:`, file.Path, file.Diff)
+Summarize in max 10 words (start with verb):`, file.Path, file.Diff)
 }
 
 // buildCommitPrompt creates a prompt for generating the final commit message.
 func (m aiModel) buildCommitPrompt() string {
 	var sb strings.Builder
 
-	// Few-shot example based on language
+	// Few-shot examples based on language (trivial/medium/large)
 	lang := m.client.GetLang()
 	switch lang {
 	case consts.LLMLangZH:
-		sb.WriteString(`示例:
+		sb.WriteString(`示例 1 (单一目的, 1 文件):
 输入:
-- auth.go: 添加了 JWT 验证
-- user.go: 添加了用户资料接口
-- docs.md: 更新了 API 文档
+- config.go: 修复超时变量名拼写错误
 
 输出:
-feat(api): 添加用户认证和资料功能
+fix(config): 修复超时变量名拼写错误
 
-- 实现 JWT token 验证
-- 添加用户资料接口
-- 更新 API 文档
+- 修复超时变量名拼写错误
+
+示例 2 (单一目的, 多文件 - body 仍然只需 1 行):
+输入:
+- cmd/root.go: 更新 import 路径
+- internal/service/service.go: 更新 import 路径
+- pkg/crypto/processor.go: 更新 import 路径
+- go.mod: 更新模块路径
+
+输出:
+chore(module): 迁移模块路径
+
+- 迁移模块路径以适配新仓库地址
+
+示例 3 (多个目的 - 每个目的 1 行):
+输入:
+- auth.go: 添加 JWT 验证
+- config.go: 添加认证配置
+- logger.go: 修复日志格式问题
+
+输出:
+feat(auth): 添加 JWT 认证并修复日志
+
+- 添加 JWT 认证功能
+- 修复日志格式问题
 
 输入:
 `)
 	case consts.LLMLangBilingual:
-		sb.WriteString(`Example:
+		sb.WriteString(`Example 1 (single purpose, 1 file):
 Input:
-- auth.go: Added JWT validation
-- user.go: Added profile endpoint
-- docs.md: Updated API docs
+- config.go: Fix typo in timeout variable name
 
 Output:
-feat(api): add authentication and user profile (添加用户认证和资料功能)
+fix(config): correct timeout variable typo (修复超时变量名拼写错误)
 
-- 实现 JWT token 验证
-- 添加用户资料接口
-- 更新 API 文档
+- 修复超时变量名拼写错误
+
+Example 2 (single purpose, many files - still 1 line body):
+Input:
+- cmd/root.go: Update import path
+- internal/service/service.go: Update import path
+- pkg/crypto/processor.go: Update import path
+- go.mod: Update module path
+
+Output:
+chore(module): migrate module path (迁移模块路径)
+
+- 迁移模块路径以适配新仓库地址
+
+Example 3 (multiple purposes - 1 line per purpose):
+Input:
+- auth.go: Add JWT validation
+- config.go: Add auth config
+- logger.go: Fix log format issue
+
+Output:
+feat(auth): add JWT auth and fix logging (添加 JWT 认证并修复日志)
+
+- 添加 JWT 认证功能
+- 修复日志格式问题
 
 Input:
 `)
 	default:
-		sb.WriteString(`Example:
+		sb.WriteString(`Example 1 (single purpose, 1 file):
 Input:
-- auth.go: Added JWT validation
-- user.go: Added profile endpoint
-- docs.md: Updated API docs
+- config.go: Fix typo in timeout variable name
 
 Output:
-feat(api): add authentication and user profile
+fix(config): correct timeout variable typo
 
-- implement JWT token validation
-- add user profile endpoint
-- update API documentation
+- Correct timeout variable typo
+
+Example 2 (IMPORTANT - many files with SAME action, body is ONE summary line, NOT file list):
+Input:
+- cmd/root.go: Update import path
+- internal/service/service.go: Update import path
+- pkg/crypto/processor.go: Update import path
+- pkg/utils/helper.go: Update import path
+- main.go: Update import path
+- go.mod: Update module path
+(... 20+ more files with same change ...)
+
+Output:
+chore(module): migrate module paths
+
+- Migrate module paths for new repository location
+
+Example 3 (multiple purposes - 1 line per purpose):
+Input:
+- cache.go: Add Redis cache support
+- config.go: Add cache config
+- metrics.go: Fix counter reset bug
+
+Output:
+feat(cache): add Redis cache and fix metrics
+
+- Add Redis cache support
+- Fix counter reset bug
 
 Input:
 `)
@@ -258,7 +318,7 @@ Input:
 		}
 	}
 
-	sb.WriteString("\nOutput:")
+	sb.WriteString("\nOutput (MUST include body with \"- \" lines):")
 
 	return sb.String()
 }
@@ -602,6 +662,16 @@ func (m aiPreviewModel) View() string {
 		PaddingTop(1)
 	sb.WriteString(helpStyle.Render("←/→ select • enter confirm • c commit • e edit • r retry • q quit"))
 	sb.WriteString("\n")
+
+	// Debug log path (if debug mode is enabled)
+	if config.GetBool(config.GitConfigLLMAPIDebug, false) {
+		debugStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.AdaptiveColor{Light: "#666666", Dark: "#888888"}).
+			PaddingLeft(2).
+			PaddingTop(1)
+		sb.WriteString(debugStyle.Render("Debug log: " + llm.GetDebugLogPath()))
+		sb.WriteString("\n")
+	}
 
 	return sb.String()
 }

@@ -16,13 +16,15 @@ const (
 	GitConfigLLMAPIKey                = "llm-api-key"
 	GitConfigLLMAPIHost               = "llm-api-host"
 	GitConfigLLMAPIPath               = "llm-api-path"
+	GitConfigLLMAPIDebug              = "llm-api-debug"
 	GitConfigLLMModel                 = "llm-model"
 	GitConfigLLMTemperature           = "llm-temperature"
 	GitConfigLLMRequestTimeout        = "llm-request-timeout"
 	GitConfigLLMMaxRetries            = "llm-max-retries"
+	GitConfigLLMMaxConcurrency        = "llm-max-concurrency"
 	GitConfigLLMOutputLang            = "llm-output-lang"
 	GitConfigLLMDiffContext           = "llm-diff-context"
-	GitConfigLLMMaxConcurrency        = "llm-max-concurrency"
+	GitConfigLLMMaxDiffLines          = "llm-max-diff-lines"
 	GitConfigLLMFileAnalysisPrompt    = "llm-file-analysis-prompt"
 	GitConfigLLMCommitPromptEN        = "llm-commit-prompt-en"
 	GitConfigLLMCommitPromptZH        = "llm-commit-prompt-zh"
@@ -30,7 +32,6 @@ const (
 	GitConfigLuckyCommitPrefix        = "lucky-commit-prefix"
 	GitConfigSSHStrictHostKey         = "ssh-strict-host-key"
 	GitConfigBranchAutoDetect         = "branch-auto-detect"
-	GitConfigLLMMaxDiffLines          = "llm-max-diff-lines"
 )
 
 // gitConfig runs git config --get and returns the value.

@@ -98,55 +98,97 @@ const (
 // LLM default prompts (can be overridden via gitconfig).
 const (
 	// LLMDefaultFilePrompt is the system prompt for analyzing individual file diffs.
-	LLMDefaultFilePrompt = "You are a git diff analyzer. Output only a brief summary, no formatting."
+	LLMDefaultFilePrompt = `Summarize the code change in MAX 10 words.
+
+Rules:
+- Start with a verb (Add, Update, Fix, Remove, Rename, Refactor, Migrate)
+- Describe the ACTION and PURPOSE, not literal strings
+- For import/module path changes: "Migrate module path to new repository" (not actual URLs)
+- For config changes: "Add config key" or "Rename config key"
+- NEVER include actual URLs, domains, or paths in output
+
+Good: "Add debug logging support"
+Good: "Migrate module path to new repository"
+Good: "Rename config key for clarity"
+Bad: "Changed from gitlab.com to git.example.com" (contains literal URL)
+Bad: "Update import from old/path to new/path" (contains literal path)
+
+Output ONLY the summary.`
 
 	// LLMCommitPromptEN is the system prompt for generating commit messages in English.
-	LLMCommitPromptEN = `You are a git commit message generator. Generate EXACTLY ONE commit message following the Angular commit convention.
+	LLMCommitPromptEN = `Generate ONE commit message in Angular format.
 
-FORMAT (strict):
+FORMAT (MUST follow exactly):
 <type>(<scope>): <subject>
 
-<body>
+- <body line 1>
+- <body line 2 if needed>
 
 RULES:
-1. type: REQUIRED, one of: feat, fix, docs, style, refactor, test, chore, perf, hotfix
-2. scope: REQUIRED, a short word describing the affected area (e.g., api, ui, config, auth, db, cli)
-3. subject: REQUIRED, imperative mood, lowercase, no period, max 50 chars
-4. body: REQUIRED, 3-5 bullet points starting with "- ", each point starts with a verb
+- type: feat|fix|docs|refactor|test|chore|perf
+- scope: the main component being changed (llm, config, ui, git, api)
+- subject: what this commit does, max 50 chars, no period
+- body: 1-3 lines MAX, each starting with "- "
 
-OUTPUT ONLY THE COMMIT MESSAGE. No explanation, no markdown, no code blocks.`
+CRITICAL:
+- BODY IS MANDATORY - at least one line starting with "- "
+- SUMMARIZE, don't enumerate - if 20 files have same change, write ONE summary line
+- Group similar changes: "Update import path" x20 → "- Migrate module paths"
+- NEVER list individual files in body
+- ONLY describe what is in input - NEVER invent features
+- Always output: header + blank line + body lines
+
+Output the commit message directly, no explanation.`
 
 	// LLMCommitPromptZH is the system prompt for generating commit messages in Chinese.
-	LLMCommitPromptZH = `你是一个 git commit 消息生成器.请严格按照 Angular commit 规范生成一条 commit 消息.
+	LLMCommitPromptZH = `生成一条 Angular 格式的 commit 消息.
 
-格式要求（严格遵守）:
+格式 (必须严格遵循):
 <type>(<scope>): <中文描述>
 
-<正文>
+- <正文第1行>
+- <正文第2行, 如需要>
 
 规则:
-1. type: 必填, 只能是: feat, fix, docs, style, refactor, test, chore, perf, hotfix
-2. scope: 必填, 描述影响范围的英文单词（如 api, ui, config, auth, db, cli）
-3. subject: 必填, 使用中文描述, 不加句号, 最多50字
-4. body: 必填, 3-5个要点, 每行以"- "开头, 使用中文描述
+- type: feat|fix|docs|refactor|test|chore|perf
+- scope: 主要改动的组件 (llm, config, ui, git, api)
+- subject: 这个提交做了什么, 最多 50 字, 不加句号
+- body: 最多 1-3 行, 每行以 "- " 开头
 
-只输出 commit 消息本身, 不要任何解释, markdown 或代码块.`
+重要:
+- 正文是必须的 - 至少一行以 "- " 开头
+- 归纳总结, 不要逐一列举 - 20 个文件同样的改动只写一行总结
+- 合并相似变更: "Update import path" x20 → "- 迁移模块路径"
+- 正文中不要列出单个文件名
+- 只描述输入中的内容 - 不要编造功能
+- 始终输出: 标题行 + 空行 + 正文行
+
+直接输出 commit 消息, 不要解释.`
 
 	// LLMCommitPromptBilingual is the system prompt for generating bilingual commit messages.
-	LLMCommitPromptBilingual = `You are a git commit message generator. Generate EXACTLY ONE commit message following the Angular commit convention with bilingual subject.
+	LLMCommitPromptBilingual = `Generate ONE commit message in Angular format with bilingual subject.
 
-FORMAT (strict):
-<type>(<scope>): <english subject> (<中文描述>)
+FORMAT (MUST follow exactly):
+<type>(<scope>): <english> (<中文>)
 
-<body in Chinese>
+- <中文正文第1行>
+- <中文正文第2行, 如需要>
 
 RULES:
-1. type: REQUIRED, one of: feat, fix, docs, style, refactor, test, chore, perf, hotfix
-2. scope: REQUIRED, a short word describing the affected area (e.g., api, ui, config, auth, db, cli)
-3. subject: REQUIRED, format "english description (中文描述)", lowercase English, no period
-4. body: REQUIRED, 3-5 bullet points starting with "- ", written in Chinese
+- type: feat|fix|docs|refactor|test|chore|perf
+- scope: main component (llm, config, ui, git, api)
+- subject: "english (中文)" format, no period
+- body: 1-3 lines MAX in Chinese, each starting with "- "
 
-OUTPUT ONLY THE COMMIT MESSAGE. No explanation, no markdown, no code blocks.`
+CRITICAL:
+- BODY IS MANDATORY - at least one line starting with "- "
+- SUMMARIZE, don't enumerate - if 20 files have same change, write ONE summary line
+- Group similar changes: "Update import path" x20 → "- 迁移模块路径"
+- NEVER list individual files in body
+- ONLY describe what is in input - NEVER invent features
+- Always output: header + blank line + body lines
+
+Output the commit message directly, no explanation.`
 )
 
 // Binary and path constants.

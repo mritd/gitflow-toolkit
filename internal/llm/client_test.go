@@ -95,11 +95,11 @@ func TestGenerate_Ollama(t *testing.T) {
 			if r.Method != http.MethodPost {
 				t.Errorf("method = %s, want POST", r.Method)
 			}
-			if r.URL.Path != "/api/generate" {
-				t.Errorf("path = %s, want /api/generate", r.URL.Path)
+			if r.URL.Path != "/api/chat" {
+				t.Errorf("path = %s, want /api/chat", r.URL.Path)
 			}
 
-			var req ollamaRequest
+			var req ollamaChatRequest
 			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 				t.Errorf("failed to decode request: %v", err)
 			}
@@ -107,7 +107,7 @@ func TestGenerate_Ollama(t *testing.T) {
 				t.Errorf("model = %s, want test-model", req.Model)
 			}
 
-			resp := ollamaResponse{Response: "  generated text  "}
+			resp := ollamaChatResponse{Message: ollamaMessage{Role: "assistant", Content: "  generated text  "}}
 			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(resp)
 		}))
@@ -138,7 +138,7 @@ func TestGenerate_Ollama(t *testing.T) {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			resp := ollamaResponse{Response: "success"}
+			resp := ollamaChatResponse{Message: ollamaMessage{Role: "assistant", Content: "success"}}
 			_ = json.NewEncoder(w).Encode(resp)
 		}))
 		defer server.Close()

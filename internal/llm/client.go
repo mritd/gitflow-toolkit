@@ -18,12 +18,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/mritd/gitflow-toolkit/v3/config"
 	"github.com/mritd/gitflow-toolkit/v3/consts"
 )
+
+// debugLogPath is the path to the LLM debug log file.
+var debugLogPath = filepath.Join(os.TempDir(), "gitflow-llm-debug.log")
 
 // Provider represents the LLM provider type.
 type Provider string
@@ -50,6 +55,7 @@ type Client struct {
 	commitPromptEN        string
 	commitPromptZH        string
 	commitPromptBilingual string
+	debug                 bool
 }
 
 // GenerateOptions configures a generation request.
@@ -127,6 +133,9 @@ func NewClient() *Client {
 	commitPromptZH := config.GetString(config.GitConfigLLMCommitPromptZH, "")
 	commitPromptBilingual := config.GetString(config.GitConfigLLMCommitPromptBilingual, "")
 
+	// Get debug flag
+	debug := config.GetBool(config.GitConfigLLMAPIDebug, false)
+
 	return &Client{
 		provider:              provider,
 		host:                  host,
@@ -141,6 +150,7 @@ func NewClient() *Client {
 		commitPromptEN:        commitPromptEN,
 		commitPromptZH:        commitPromptZH,
 		commitPromptBilingual: commitPromptBilingual,
+		debug:                 debug,
 	}
 }
 
@@ -171,6 +181,75 @@ func normalizeHost(host string) string {
 		return host
 	}
 	return "https://" + host
+}
+
+// debugLog writes debug information to the log file if debug mode is enabled.
+// Log file location is printed to stderr on first write.
+// Uses file locking to prevent interleaved writes from concurrent requests.
+func (c *Client) debugLog(format string, args ...interface{}) {
+	if !c.debug {
+		return
+	}
+
+	f, err := os.OpenFile(debugLogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return
+	}
+	defer func() { _ = f.Close() }()
+
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+	msg := fmt.Sprintf(format, args...)
+	_, _ = fmt.Fprintf(f, "[%s] %s\n", timestamp, msg)
+}
+
+// debugLogRequest logs a complete API request/response pair atomically.
+func (c *Client) debugLogRequest(provider, endpoint string, reqBody []byte, respStatus int, respBody []byte, err error) {
+	if !c.debug {
+		return
+	}
+
+	f, err2 := os.OpenFile(debugLogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err2 != nil {
+		return
+	}
+	defer func() { _ = f.Close() }()
+
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("\n%s\n", strings.Repeat("=", 80)))
+	sb.WriteString(fmt.Sprintf("[%s] %s Request\n", timestamp, provider))
+	sb.WriteString(fmt.Sprintf("%s\n", strings.Repeat("-", 80)))
+	sb.WriteString(fmt.Sprintf("POST %s\n\n", endpoint))
+
+	// Pretty print request JSON
+	var prettyReq bytes.Buffer
+	if json.Indent(&prettyReq, reqBody, "", "  ") == nil {
+		sb.WriteString(fmt.Sprintf("Request:\n%s\n\n", prettyReq.String()))
+	} else {
+		sb.WriteString(fmt.Sprintf("Request:\n%s\n\n", string(reqBody)))
+	}
+
+	if err != nil {
+		sb.WriteString(fmt.Sprintf("Error: %v\n", err))
+	} else {
+		sb.WriteString(fmt.Sprintf("Response Status: %d\n", respStatus))
+		// Pretty print response JSON
+		var prettyResp bytes.Buffer
+		if json.Indent(&prettyResp, respBody, "", "  ") == nil {
+			sb.WriteString(fmt.Sprintf("Response:\n%s\n", prettyResp.String()))
+		} else {
+			sb.WriteString(fmt.Sprintf("Response:\n%s\n", string(respBody)))
+		}
+	}
+	sb.WriteString(fmt.Sprintf("%s\n", strings.Repeat("=", 80)))
+
+	_, _ = f.WriteString(sb.String())
+}
+
+// GetDebugLogPath returns the path to the debug log file.
+func GetDebugLogPath() string {
+	return debugLogPath
 }
 
 // Generate calls the LLM API to generate text.
@@ -211,29 +290,41 @@ func (c *Client) Generate(ctx context.Context, model, prompt string, opts ...Gen
 	return "", fmt.Errorf("failed after %d attempts: %w", c.retries+1, lastErr)
 }
 
-// Ollama API types
-type ollamaRequest struct {
-	Model   string         `json:"model"`
-	Prompt  string         `json:"prompt"`
-	System  string         `json:"system,omitempty"`
-	Stream  bool           `json:"stream"`
-	Options *ollamaOptions `json:"options,omitempty"`
+// Ollama chat API types (preferred for models with chat templates like deepseek-coder-v2)
+type ollamaChatRequest struct {
+	Model    string          `json:"model"`
+	Messages []ollamaMessage `json:"messages"`
+	Stream   bool            `json:"stream"`
+	Options  *ollamaOptions  `json:"options,omitempty"`
+}
+
+type ollamaMessage struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
 }
 
 type ollamaOptions struct {
 	Temperature float64 `json:"temperature,omitempty"`
 }
 
-type ollamaResponse struct {
-	Response string `json:"response"`
+type ollamaChatResponse struct {
+	Message ollamaMessage `json:"message"`
 }
 
+// doGenerateOllama uses the /api/chat endpoint for better compatibility with model templates.
+// Models like deepseek-coder-v2 have chat templates that expect User/Assistant format.
 func (c *Client) doGenerateOllama(ctx context.Context, model, prompt string, opt GenerateOptions) (string, error) {
-	reqBody := ollamaRequest{
-		Model:  model,
-		Prompt: prompt,
-		System: opt.System,
-		Stream: false,
+	messages := make([]ollamaMessage, 0, 2)
+
+	if opt.System != "" {
+		messages = append(messages, ollamaMessage{Role: "system", Content: opt.System})
+	}
+	messages = append(messages, ollamaMessage{Role: "user", Content: prompt})
+
+	reqBody := ollamaChatRequest{
+		Model:    model,
+		Messages: messages,
+		Stream:   false,
 	}
 
 	if opt.Temperature > 0 {
@@ -245,10 +336,12 @@ func (c *Client) doGenerateOllama(ctx context.Context, model, prompt string, opt
 		return "", fmt.Errorf("failed to marshal request: %w", err)
 	}
 
+	endpoint := c.host + "/api/chat"
+
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.host+"/api/generate", bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
@@ -256,21 +349,29 @@ func (c *Client) doGenerateOllama(ctx context.Context, model, prompt string, opt
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		c.debugLogRequest("Ollama", endpoint, body, 0, nil, err)
 		return "", fmt.Errorf("failed to send request: %w", err)
 	}
 	defer func() { _ = resp.Body.Close() }()
 
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %w", err)
+	}
+
+	// Log request/response atomically
+	c.debugLogRequest("Ollama", endpoint, body, resp.StatusCode, respBody, nil)
+
 	if resp.StatusCode != http.StatusOK {
-		respBody, _ := io.ReadAll(resp.Body)
 		return "", fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(respBody))
 	}
 
-	var result ollamaResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	var result ollamaChatResponse
+	if err := json.Unmarshal(respBody, &result); err != nil {
 		return "", fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	return strings.TrimSpace(result.Response), nil
+	return strings.TrimSpace(result.Message.Content), nil
 }
 
 // OpenAI-compatible API types (works with OpenRouter, Groq, OpenAI)
@@ -322,10 +423,12 @@ func (c *Client) doGenerateOpenAI(ctx context.Context, model, prompt string, opt
 		return "", fmt.Errorf("failed to marshal request: %w", err)
 	}
 
+	endpoint := c.host + c.apiPath
+
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.host+c.apiPath, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
@@ -334,17 +437,25 @@ func (c *Client) doGenerateOpenAI(ctx context.Context, model, prompt string, opt
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		c.debugLogRequest("OpenAI", endpoint, body, 0, nil, err)
 		return "", fmt.Errorf("failed to send request: %w", err)
 	}
 	defer func() { _ = resp.Body.Close() }()
 
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %w", err)
+	}
+
+	// Log request/response atomically
+	c.debugLogRequest("OpenAI", endpoint, body, resp.StatusCode, respBody, nil)
+
 	if resp.StatusCode != http.StatusOK {
-		respBody, _ := io.ReadAll(resp.Body)
 		return "", fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(respBody))
 	}
 
 	var result openAIResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := json.Unmarshal(respBody, &result); err != nil {
 		return "", fmt.Errorf("failed to decode response: %w", err)
 	}
 

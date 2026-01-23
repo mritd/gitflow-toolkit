@@ -100,12 +100,17 @@ const (
 // LLM default prompts (can be overridden via gitconfig).
 const (
 	// LLMDefaultFilePrompt is the system prompt for analyzing individual file diffs.
-	LLMDefaultFilePrompt = `You are analyzing a code change. Given the list of all changed files and one specific diff:
-1. Understand this file's role in the overall commit
-2. Describe what changed and why in max 50 words
-3. Start with a verb (Add, Update, Fix, Remove, Refactor)
-4. Focus on the purpose, not implementation details
-Output only the summary, no explanation.`
+	LLMDefaultFilePrompt = `Describe this code change in ONE sentence (15-40 words).
+
+RULES:
+- State EXACTLY what changed: "change X from A to B", "add Y", "remove Z"
+- Use actual values from the diff (paths, names, numbers)
+- NO motivation/reasoning (no "for better X", "to improve Y", "reflecting Z")
+- NO speculation about WHY, only WHAT
+
+FORBIDDEN words: network, performance, accessibility, maintainability, security, flexibility
+
+Example: Change import paths from old.domain.com to new.domain.com in 5 package imports`
 
 	// LLMCommitPromptEN is the system prompt for generating commit messages in English.
 	LLMCommitPromptEN = `Generate ONE commit message in Angular format.

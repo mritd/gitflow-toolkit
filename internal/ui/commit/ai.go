@@ -292,8 +292,8 @@ func (m aiModel) buildFilePrompt(file git.FileDiff, fileIndex int) string {
 	sb.WriteString(file.Diff)
 	sb.WriteString("\n\n")
 
-	// Instructions
-	sb.WriteString("Describe what changed and why (max 50 words), considering this file's role in the overall commit.")
+	// Instructions - remind model to consider global context
+	sb.WriteString("Describe what changed in this file, considering its role in the overall commit.")
 
 	return sb.String()
 }
@@ -487,15 +487,24 @@ func (m aiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Debug: log Phase 1 complete summary
 			if m.client.IsDebug() {
 				var sb strings.Builder
-				sb.WriteString("All file summaries:\n\n")
+				sb.WriteString(fmt.Sprintf("Analysis summaries for %d files:\n\n", len(m.files)))
 				for i, f := range m.files {
 					marker := "      "
 					if m.coreIndices[i] {
 						marker = "[CORE]"
 					}
-					sb.WriteString(fmt.Sprintf("%s %s:\n  %s\n\n", marker, f.Path, strings.TrimSpace(m.summaries[i])))
+					summary := strings.TrimSpace(m.summaries[i])
+					// Remove newlines and normalize whitespace
+					summary = strings.ReplaceAll(summary, "\n", " ")
+					summary = strings.ReplaceAll(summary, "\r", "")
+					summary = strings.Join(strings.Fields(summary), " ")
+					// Truncate long summaries for readability
+					if len(summary) > 100 {
+						summary = summary[:97] + "..."
+					}
+					sb.WriteString(fmt.Sprintf("%2d. %s %s: %s\n", i+1, marker, f.Path, summary))
 				}
-				m.client.DebugLogSection("Phase 1 Complete: File Summaries", sb.String())
+				m.client.DebugLogSection("Phase 1 Complete: File Analysis Results", sb.String())
 			}
 
 			m.phase = "generating"

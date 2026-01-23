@@ -26,22 +26,25 @@ type aiResult struct {
 
 // aiModel is the bubbletea model for AI generation progress.
 type aiModel struct {
-	files          []git.FileDiff
-	summaries      []string
-	fileStatus     []int // 0=pending, 1=running, 2=done, -1=error
-	completedCount int
-	runningCount   int
-	concurrency    int
-	finalMsg       string
-	spinner        spinner.Model
-	progressPos    int
-	phase          string // "analyzing" or "generating"
-	done           bool
-	cancelled      bool
-	err            error
-	client         *llm.Client
-	ctx            context.Context
-	cancel         context.CancelFunc
+	files           []git.FileDiff
+	coreIndices     map[int]bool   // indices of core files (top N by lines changed)
+	summaries       []string
+	sortedFiles     []git.FileDiff // sorted files for Phase 2
+	sortedSummaries []string       // summaries in sorted order
+	fileStatus      []int          // 0=pending, 1=running, 2=done, -1=error
+	completedCount  int
+	runningCount    int
+	concurrency     int
+	finalMsg        string
+	spinner         spinner.Model
+	progressPos     int
+	phase           string // "analyzing" or "generating"
+	done            bool
+	cancelled       bool
+	err             error
+	client          *llm.Client
+	ctx             context.Context
+	cancel          context.CancelFunc
 }
 
 // Messages for async operations
@@ -66,10 +69,68 @@ func newAIModel(files []git.FileDiff, client *llm.Client) aiModel {
 	ctx, cancel := context.WithCancel(context.Background())
 	concurrency := llm.GetConcurrency()
 
+	// Clear debug log for fresh start
+	client.ClearDebugLog()
+
+	// Debug: log original file list
+	if client.IsDebug() {
+		var sb strings.Builder
+		sb.WriteString(fmt.Sprintf("Total files: %d\n\n", len(files)))
+		for i, f := range files {
+			sb.WriteString(fmt.Sprintf("%2d. %s (+%d/-%d)\n", i+1, f.Path, f.LinesAdd, f.LinesDel))
+		}
+		client.DebugLogSection("Phase 0: Original File List", sb.String())
+	}
+
+	// Detect core files (top 3 code files by lines changed) on original order
+	originalCoreIndices := git.DetectCoreFiles(files, 3)
+
+	// Debug: log core files detection
+	if client.IsDebug() {
+		var sb strings.Builder
+		sb.WriteString("Core files (top 3 code files by lines changed):\n")
+		for idx := range originalCoreIndices {
+			f := files[idx]
+			sb.WriteString(fmt.Sprintf("  - %s (+%d/-%d)\n", f.Path, f.LinesAdd, f.LinesDel))
+		}
+		if len(originalCoreIndices) == 0 {
+			sb.WriteString("  (no core files detected)\n")
+		}
+		client.DebugLogSection("Phase 0: Core Files Detection", sb.String())
+	}
+
+	// Sort files by priority for better LLM attention
+	sortedFiles := git.SortFilesForCommit(files, originalCoreIndices)
+
+	// Rebuild coreIndices for sorted order
+	coreIndices := make(map[int]bool)
+	for i, f := range sortedFiles {
+		for origIdx, origFile := range files {
+			if origFile.Path == f.Path && originalCoreIndices[origIdx] {
+				coreIndices[i] = true
+				break
+			}
+		}
+	}
+
+	// Debug: log sorted file list
+	if client.IsDebug() {
+		var sb strings.Builder
+		sb.WriteString("Sorted by priority: [CORE] code > code > test > config > doc > other\n\n")
+		for i, f := range sortedFiles {
+			marker := "      "
+			if coreIndices[i] {
+				marker = "[CORE]"
+			}
+			sb.WriteString(fmt.Sprintf("%2d. %s %s (+%d/-%d)\n", i+1, marker, f.Path, f.LinesAdd, f.LinesDel))
+		}
+		client.DebugLogSection("Phase 0: Sorted File List", sb.String())
+	}
+
 	// Initialize file status: mark first N files as running (1)
-	fileStatus := make([]int, len(files))
+	fileStatus := make([]int, len(sortedFiles))
 	runningCount := 0
-	for i := range files {
+	for i := range sortedFiles {
 		if runningCount >= concurrency {
 			break
 		}
@@ -78,8 +139,9 @@ func newAIModel(files []git.FileDiff, client *llm.Client) aiModel {
 	}
 
 	return aiModel{
-		files:          files,
-		summaries:      make([]string, len(files)),
+		files:          sortedFiles,
+		coreIndices:    coreIndices,
+		summaries:      make([]string, len(sortedFiles)),
 		fileStatus:     fileStatus,
 		completedCount: 0,
 		runningCount:   runningCount,
@@ -142,17 +204,21 @@ func (m aiModel) analyzeFile(idx int) tea.Cmd {
 	}
 
 	return func() tea.Msg {
-		prompt := m.buildFilePrompt(file)
+		prompt := m.buildFilePrompt(file, idx)
 		opt := llm.GenerateOptions{
-			System: consts.LLMDefaultFilePrompt,
-		}
-		// Use custom file prompt as system prompt if configured
-		if customPrompt := m.client.GetFilePrompt(); customPrompt != "" {
-			opt.System = customPrompt
+			System: m.getFileAnalysisSystemPrompt(),
 		}
 		summary, err := m.client.Generate(m.ctx, m.client.GetModel(), prompt, opt)
 		return aiFileAnalyzedMsg{idx: idx, summary: summary, err: err}
 	}
+}
+
+// getFileAnalysisSystemPrompt returns the system prompt for file analysis.
+func (m aiModel) getFileAnalysisSystemPrompt() string {
+	if customPrompt := m.client.GetFilePrompt(); customPrompt != "" {
+		return customPrompt
+	}
+	return consts.LLMDefaultFilePrompt
 }
 
 func (m aiModel) generateFinalMessage() tea.Cmd {
@@ -183,13 +249,53 @@ func (m aiModel) generateFinalMessage() tea.Cmd {
 	}
 }
 
-// buildFilePrompt creates a prompt for analyzing a single file's changes.
-func (m aiModel) buildFilePrompt(file git.FileDiff) string {
-	return fmt.Sprintf(`File: %s
-Diff:
-%s
+// buildFileListContext creates a formatted file list with [CORE] markers.
+func (m aiModel) buildFileListContext() string {
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("This commit changes %d files:\n", len(m.files)))
 
-Summarize in max 10 words (start with verb):`, file.Path, file.Diff)
+	for i, f := range m.files {
+		marker := "      "
+		if m.coreIndices[i] {
+			marker = "[CORE]"
+		}
+		sb.WriteString(fmt.Sprintf("%s %s (+%d/-%d)\n", marker, f.Path, f.LinesAdd, f.LinesDel))
+	}
+
+	return sb.String()
+}
+
+// isCoreFile checks if a file path is in core files.
+func (m aiModel) isCoreFile(path string) bool {
+	for i, f := range m.files {
+		if f.Path == path && m.coreIndices[i] {
+			return true
+		}
+	}
+	return false
+}
+
+// buildFilePrompt creates a prompt for analyzing a single file's changes.
+func (m aiModel) buildFilePrompt(file git.FileDiff, fileIndex int) string {
+	var sb strings.Builder
+
+	// Global context: file list
+	sb.WriteString(m.buildFileListContext())
+	sb.WriteString("\n")
+
+	// Current file to analyze
+	marker := ""
+	if m.coreIndices[fileIndex] {
+		marker = " [CORE]"
+	}
+	sb.WriteString(fmt.Sprintf("Now analyze%s: %s\n", marker, file.Path))
+	sb.WriteString(file.Diff)
+	sb.WriteString("\n\n")
+
+	// Instructions
+	sb.WriteString("Describe what changed and why (max 50 words), considering this file's role in the overall commit.")
+
+	return sb.String()
 }
 
 // buildCommitPrompt creates a prompt for generating the final commit message.
@@ -312,9 +418,15 @@ Input:
 `)
 	}
 
-	for i, summary := range m.summaries {
+	// Use sorted files and summaries with [CORE] markers
+	for i, f := range m.sortedFiles {
+		summary := m.sortedSummaries[i]
 		if summary != "" {
-			sb.WriteString(fmt.Sprintf("- %s: %s\n", m.files[i].Path, strings.TrimSpace(summary)))
+			marker := "      "
+			if m.isCoreFile(f.Path) {
+				marker = "[CORE]"
+			}
+			sb.WriteString(fmt.Sprintf("%s %s: %s\n", marker, f.Path, strings.TrimSpace(summary)))
 		}
 	}
 
@@ -361,8 +473,31 @@ func (m aiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.fileStatus[msg.idx] = 2 // done
 		m.completedCount++
 
+		// Debug: log each file analysis result
+		if m.client.IsDebug() {
+			m.client.DebugLog("Phase 1: [%d/%d] %s => %s",
+				m.completedCount, len(m.files), m.files[msg.idx].Path, strings.TrimSpace(msg.summary))
+		}
+
 		if m.completedCount >= len(m.files) {
-			// All files analyzed, generate final message
+			// Files already sorted in newAIModel, just copy for Phase 2
+			m.sortedFiles = m.files
+			m.sortedSummaries = m.summaries
+
+			// Debug: log Phase 1 complete summary
+			if m.client.IsDebug() {
+				var sb strings.Builder
+				sb.WriteString("All file summaries:\n\n")
+				for i, f := range m.files {
+					marker := "      "
+					if m.coreIndices[i] {
+						marker = "[CORE]"
+					}
+					sb.WriteString(fmt.Sprintf("%s %s:\n  %s\n\n", marker, f.Path, strings.TrimSpace(m.summaries[i])))
+				}
+				m.client.DebugLogSection("Phase 1 Complete: File Summaries", sb.String())
+			}
+
 			m.phase = "generating"
 			return m, m.generateFinalMessage()
 		}
@@ -382,8 +517,16 @@ func (m aiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.done = true
 		if msg.err != nil {
 			m.err = fmt.Errorf("failed to generate commit message: %w", msg.err)
+			// Debug: log error
+			if m.client.IsDebug() {
+				m.client.DebugLogSection("Phase 2 Error", msg.err.Error())
+			}
 		} else {
 			m.finalMsg = msg.message
+			// Debug: log final commit message
+			if m.client.IsDebug() {
+				m.client.DebugLogSection("Phase 2 Complete: Generated Commit Message", msg.message)
+			}
 		}
 		return m, tea.Quit
 	}

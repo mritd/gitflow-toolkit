@@ -145,6 +145,178 @@ func CountDiffLines(diff string) (add, del int) {
 	return add, del
 }
 
+// FileCategory represents the category for sorting in commit generation.
+type FileCategory int
+
+const (
+	CategoryCoreCode FileCategory = iota // [CORE] marked code files
+	CategoryCode                         // Regular code files
+	CategoryTest                         // Test files
+	CategoryConfig                       // Config files (go.mod, package.json, etc.)
+	CategoryDoc                          // Documentation (*.md)
+	CategoryOther                        // Other files (.gitignore, etc.)
+)
+
+// IsTestFile checks if the file is a test file.
+func IsTestFile(path string) bool {
+	lowerPath := strings.ToLower(path)
+	base := strings.ToLower(filepath.Base(path))
+
+	// Check filename patterns
+	if strings.HasSuffix(base, "_test.go") ||
+		strings.Contains(base, ".spec.") ||
+		strings.Contains(base, ".test.") {
+		return true
+	}
+
+	// Check directory patterns (with or without leading slash)
+	return strings.Contains(lowerPath, "/test/") ||
+		strings.Contains(lowerPath, "/tests/") ||
+		strings.HasPrefix(lowerPath, "test/") ||
+		strings.HasPrefix(lowerPath, "tests/")
+}
+
+// IsDocFile checks if the file is a documentation file.
+func IsDocFile(path string) bool {
+	ext := strings.ToLower(filepath.Ext(path))
+	return ext == ".md" || ext == ".txt" || ext == ".rst" || ext == ".adoc"
+}
+
+// IsConfigFile checks if the file is a config file.
+func IsConfigFile(path string) bool {
+	base := strings.ToLower(filepath.Base(path))
+	configNames := map[string]bool{
+		"go.mod": true, "go.sum": true,
+		"package.json": true, "package-lock.json": true,
+		"tsconfig.json": true, "vite.config.ts": true,
+		"makefile": true, "dockerfile": true,
+		".goreleaser.yaml": true, ".goreleaser.yml": true,
+	}
+	if configNames[base] {
+		return true
+	}
+	ext := strings.ToLower(filepath.Ext(path))
+	return ext == ".yaml" || ext == ".yml" || ext == ".toml" || ext == ".ini"
+}
+
+// IsOtherFile checks if the file is an "other" file (gitignore, etc.).
+func IsOtherFile(path string) bool {
+	base := filepath.Base(path)
+	return strings.HasPrefix(base, ".") && !strings.HasSuffix(base, ".go")
+}
+
+// GetFileCategory determines the category of a file for sorting.
+func GetFileCategory(f FileDiff, isCore bool) FileCategory {
+	if isCore && highPriorityExts[strings.ToLower(filepath.Ext(f.Path))] {
+		return CategoryCoreCode
+	}
+	if IsTestFile(f.Path) {
+		return CategoryTest
+	}
+	if highPriorityExts[strings.ToLower(filepath.Ext(f.Path))] {
+		return CategoryCode
+	}
+	if IsConfigFile(f.Path) {
+		return CategoryConfig
+	}
+	if IsDocFile(f.Path) {
+		return CategoryDoc
+	}
+	return CategoryOther
+}
+
+// SortFilesForCommit sorts files by category for commit message generation.
+// Order: [CORE] code > code > test > config > doc > other
+// Within same category, sort by lines changed (descending).
+func SortFilesForCommit(files []FileDiff, coreIndices map[int]bool) []FileDiff {
+	type sortItem struct {
+		index    int
+		file     FileDiff
+		category FileCategory
+		lines    int
+	}
+
+	items := make([]sortItem, len(files))
+	for i, f := range files {
+		items[i] = sortItem{
+			index:    i,
+			file:     f,
+			category: GetFileCategory(f, coreIndices[i]),
+			lines:    f.LinesAdd + f.LinesDel,
+		}
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].category != items[j].category {
+			return items[i].category < items[j].category
+		}
+		return items[i].lines > items[j].lines // Larger changes first within category
+	})
+
+	result := make([]FileDiff, len(files))
+	for i, item := range items {
+		result[i] = item.file
+	}
+	return result
+}
+
+// coreFilePriority returns a priority score for core file detection.
+// Lower score = higher priority: code (0) > config (1) > doc (2) > other (3)
+// Test files are excluded (returns -1).
+func coreFilePriority(f FileDiff) int {
+	if IsTestFile(f.Path) {
+		return -1 // exclude test files
+	}
+	ext := strings.ToLower(filepath.Ext(f.Path))
+	if highPriorityExts[ext] {
+		return 0 // code files
+	}
+	if IsConfigFile(f.Path) {
+		return 1 // config files
+	}
+	if IsDocFile(f.Path) {
+		return 2 // doc files
+	}
+	return 3 // other files
+}
+
+// DetectCoreFiles returns indices of core files (top N files by priority and lines changed).
+// Priority order: code > config > doc > other. Test files are excluded.
+func DetectCoreFiles(files []FileDiff, maxCore int) map[int]bool {
+	type candidate struct {
+		index    int
+		priority int
+		lines    int
+	}
+
+	var candidates []candidate
+	for i, f := range files {
+		priority := coreFilePriority(f)
+		if priority < 0 {
+			continue // skip test files
+		}
+		candidates = append(candidates, candidate{
+			index:    i,
+			priority: priority,
+			lines:    f.LinesAdd + f.LinesDel,
+		})
+	}
+
+	// Sort by priority (ascending), then by lines changed (descending)
+	sort.Slice(candidates, func(i, j int) bool {
+		if candidates[i].priority != candidates[j].priority {
+			return candidates[i].priority < candidates[j].priority
+		}
+		return candidates[i].lines > candidates[j].lines
+	})
+
+	result := make(map[int]bool)
+	for i := 0; i < len(candidates) && i < maxCore; i++ {
+		result[candidates[i].index] = true
+	}
+	return result
+}
+
 // FilterAndTruncateDiffs filters lock files and truncates diffs by priority.
 // Lock files are removed when total file count >= 5.
 // Files are truncated by priority: High > Medium > Low.

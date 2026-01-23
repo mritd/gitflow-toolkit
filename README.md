@@ -210,7 +210,7 @@ Generate commit messages automatically using LLM:
 | OpenAI | Host contains `openai.com` | `https://api.openai.com` | `/v1/chat/completions` | - |
 | DeepSeek | Host contains `deepseek.com` | `https://api.deepseek.com` | `/v1/chat/completions` | - |
 | Mistral | Host contains `mistral.ai` | `https://api.mistral.ai` | `/v1/chat/completions` | - |
-| Ollama | No API key | `http://localhost:11434` | `/api/generate` | `qwen2.5-coder:7b` |
+| Ollama | No API key | `http://localhost:11434` | `/api/chat` | `qwen2.5-coder:7b` |
 | Other | Unknown host | - | `/v1/chat/completions` | - |
 
 **Custom API Path:**

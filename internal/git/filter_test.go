@@ -282,3 +282,173 @@ func TestFilterAndTruncateDiffs(t *testing.T) {
 		}
 	})
 }
+
+func TestIsTestFile(t *testing.T) {
+	tests := []struct {
+		path     string
+		expected bool
+	}{
+		{"internal/ui/commit/ai_test.go", true},
+		{"src/utils.spec.ts", true},
+		{"src/utils.test.js", true},
+		{"tests/test_main.py", true},
+		{"test/helper.go", true},
+		{"internal/ui/commit/ai.go", false},
+		{"README.md", false},
+		{"main.go", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.path, func(t *testing.T) {
+			if got := IsTestFile(tt.path); got != tt.expected {
+				t.Errorf("IsTestFile(%q) = %v, want %v", tt.path, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestIsDocFile(t *testing.T) {
+	tests := []struct {
+		path     string
+		expected bool
+	}{
+		{"README.md", true},
+		{"docs/guide.txt", true},
+		{"api.rst", true},
+		{"manual.adoc", true},
+		{"main.go", false},
+		{"config.yaml", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.path, func(t *testing.T) {
+			if got := IsDocFile(tt.path); got != tt.expected {
+				t.Errorf("IsDocFile(%q) = %v, want %v", tt.path, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestIsConfigFile(t *testing.T) {
+	tests := []struct {
+		path     string
+		expected bool
+	}{
+		{"go.mod", true},
+		{"go.sum", true},
+		{"package.json", true},
+		{"config.yaml", true},
+		{"settings.yml", true},
+		{"config.toml", true},
+		{"Makefile", true},
+		{"Dockerfile", true},
+		{".goreleaser.yaml", true},
+		{"main.go", false},
+		{"README.md", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.path, func(t *testing.T) {
+			if got := IsConfigFile(tt.path); got != tt.expected {
+				t.Errorf("IsConfigFile(%q) = %v, want %v", tt.path, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestDetectCoreFiles(t *testing.T) {
+	t.Run("prefers code files", func(t *testing.T) {
+		files := []FileDiff{
+			{Path: "internal/ui/ai.go", LinesAdd: 100, LinesDel: 50},
+			{Path: "internal/ui/ai_test.go", LinesAdd: 50, LinesDel: 20},
+			{Path: "README.md", LinesAdd: 10, LinesDel: 5},
+			{Path: "internal/llm/client.go", LinesAdd: 80, LinesDel: 30},
+			{Path: "go.mod", LinesAdd: 5, LinesDel: 2},
+		}
+
+		cores := DetectCoreFiles(files, 2)
+
+		if !cores[0] {
+			t.Error("Expected index 0 (ai.go) to be core")
+		}
+		if !cores[3] {
+			t.Error("Expected index 3 (client.go) to be core")
+		}
+		if cores[1] {
+			t.Error("Expected index 1 (ai_test.go) NOT to be core")
+		}
+		if len(cores) != 2 {
+			t.Errorf("Expected 2 core files, got %d", len(cores))
+		}
+	})
+
+	t.Run("falls back to config and doc when no code", func(t *testing.T) {
+		files := []FileDiff{
+			{Path: "README.md", LinesAdd: 200, LinesDel: 100},  // doc, 300 lines
+			{Path: "go.mod", LinesAdd: 50, LinesDel: 20},       // config, 70 lines
+			{Path: "config.yaml", LinesAdd: 30, LinesDel: 10},  // config, 40 lines
+			{Path: ".gitignore", LinesAdd: 5, LinesDel: 0},     // other, 5 lines
+		}
+
+		cores := DetectCoreFiles(files, 2)
+
+		// Should select config files first (higher priority than doc)
+		if !cores[1] {
+			t.Error("Expected index 1 (go.mod) to be core")
+		}
+		if !cores[2] {
+			t.Error("Expected index 2 (config.yaml) to be core")
+		}
+		if cores[0] {
+			t.Error("Expected index 0 (README.md) NOT to be core (doc has lower priority)")
+		}
+		if len(cores) != 2 {
+			t.Errorf("Expected 2 core files, got %d", len(cores))
+		}
+	})
+
+	t.Run("code with fewer lines beats doc with more lines", func(t *testing.T) {
+		files := []FileDiff{
+			{Path: "README.md", LinesAdd: 500, LinesDel: 200},  // doc, 700 lines
+			{Path: "main.go", LinesAdd: 10, LinesDel: 5},       // code, 15 lines
+		}
+
+		cores := DetectCoreFiles(files, 1)
+
+		if !cores[1] {
+			t.Error("Expected index 1 (main.go) to be core - code priority beats doc")
+		}
+		if cores[0] {
+			t.Error("Expected index 0 (README.md) NOT to be core")
+		}
+	})
+}
+
+func TestSortFilesForCommit(t *testing.T) {
+	files := []FileDiff{
+		{Path: "README.md", LinesAdd: 10, LinesDel: 5},
+		{Path: "internal/ui/ai.go", LinesAdd: 100, LinesDel: 50},
+		{Path: ".gitignore", LinesAdd: 1, LinesDel: 0},
+		{Path: "internal/ui/ai_test.go", LinesAdd: 50, LinesDel: 20},
+		{Path: "go.mod", LinesAdd: 5, LinesDel: 2},
+	}
+
+	coreIndices := map[int]bool{1: true} // ai.go is core
+
+	sorted := SortFilesForCommit(files, coreIndices)
+
+	// Expected order: [CORE]ai.go, ai_test.go, go.mod, README.md, .gitignore
+	expectedOrder := []string{
+		"internal/ui/ai.go",      // [CORE] code
+		"internal/ui/ai_test.go", // test
+		"go.mod",                 // config
+		"README.md",              // doc
+		".gitignore",             // other
+	}
+
+	for i, expected := range expectedOrder {
+		if sorted[i].Path != expected {
+			t.Errorf("Position %d: got %s, want %s", i, sorted[i].Path, expected)
+		}
+	}
+}

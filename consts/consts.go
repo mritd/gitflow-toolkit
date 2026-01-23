@@ -78,7 +78,7 @@ const (
 
 // LLM API paths for chat completions.
 const (
-	LLMPathOllama     = "/api/generate"
+	LLMPathOllama     = "/api/chat"
 	LLMPathOpenAI     = "/v1/chat/completions"        // OpenAI, DeepSeek, Mistral, most compatible APIs
 	LLMPathOpenRouter = "/api/v1/chat/completions"    // OpenRouter
 	LLMPathGroq       = "/openai/v1/chat/completions" // Groq
@@ -100,22 +100,12 @@ const (
 // LLM default prompts (can be overridden via gitconfig).
 const (
 	// LLMDefaultFilePrompt is the system prompt for analyzing individual file diffs.
-	LLMDefaultFilePrompt = `Summarize the code change in MAX 10 words.
-
-Rules:
-- Start with a verb (Add, Update, Fix, Remove, Rename, Refactor, Migrate)
-- Describe the ACTION and PURPOSE, not literal strings
-- For import/module path changes: "Migrate module path to new repository" (not actual URLs)
-- For config changes: "Add config key" or "Rename config key"
-- NEVER include actual URLs, domains, or paths in output
-
-Good: "Add debug logging support"
-Good: "Migrate module path to new repository"
-Good: "Rename config key for clarity"
-Bad: "Changed from gitlab.com to git.example.com" (contains literal URL)
-Bad: "Update import from old/path to new/path" (contains literal path)
-
-Output ONLY the summary.`
+	LLMDefaultFilePrompt = `You are analyzing a code change. Given the list of all changed files and one specific diff:
+1. Understand this file's role in the overall commit
+2. Describe what changed and why in max 50 words
+3. Start with a verb (Add, Update, Fix, Remove, Refactor)
+4. Focus on the purpose, not implementation details
+Output only the summary, no explanation.`
 
 	// LLMCommitPromptEN is the system prompt for generating commit messages in English.
 	LLMCommitPromptEN = `Generate ONE commit message in Angular format.
@@ -130,7 +120,7 @@ RULES:
 - type: feat|fix|docs|refactor|test|chore|perf|build
 - scope: the main component being changed (llm, config, ui, git, api)
 - subject: what this commit does, max 50 chars, no period
-- body: 1-3 lines MAX, each starting with "- "
+- body: 1-5 lines MAX, each starting with "- "
 
 CRITICAL:
 - BODY IS MANDATORY - at least one line starting with "- "
@@ -155,7 +145,7 @@ Output the commit message directly, no explanation.`
 - type: feat|fix|docs|refactor|test|chore|perf|build
 - scope: 主要改动的组件 (llm, config, ui, git, api)
 - subject: 这个提交做了什么, 最多 50 字, 不加句号
-- body: 最多 1-3 行, 每行以 "- " 开头
+- body: 最多 1-5 行, 每行以 "- " 开头
 
 重要:
 - 正文是必须的 - 至少一行以 "- " 开头
@@ -180,7 +170,7 @@ RULES:
 - type: feat|fix|docs|refactor|test|chore|perf|build
 - scope: main component (llm, config, ui, git, api)
 - subject: "english (中文)" format, no period
-- body: 1-3 lines MAX in Chinese, each starting with "- "
+- body: 1-5 lines MAX in Chinese, each starting with "- "
 
 CRITICAL:
 - BODY IS MANDATORY - at least one line starting with "- "

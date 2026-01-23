@@ -252,6 +252,49 @@ func GetDebugLogPath() string {
 	return debugLogPath
 }
 
+// ClearDebugLog clears the debug log file if debug mode is enabled.
+func (c *Client) ClearDebugLog() {
+	if !c.debug {
+		return
+	}
+	_ = os.Remove(debugLogPath)
+}
+
+// IsDebug returns whether debug mode is enabled.
+func (c *Client) IsDebug() bool {
+	return c.debug
+}
+
+// DebugLog writes a debug message to the log file.
+// This is a public method for external callers to log debug info.
+func (c *Client) DebugLog(format string, args ...interface{}) {
+	c.debugLog(format, args...)
+}
+
+// DebugLogSection writes a formatted section to the debug log.
+func (c *Client) DebugLogSection(title string, content string) {
+	if !c.debug {
+		return
+	}
+
+	f, err := os.OpenFile(debugLogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return
+	}
+	defer func() { _ = f.Close() }()
+
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("\n%s\n", strings.Repeat("-", 80)))
+	sb.WriteString(fmt.Sprintf("[%s] %s\n", timestamp, title))
+	sb.WriteString(fmt.Sprintf("%s\n", strings.Repeat("-", 80)))
+	sb.WriteString(content)
+	sb.WriteString("\n")
+
+	_, _ = f.WriteString(sb.String())
+}
+
 // Generate calls the LLM API to generate text.
 // Returns the generated text or error after retries exhausted.
 func (c *Client) Generate(ctx context.Context, model, prompt string, opts ...GenerateOptions) (string, error) {
@@ -336,7 +379,7 @@ func (c *Client) doGenerateOllama(ctx context.Context, model, prompt string, opt
 		return "", fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	endpoint := c.host + "/api/chat"
+	endpoint := c.host + consts.LLMPathOllama
 
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()

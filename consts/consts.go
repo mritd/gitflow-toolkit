@@ -93,7 +93,7 @@ const (
 
 // LLM default models.
 const (
-	LLMModelOllama     = "qwen2.5-coder:7b"
+	LLMModelOllama     = "deepseek-coder-v2:16b"
 	LLMModelOpenRouter = "mistralai/devstral-2512:free"
 )
 

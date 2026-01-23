@@ -49,10 +49,11 @@ AI commit generation uses a two-phase approach:
 │    │   Now analyze [CORE]: internal/ui/ai.go                             │  │
 │    │   <diff content>                                                    │  │
 │    │                                                                     │  │
-│    │   Describe what changed and why (max 50 words)...                   │  │
+│    │   Describe what changed in this file, considering its role          │  │
+│    │   in the overall commit.                                            │  │
 │    └─────────────────────────────────────────────────────────────────────┘  │
 │                                                                             │
-│  Output: Summary for each file (max 50 words)                               │
+│  Output: Summary for each file (15-40 words)                                │
 └────────┬────────────────────────────────────────────────────────────────────┘
          │
          ▼
@@ -287,3 +288,65 @@ git config --global --unset gitflow.llm-api-debug
 1. Reduce `llm-max-concurrency` if rate limited
 2. Reduce `llm-max-diff-lines` for faster processing
 3. Check network connectivity to LLM provider
+
+## System Prompts
+
+### Phase 1: File Analysis Prompt
+
+The system prompt for file analysis focuses on factual description without speculation:
+
+```
+Describe this code change in ONE sentence (15-40 words).
+
+RULES:
+- State EXACTLY what changed: "change X from A to B", "add Y", "remove Z"
+- Use actual values from the diff (paths, names, numbers)
+- NO motivation/reasoning (no "for better X", "to improve Y", "reflecting Z")
+- NO speculation about WHY, only WHAT
+
+FORBIDDEN words: network, performance, accessibility, maintainability, security, flexibility
+
+Example: Change import paths from old.domain.com to new.domain.com in 5 package imports
+```
+
+**Design principles:**
+- Focus on WHAT changed, not WHY (avoids hallucination)
+- Use concrete values from the diff
+- Forbidden words prevent vague/speculative language
+- 15-40 word limit ensures concise but detailed output
+
+### Phase 2: Commit Message Prompt
+
+The system prompt for commit generation enforces Angular format with mandatory body:
+
+```
+Generate ONE commit message in Angular format.
+
+FORMAT (MUST follow exactly):
+<type>(<scope>): <subject>
+
+- <body line 1>
+- <body line 2 if needed>
+
+RULES:
+- type: feat|fix|docs|refactor|test|chore|perf|build
+- scope: the main component being changed (llm, config, ui, git, api)
+- subject: what this commit does, max 50 chars, no period
+- body: 1-5 lines MAX, each starting with "- "
+
+CRITICAL:
+- BODY IS MANDATORY - at least one line starting with "- "
+- SUMMARIZE, don't enumerate - if 20 files have same change, write ONE summary line
+- Group similar changes: "Update import path" x20 → "- Migrate module paths"
+- NEVER list individual files in body
+- ONLY describe what is in input - NEVER invent features
+- Always output: header + blank line + body lines
+
+Output the commit message directly, no explanation.
+```
+
+**Design principles:**
+- Mandatory body prevents incomplete commits
+- Summarization rule prevents file enumeration
+- "NEVER invent features" prevents hallucination
+- Language-specific variants available (Chinese, bilingual)

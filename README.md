@@ -179,6 +179,8 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
 | `llm-max-retries` | Max retry count on failure | `0` |
 | `llm-output-lang` | Output language (`en`, `zh`, `bilingual`) | `en` |
 | `llm-max-concurrency` | Max parallel file analysis | `3` |
+| `llm-max-diff-lines` | Max diff lines to analyze | `500` |
+| `llm-api-debug` | Enable debug logging to temp file | `false` |
 | `llm-file-analysis-prompt` | Custom file analysis prompt | - |
 | `llm-commit-prompt-en` | Custom English commit prompt | - |
 | `llm-commit-prompt-zh` | Custom Chinese commit prompt | - |
@@ -203,15 +205,12 @@ Generate commit messages automatically using LLM:
 
 **Provider Selection:**
 
-| Provider | When | Default Host | Default Path | Default Model |
-|----------|------|--------------|--------------|---------------|
-| OpenRouter | API key is set | `https://openrouter.ai` | `/api/v1/chat/completions` | `mistralai/devstral-2512:free` |
-| Groq | Host contains `groq.com` | `https://api.groq.com` | `/openai/v1/chat/completions` | - |
-| OpenAI | Host contains `openai.com` | `https://api.openai.com` | `/v1/chat/completions` | - |
-| DeepSeek | Host contains `deepseek.com` | `https://api.deepseek.com` | `/v1/chat/completions` | - |
-| Mistral | Host contains `mistral.ai` | `https://api.mistral.ai` | `/v1/chat/completions` | - |
-| Ollama | No API key | `http://localhost:11434` | `/api/chat` | `deepseek-coder-v2:16b` |
-| Other | Unknown host | - | `/v1/chat/completions` | - |
+| Provider | When | Default Path | Default Model |
+|----------|------|--------------|---------------|
+| OpenRouter | API key set, no custom host | `/api/v1/chat/completions` | `mistralai/devstral-2512:free` |
+| Groq | Host contains `groq.com` | `/openai/v1/chat/completions` | - |
+| Ollama | No API key | `/api/chat` | `deepseek-coder-v2:16b` |
+| OpenAI-compatible | Other hosts (openai.com, deepseek.com, mistral.ai, etc.) | `/v1/chat/completions` | - |
 
 **Custom API Path:**
 

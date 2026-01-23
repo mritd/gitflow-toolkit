@@ -66,14 +66,12 @@ const (
 	LLMDefaultMaxDiffLines   = 500
 )
 
-// LLM provider hosts (OpenAI-compatible APIs only).
+// LLM provider hosts.
 const (
 	LLMHostOllama     = "http://localhost:11434"
 	LLMHostOpenRouter = "https://openrouter.ai"
 	LLMHostGroq       = "https://api.groq.com"
 	LLMHostOpenAI     = "https://api.openai.com"
-	LLMHostDeepSeek   = "https://api.deepseek.com"
-	LLMHostMistral    = "https://api.mistral.ai"
 )
 
 // LLM API paths for chat completions.

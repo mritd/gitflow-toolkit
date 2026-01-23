@@ -139,11 +139,13 @@ All settings are configured via `~/.gitconfig` under the `[gitflow]` section.
     llm-model = mistralai/devstral-2512:free
     llm-temperature = 0.3
     llm-diff-context = 5
+    llm-max-diff-lines = 500
     llm-request-timeout = 2m
     llm-max-retries = 0
     llm-output-lang = en
     llm-max-concurrency = 3
-    
+    llm-api-debug = false
+
     # Custom prompts (optional, language-specific)
     llm-file-analysis-prompt = "Summarize this diff briefly."
     llm-commit-prompt-en = "Your custom English commit prompt."

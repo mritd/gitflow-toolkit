@@ -6,14 +6,11 @@ GitFlow Toolkit is a CLI tool written in Go for standardizing git commit message
 
 ## Features
 
-- Interactive commit message creation following Conventional Commits 1.0.0
-- **BREAKING CHANGE support** with automatic `!` marker and footer generation
-- Optional scope - only type and description are required
-- **AI-powered commit message generation** using LLM (OpenRouter, Groq, OpenAI, or local Ollama)
-- Automatic `Signed-off-by` generation
+- Interactive TUI for commit message creation (Conventional Commits 1.0.0)
+- AI-powered commit message generation (OpenRouter, Groq, OpenAI, Ollama)
 - Git subcommand integration (`git ci`, `git ps`, `git feat`, etc.)
 - Lucky commit hash prefix support
-- Adaptive terminal UI with light and dark theme support
+- Adaptive terminal UI with light/dark theme
 
 ## Requirements
 
@@ -110,17 +107,7 @@ The tool follows the [Conventional Commits 1.0.0](https://www.conventionalcommit
 [optional body]
 
 [optional footer(s)]
-
-Signed-off-by: Name <email>
 ```
-
-**Required:** `type` and `description`
-
-**Optional:** `scope`, `body`, `footer`
-
-**BREAKING CHANGE:** Add a breaking change description to automatically:
-- Add `!` marker after type/scope (e.g., `feat!:` or `feat(api)!:`)
-- Add `BREAKING CHANGE: <description>` footer
 
 **Supported types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `hotfix`, `build`
 

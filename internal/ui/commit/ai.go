@@ -625,42 +625,41 @@ func (m aiModel) View() string {
 }
 
 // calcVisibleRange calculates the visible file range for auto-scrolling.
-// It prioritizes showing running files in the visible window.
+// It keeps the last running file at the bottom of the visible window,
+// with completed files scrolling upward as more files complete.
 func (m aiModel) calcVisibleRange(maxVisible int) (start, end int) {
 	total := len(m.files)
 	if total <= maxVisible {
 		return 0, total
 	}
 
-	// Find the first running file
-	firstRunning := -1
+	// Find the last running file to keep it visible at the bottom
+	lastRunning := -1
 	for i, status := range m.fileStatus {
 		if status == 1 { // running
-			firstRunning = i
-			break
+			lastRunning = i
 		}
 	}
 
-	// If no running file, show from the first pending or from start
-	if firstRunning < 0 {
-		// Find first pending
+	// If no running file, find the first pending file
+	if lastRunning < 0 {
 		for i, status := range m.fileStatus {
 			if status == 0 { // pending
-				firstRunning = i
+				lastRunning = i
 				break
 			}
 		}
 	}
 
-	// If still not found, show from start
-	if firstRunning < 0 {
-		return 0, maxVisible
+	// If still not found (all done), show the last window
+	if lastRunning < 0 {
+		return total - maxVisible, total
 	}
 
-	// Center the running file in the visible window
-	// But keep some context (show a few completed files above)
-	contextAbove := 2
-	start = firstRunning - contextAbove
+	// Position the window so the last running file is near the bottom
+	// Leave 1-2 slots at the bottom for pending files to appear
+	bottomMargin := 2
+	start = lastRunning - (maxVisible - 1 - bottomMargin)
 	if start < 0 {
 		start = 0
 	}

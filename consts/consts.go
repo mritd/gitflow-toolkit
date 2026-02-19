@@ -21,6 +21,7 @@ const (
 const (
 	CmdCommit = "ci"
 	CmdPush   = "ps"
+	CmdLucky  = "lucky"
 )
 
 // CommitType represents a commit type with its name and description.
@@ -216,5 +217,6 @@ func SymlinkCommands() []string {
 		Perf,
 		Hotfix,
 		Build,
+		CmdLucky,
 	}
 }

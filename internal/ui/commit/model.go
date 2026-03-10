@@ -3,6 +3,8 @@ package commit
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -20,6 +22,52 @@ type Result struct {
 	LuckySkipped bool   // true if lucky commit was skipped (Ctrl+C)
 	LuckyFailed  error  // error if lucky commit failed
 	Hash         string // final commit hash (may be lucky hash)
+}
+
+// RunWithMessage runs the non-interactive commit flow with a pre-formatted message.
+// The message must follow the Conventional Commits format: type[(scope)]: subject
+func RunWithMessage(message, luckyPrefix string) Result {
+	if err := validateMessageFormat(message); err != nil {
+		return Result{Err: err}
+	}
+	msg := parseAIMessage(message)
+	return performCommit(msg, luckyPrefix)
+}
+
+// validateMessageFormat validates that the message follows the Conventional Commits format.
+// Valid formats: "type: subject", "type(scope): subject", "type!: subject", "type(scope)!: subject"
+func validateMessageFormat(message string) error {
+	lines := splitLines(strings.TrimSpace(message))
+	if len(lines) == 0 {
+		return fmt.Errorf("empty commit message")
+	}
+
+	header := lines[0]
+
+	// Must have colon separator
+	colonIdx := strings.Index(header, ":")
+	if colonIdx < 0 {
+		return fmt.Errorf("invalid header: missing colon, expected 'type[(scope)]: subject'")
+	}
+
+	prefix := header[:colonIdx]
+	subject := strings.TrimSpace(header[colonIdx+1:])
+	if subject == "" {
+		return fmt.Errorf("invalid header: empty subject")
+	}
+
+	// Extract type: strip optional trailing "!", and optional "(scope)"
+	typeStr := prefix
+	typeStr = strings.TrimSuffix(typeStr, "!")
+	if parenStart := strings.Index(typeStr, "("); parenStart >= 0 {
+		typeStr = typeStr[:parenStart]
+	}
+
+	if typeStr == "" {
+		return fmt.Errorf("invalid header: empty type")
+	}
+
+	return nil
 }
 
 // Run runs the interactive commit flow.

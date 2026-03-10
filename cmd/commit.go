@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -10,6 +12,8 @@ import (
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/commit"
 	"github.com/mritd/gitflow-toolkit/v3/internal/ui/common"
 )
+
+var msgFile string
 
 // commitCmd represents the commit command.
 var commitCmd = &cobra.Command{
@@ -34,6 +38,7 @@ The commit message format follows the Angular specification:
 }
 
 func init() {
+	commitCmd.Flags().StringVarP(&msgFile, "file", "F", "", "Read commit message from file (skip interactive input)")
 	rootCmd.AddCommand(commitCmd)
 }
 
@@ -60,9 +65,22 @@ func runCommit(cmd *cobra.Command, _ []string) error {
 		luckyPrefix = prefix
 	}
 
+	// File-based flow: read message from file, skip interactive input
+	if msgFile != "" {
+		content, err := os.ReadFile(msgFile)
+		if err != nil {
+			return renderError(cmd, "Read message file", err)
+		}
+		result := commit.RunWithMessage(strings.TrimSpace(string(content)), luckyPrefix)
+		return renderCommitResult(cmd, result)
+	}
+
 	// Run the interactive commit flow (pass luckyPrefix)
 	result := commit.Run(luckyPrefix)
+	return renderCommitResult(cmd, result)
+}
 
+func renderCommitResult(cmd *cobra.Command, result commit.Result) error {
 	if result.Cancelled {
 		r := common.Warning("Commit cancelled", "Operation was cancelled by user.")
 		fmt.Print(common.RenderResult(r))

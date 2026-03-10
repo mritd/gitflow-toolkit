@@ -2,8 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
 
+	"github.com/creack/pty"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 
 	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/internal/git"
@@ -45,21 +49,42 @@ func runLucky(cmd *cobra.Command, _ []string) error {
 	}
 
 	// Run lucky commit on current HEAD
-	luckyCmd := git.LuckyCommitCmd(prefix)
-	result := common.RunLuckyCommit(prefix, luckyCmd, git.GetHeadHash)
+	luckyExec := git.LuckyCommitCmd(prefix)
 
-	if result.Cancelled {
-		r := common.Warning("Lucky commit skipped", "Operation was cancelled by user.")
+	if term.IsTerminal(int(os.Stdin.Fd())) {
+		// Terminal: run with TUI spinner
+		result := common.RunLuckyCommit(prefix, luckyExec, git.GetHeadHash)
+
+		if result.Cancelled {
+			r := common.Warning("Lucky commit skipped", "Operation was cancelled by user.")
+			fmt.Print(common.RenderResult(r))
+			return nil
+		}
+
+		if result.Err != nil {
+			return renderError(cmd, "Lucky commit failed", result.Err)
+		}
+
+		content := common.StyleMuted.Render("Hash: " + result.Hash)
+		r := common.Success("Lucky commit done", content)
 		fmt.Print(common.RenderResult(r))
 		return nil
 	}
 
-	if result.Err != nil {
-		return renderError(cmd, "Lucky commit failed", result.Err)
+	// Non-terminal: run with pty so lucky_commit can access /dev/tty
+	ptmx, err := pty.Start(luckyExec)
+	if err != nil {
+		return renderError(cmd, "Lucky commit failed", err)
 	}
+	_, _ = io.Copy(io.Discard, ptmx)
+	if err := luckyExec.Wait(); err != nil {
+		_ = ptmx.Close()
+		return renderError(cmd, "Lucky commit failed", err)
+	}
+	_ = ptmx.Close()
 
-	// Show success with hash
-	content := common.StyleMuted.Render("Hash: " + result.Hash)
+	hash, _ := git.GetHeadHash()
+	content := common.StyleMuted.Render("Hash: " + hash)
 	r := common.Success("Lucky commit done", content)
 	fmt.Print(common.RenderResult(r))
 	return nil

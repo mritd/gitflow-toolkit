@@ -4,9 +4,11 @@ package commit
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
+	"github.com/creack/pty"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"golang.org/x/term"
@@ -360,9 +362,16 @@ func performCommit(msg git.CommitMessage, luckyPrefix string) Result {
 			}
 			result.Hash = luckyResult.Hash
 		} else {
-			// Non-terminal: run directly without TUI
-			if err := cmd.Run(); err != nil {
+			// Non-terminal: run with pty so lucky_commit can access /dev/tty
+			ptmx, err := pty.Start(cmd)
+			if err != nil {
 				result.LuckyFailed = err
+			} else {
+				_, _ = io.Copy(io.Discard, ptmx)
+				if err := cmd.Wait(); err != nil {
+					result.LuckyFailed = err
+				}
+				_ = ptmx.Close()
 			}
 		}
 	}

@@ -4,10 +4,12 @@ package commit
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"golang.org/x/term"
 
 	"github.com/mritd/gitflow-toolkit/v3/config"
 	"github.com/mritd/gitflow-toolkit/v3/internal/git"
@@ -347,14 +349,22 @@ func performCommit(msg git.CommitMessage, luckyPrefix string) Result {
 	// Run lucky commit if prefix is set
 	if luckyPrefix != "" {
 		cmd := git.LuckyCommitCmd(luckyPrefix)
-		luckyResult := common.RunLuckyCommit(luckyPrefix, cmd, git.GetHeadHash)
 
-		if luckyResult.Cancelled {
-			result.LuckySkipped = true
-		} else if luckyResult.Err != nil {
-			result.LuckyFailed = luckyResult.Err
+		if term.IsTerminal(int(os.Stdin.Fd())) {
+			// Terminal: run with TUI spinner
+			luckyResult := common.RunLuckyCommit(luckyPrefix, cmd, git.GetHeadHash)
+			if luckyResult.Cancelled {
+				result.LuckySkipped = true
+			} else if luckyResult.Err != nil {
+				result.LuckyFailed = luckyResult.Err
+			}
+			result.Hash = luckyResult.Hash
+		} else {
+			// Non-terminal: run directly without TUI
+			if err := cmd.Run(); err != nil {
+				result.LuckyFailed = err
+			}
 		}
-		result.Hash = luckyResult.Hash
 	}
 
 	// Get hash if not already set

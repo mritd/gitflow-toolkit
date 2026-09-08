@@ -217,32 +217,32 @@ func (c *Client) debugLogRequest(provider, endpoint string, reqBody []byte, resp
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("\n%s\n", strings.Repeat("=", 80)))
-	sb.WriteString(fmt.Sprintf("[%s] %s Request\n", timestamp, provider))
-	sb.WriteString(fmt.Sprintf("%s\n", strings.Repeat("-", 80)))
-	sb.WriteString(fmt.Sprintf("POST %s\n\n", endpoint))
+	_, _ = fmt.Fprintf(&sb, "\n%s\n", strings.Repeat("=", 80))
+	_, _ = fmt.Fprintf(&sb, "[%s] %s Request\n", timestamp, provider)
+	_, _ = fmt.Fprintf(&sb, "%s\n", strings.Repeat("-", 80))
+	_, _ = fmt.Fprintf(&sb, "POST %s\n\n", endpoint)
 
 	// Pretty print request JSON
 	var prettyReq bytes.Buffer
 	if json.Indent(&prettyReq, reqBody, "", "  ") == nil {
-		sb.WriteString(fmt.Sprintf("Request:\n%s\n\n", prettyReq.String()))
+		_, _ = fmt.Fprintf(&sb, "Request:\n%s\n\n", prettyReq.String())
 	} else {
-		sb.WriteString(fmt.Sprintf("Request:\n%s\n\n", string(reqBody)))
+		_, _ = fmt.Fprintf(&sb, "Request:\n%s\n\n", string(reqBody))
 	}
 
 	if err != nil {
-		sb.WriteString(fmt.Sprintf("Error: %v\n", err))
+		_, _ = fmt.Fprintf(&sb, "Error: %v\n", err)
 	} else {
-		sb.WriteString(fmt.Sprintf("Response Status: %d\n", respStatus))
+		_, _ = fmt.Fprintf(&sb, "Response Status: %d\n", respStatus)
 		// Pretty print response JSON
 		var prettyResp bytes.Buffer
 		if json.Indent(&prettyResp, respBody, "", "  ") == nil {
-			sb.WriteString(fmt.Sprintf("Response:\n%s\n", prettyResp.String()))
+			_, _ = fmt.Fprintf(&sb, "Response:\n%s\n", prettyResp.String())
 		} else {
-			sb.WriteString(fmt.Sprintf("Response:\n%s\n", string(respBody)))
+			_, _ = fmt.Fprintf(&sb, "Response:\n%s\n", string(respBody))
 		}
 	}
-	sb.WriteString(fmt.Sprintf("%s\n", strings.Repeat("=", 80)))
+	_, _ = fmt.Fprintf(&sb, "%s\n", strings.Repeat("=", 80))
 
 	_, _ = f.WriteString(sb.String())
 }
@@ -286,9 +286,9 @@ func (c *Client) DebugLogSection(title string, content string) {
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("\n%s\n", strings.Repeat("-", 80)))
-	sb.WriteString(fmt.Sprintf("[%s] %s\n", timestamp, title))
-	sb.WriteString(fmt.Sprintf("%s\n", strings.Repeat("-", 80)))
+	_, _ = fmt.Fprintf(&sb, "\n%s\n", strings.Repeat("-", 80))
+	_, _ = fmt.Fprintf(&sb, "[%s] %s\n", timestamp, title)
+	_, _ = fmt.Fprintf(&sb, "%s\n", strings.Repeat("-", 80))
 	sb.WriteString(content)
 	sb.WriteString("\n")
 

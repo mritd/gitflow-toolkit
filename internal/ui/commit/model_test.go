@@ -341,8 +341,8 @@ func TestCalcVisibleRange(t *testing.T) {
 			fileCount:  15,
 			status:     []int{2, 2, 2, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
 			maxVisible: 10,
-			wantStart:  3, // 5 - 2 (contextAbove)
-			wantEnd:    13,
+			wantStart:  0, // The last running file still fits in the first window.
+			wantEnd:    10,
 		},
 		{
 			name:       "running near end",
@@ -353,12 +353,40 @@ func TestCalcVisibleRange(t *testing.T) {
 			wantEnd:    15,
 		},
 		{
-			name:       "all done shows from start",
+			name:       "all done shows last window",
 			fileCount:  15,
 			status:     []int{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
 			maxVisible: 10,
+			wantStart:  5,
+			wantEnd:    15,
+		},
+		{
+			name:       "empty file list",
+			maxVisible: 10,
+		},
+		{
+			name:       "exactly one window",
+			fileCount:  10,
+			status:     []int{2, 2, 2, 2, 2, 2, 2, 2, 2, 1},
+			maxVisible: 10,
 			wantStart:  0,
 			wantEnd:    10,
+		},
+		{
+			name:       "last running file drives scrolling",
+			fileCount:  15,
+			status:     []int{2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0},
+			maxVisible: 10,
+			wantStart:  2, // Last running index 9, with two pending rows below.
+			wantEnd:    12,
+		},
+		{
+			name:       "first pending file drives scrolling when none running",
+			fileCount:  15,
+			status:     []int{2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0},
+			maxVisible: 10,
+			wantStart:  2,
+			wantEnd:    12,
 		},
 	}
 

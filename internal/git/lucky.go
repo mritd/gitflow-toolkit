@@ -6,8 +6,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/mritd/gitflow-toolkit/v3/consts"
 	"github.com/mritd/gitflow-toolkit/v3/config"
+	"github.com/mritd/gitflow-toolkit/v3/consts"
 )
 
 // Lucky commit errors.
@@ -37,7 +37,7 @@ func ValidateLuckyPrefix(prefix string) (string, error) {
 
 	prefix = strings.ToLower(prefix)
 	for _, c := range prefix {
-		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
 			return "", ErrLuckyPrefixInvalid
 		}
 	}

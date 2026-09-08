@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/creack/pty"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/creack/pty"
 	"golang.org/x/term"
 
 	"github.com/mritd/gitflow-toolkit/v3/config"
@@ -281,9 +281,10 @@ func parseHeader(header string) (msgType, scope, subject string) {
 		parenStart := -1
 		parenEnd := -1
 		for i, c := range prefix {
-			if c == '(' {
+			switch c {
+			case '(':
 				parenStart = i
-			} else if c == ')' {
+			case ')':
 				parenEnd = i
 			}
 		}

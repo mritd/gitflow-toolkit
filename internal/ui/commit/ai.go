@@ -27,7 +27,7 @@ type aiResult struct {
 // aiModel is the bubbletea model for AI generation progress.
 type aiModel struct {
 	files           []git.FileDiff
-	coreIndices     map[int]bool   // indices of core files (top N by lines changed)
+	coreIndices     map[int]bool // indices of core files (top N by lines changed)
 	summaries       []string
 	sortedFiles     []git.FileDiff // sorted files for Phase 2
 	sortedSummaries []string       // summaries in sorted order
@@ -75,9 +75,9 @@ func newAIModel(files []git.FileDiff, client *llm.Client) aiModel {
 	// Debug: log original file list
 	if client.IsDebug() {
 		var sb strings.Builder
-		sb.WriteString(fmt.Sprintf("Total files: %d\n\n", len(files)))
+		_, _ = fmt.Fprintf(&sb, "Total files: %d\n\n", len(files))
 		for i, f := range files {
-			sb.WriteString(fmt.Sprintf("%2d. %s (+%d/-%d)\n", i+1, f.Path, f.LinesAdd, f.LinesDel))
+			_, _ = fmt.Fprintf(&sb, "%2d. %s (+%d/-%d)\n", i+1, f.Path, f.LinesAdd, f.LinesDel)
 		}
 		client.DebugLogSection("Phase 0: Original File List", sb.String())
 	}
@@ -91,7 +91,7 @@ func newAIModel(files []git.FileDiff, client *llm.Client) aiModel {
 		sb.WriteString("Core files (top 3 code files by lines changed):\n")
 		for idx := range originalCoreIndices {
 			f := files[idx]
-			sb.WriteString(fmt.Sprintf("  - %s (+%d/-%d)\n", f.Path, f.LinesAdd, f.LinesDel))
+			_, _ = fmt.Fprintf(&sb, "  - %s (+%d/-%d)\n", f.Path, f.LinesAdd, f.LinesDel)
 		}
 		if len(originalCoreIndices) == 0 {
 			sb.WriteString("  (no core files detected)\n")
@@ -122,7 +122,7 @@ func newAIModel(files []git.FileDiff, client *llm.Client) aiModel {
 			if coreIndices[i] {
 				marker = "[CORE]"
 			}
-			sb.WriteString(fmt.Sprintf("%2d. %s %s (+%d/-%d)\n", i+1, marker, f.Path, f.LinesAdd, f.LinesDel))
+			_, _ = fmt.Fprintf(&sb, "%2d. %s %s (+%d/-%d)\n", i+1, marker, f.Path, f.LinesAdd, f.LinesDel)
 		}
 		client.DebugLogSection("Phase 0: Sorted File List", sb.String())
 	}
@@ -252,14 +252,14 @@ func (m aiModel) generateFinalMessage() tea.Cmd {
 // buildFileListContext creates a formatted file list with [CORE] markers.
 func (m aiModel) buildFileListContext() string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("This commit changes %d files:\n", len(m.files)))
+	_, _ = fmt.Fprintf(&sb, "This commit changes %d files:\n", len(m.files))
 
 	for i, f := range m.files {
 		marker := "      "
 		if m.coreIndices[i] {
 			marker = "[CORE]"
 		}
-		sb.WriteString(fmt.Sprintf("%s %s (+%d/-%d)\n", marker, f.Path, f.LinesAdd, f.LinesDel))
+		_, _ = fmt.Fprintf(&sb, "%s %s (+%d/-%d)\n", marker, f.Path, f.LinesAdd, f.LinesDel)
 	}
 
 	return sb.String()
@@ -288,7 +288,7 @@ func (m aiModel) buildFilePrompt(file git.FileDiff, fileIndex int) string {
 	if m.coreIndices[fileIndex] {
 		marker = " [CORE]"
 	}
-	sb.WriteString(fmt.Sprintf("Now analyze%s: %s\n", marker, file.Path))
+	_, _ = fmt.Fprintf(&sb, "Now analyze%s: %s\n", marker, file.Path)
 	sb.WriteString(file.Diff)
 	sb.WriteString("\n\n")
 
@@ -426,7 +426,7 @@ Input:
 			if m.isCoreFile(f.Path) {
 				marker = "[CORE]"
 			}
-			sb.WriteString(fmt.Sprintf("%s %s: %s\n", marker, f.Path, strings.TrimSpace(summary)))
+			_, _ = fmt.Fprintf(&sb, "%s %s: %s\n", marker, f.Path, strings.TrimSpace(summary))
 		}
 	}
 
@@ -487,7 +487,7 @@ func (m aiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Debug: log Phase 1 complete summary
 			if m.client.IsDebug() {
 				var sb strings.Builder
-				sb.WriteString(fmt.Sprintf("Analysis summaries for %d files:\n\n", len(m.files)))
+				_, _ = fmt.Fprintf(&sb, "Analysis summaries for %d files:\n\n", len(m.files))
 				for i, f := range m.files {
 					marker := "      "
 					if m.coreIndices[i] {
@@ -502,7 +502,7 @@ func (m aiModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if len(summary) > 100 {
 						summary = summary[:97] + "..."
 					}
-					sb.WriteString(fmt.Sprintf("%2d. %s %s: %s\n", i+1, marker, f.Path, summary))
+					_, _ = fmt.Fprintf(&sb, "%2d. %s %s: %s\n", i+1, marker, f.Path, summary)
 				}
 				m.client.DebugLogSection("Phase 1 Complete: File Analysis Results", sb.String())
 			}

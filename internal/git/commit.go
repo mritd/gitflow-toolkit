@@ -23,7 +23,7 @@ func (m CommitMessage) String() string {
 	var sb strings.Builder
 
 	// Header: type(scope): subject
-	sb.WriteString(fmt.Sprintf("%s(%s): %s", m.Type, m.Scope, m.Subject))
+	_, _ = fmt.Fprintf(&sb, "%s(%s): %s", m.Type, m.Scope, m.Subject)
 
 	// Body (if present)
 	if m.Body != "" {

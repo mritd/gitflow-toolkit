@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -151,7 +152,11 @@ func TestPromptPhase1AllFiles(t *testing.T) {
 
 	roundsPerFile := 3
 	if r := os.Getenv("TEST_ROUNDS_PER_FILE"); r != "" {
-		fmt.Sscanf(r, "%d", &roundsPerFile)
+		value, err := strconv.Atoi(r)
+		if err != nil || value <= 0 {
+			t.Fatalf("TEST_ROUNDS_PER_FILE must be a positive integer, got %q", r)
+		}
+		roundsPerFile = value
 	}
 	repoPath := getTestRepo()
 
@@ -556,9 +561,8 @@ func TestPromptPhase2Only(t *testing.T) {
 
 func getTestRounds() int {
 	if r := os.Getenv("TEST_ROUNDS"); r != "" {
-		var rounds int
-		fmt.Sscanf(r, "%d", &rounds)
-		if rounds > 0 {
+		rounds, err := strconv.Atoi(r)
+		if err == nil && rounds > 0 {
 			return rounds
 		}
 	}
@@ -606,14 +610,14 @@ func getStagedFiles(repoPath string) ([]git.FileDiff, error) {
 
 func buildFileListContext(files []git.FileDiff, coreIndices map[int]bool) string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("This commit changes %d files:\n", len(files)))
+	_, _ = fmt.Fprintf(&sb, "This commit changes %d files:\n", len(files))
 
 	for i, f := range files {
 		marker := "      "
 		if coreIndices[i] {
 			marker = "[CORE]"
 		}
-		sb.WriteString(fmt.Sprintf("%s %s (+%d/-%d)\n", marker, f.Path, f.LinesAdd, f.LinesDel))
+		_, _ = fmt.Fprintf(&sb, "%s %s (+%d/-%d)\n", marker, f.Path, f.LinesAdd, f.LinesDel)
 	}
 
 	return sb.String()
@@ -745,7 +749,7 @@ Input:
 			if coreIndices[i] {
 				marker = "[CORE]"
 			}
-			sb.WriteString(fmt.Sprintf("%s %s: %s\n", marker, f.Path, strings.TrimSpace(summary)))
+			_, _ = fmt.Fprintf(&sb, "%s %s: %s\n", marker, f.Path, strings.TrimSpace(summary))
 		}
 	}
 

@@ -167,10 +167,10 @@ func newInputsModel(commitType string) inputsModel {
 			placeholder: scopePlaceholder,
 			checker: func(s string) error {
 				if requireScope && strings.TrimSpace(s) == "" {
-					return errors.New("Scope cannot be empty")
+					return errors.New("scope cannot be empty")
 				}
 				if s != "" && strings.ContainsAny(s, "():/\\") {
-					return errors.New("Scope cannot contain ():/\\")
+					return errors.New("scope cannot contain ():/\\")
 				}
 				return nil
 			},
@@ -180,10 +180,10 @@ func newInputsModel(commitType string) inputsModel {
 			placeholder: "A short description, imperative mood, max 72 chars",
 			checker: func(s string) error {
 				if strings.TrimSpace(s) == "" {
-					return errors.New("Subject cannot be empty")
+					return errors.New("subject cannot be empty")
 				}
 				if len(s) > 72 {
-					return errors.New("Subject should be <= 72 chars")
+					return errors.New("subject should be <= 72 chars")
 				}
 				return nil
 			},
@@ -193,7 +193,7 @@ func newInputsModel(commitType string) inputsModel {
 			placeholder: bodyPlaceholder,
 			checker: func(s string) error {
 				if requireBody && strings.TrimSpace(s) == "" {
-					return errors.New("Body cannot be empty")
+					return errors.New("body cannot be empty")
 				}
 				return nil
 			},
@@ -203,7 +203,7 @@ func newInputsModel(commitType string) inputsModel {
 			placeholder: footerPlaceholder,
 			checker: func(s string) error {
 				if requireFooter && strings.TrimSpace(s) == "" {
-					return errors.New("Footer cannot be empty")
+					return errors.New("footer cannot be empty")
 				}
 				return nil
 			},

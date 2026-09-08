@@ -5,7 +5,7 @@ import (
 )
 
 func TestGenerateFakeHash(t *testing.T) {
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		hash := generateFakeHash()
 
 		// Check length is 40
@@ -15,7 +15,7 @@ func TestGenerateFakeHash(t *testing.T) {
 
 		// Check all chars are hex
 		for _, c := range hash {
-			if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+			if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
 				t.Errorf("generateFakeHash() contains non-hex char: %c", c)
 			}
 		}

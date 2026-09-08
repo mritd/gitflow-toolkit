@@ -40,9 +40,6 @@ var (
 					Foreground(common.ColorMuted).
 					Padding(0, 0, 0, 2)
 
-	selectorHelpStyle = lipgloss.NewStyle().
-				Foreground(common.ColorMuted)
-
 	selectorButtonLayout = lipgloss.NewStyle().
 				PaddingLeft(2).
 				PaddingTop(1)

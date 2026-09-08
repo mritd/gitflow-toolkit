@@ -179,7 +179,7 @@ func (m MultiTaskModel) View() string {
 			style = StyleError
 		}
 
-		sb.WriteString(fmt.Sprintf("  %s %s", icon, style.Render(task.Name)))
+		_, _ = fmt.Fprintf(&sb, "  %s %s", icon, style.Render(task.Name))
 
 		if m.errors[i] != nil && m.states[i] != TaskRunning {
 			sb.WriteString(StyleMuted.Render(fmt.Sprintf(" (%s)", m.errors[i].Error())))
@@ -311,7 +311,7 @@ func (m SingleTaskModel) View() string {
 		style = StyleError
 	}
 
-	sb.WriteString(fmt.Sprintf("%s %s", icon, style.Render(m.message)))
+	_, _ = fmt.Fprintf(&sb, "%s %s", icon, style.Render(m.message))
 
 	if m.err != nil && m.state != TaskRunning && m.state != TaskPending {
 		sb.WriteString("\n")

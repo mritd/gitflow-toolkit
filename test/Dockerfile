@@ -1,5 +1,5 @@
 # Test container for gitflow-toolkit installation testing
-FROM golang:1.24-alpine
+FROM golang:1.27.1-alpine
 
 # Install dependencies
 RUN apk add --no-cache git bash sudo shadow
